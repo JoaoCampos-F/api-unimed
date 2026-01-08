@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosError, AxiosInstance } from 'axios';
+import { DemonstrativoDto } from '../entities/demonstrativo.dto';
 
 @Injectable()
 export class UnimedApiService {
@@ -50,9 +51,9 @@ export class UnimedApiService {
   async buscarPorPeriodoCnpj(
     periodo: string,
     cnpj: string,
-  ): Promise<UnimedApiService | undefined> {
+  ): Promise<DemonstrativoDto> {
     try {
-      const response = await this.apiClient.get<UnimedApiService>(
+      const response = await this.apiClient.get<DemonstrativoDto>(
         '/Demonstrativo/BuscarPorPeriodoCnpj',
         {
           params: {
@@ -72,19 +73,20 @@ export class UnimedApiService {
         return this.buscarPorPeriodoCnpj(periodo, cnpj);
       }
       this.logger.error('Erro ao obter dados:', e.response?.data || e.message);
+      throw e;
     }
   }
 
   async buscaPorPeriodoContrato(
     periodo: string,
     contrato: string,
-  ): Promise<UnimedApiService | AxiosError | undefined> {
+  ): Promise<DemonstrativoDto> {
     try {
       if (!this.token) {
         await this.getToken();
       }
 
-      const response = await this.apiClient.get<UnimedApiService>(
+      const response = await this.apiClient.get<DemonstrativoDto>(
         '/Demonstrativo/BuscarPorPeriodoContrato',
         {
           params: {
@@ -103,6 +105,7 @@ export class UnimedApiService {
         return this.buscaPorPeriodoContrato(periodo, contrato);
       }
       this.logger.error('Erro ao obter dados:', e.response?.data || e.message);
+      throw e;
     }
   }
 }
