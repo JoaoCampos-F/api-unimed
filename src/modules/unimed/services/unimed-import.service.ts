@@ -4,6 +4,7 @@ import { UnimedApiService } from './unimed-api.service';
 import { EmpresaFilialListDto } from '../dtos/empresa-filial-list.dto';
 import { ImportUnimedDto } from '../dtos/import-unimed.dto';
 import { UnimedApiResponse } from '../entities/unimed-api-response.interface';
+import { DemonstrativoDto } from '../entities/demonstrativo.dto';
 
 @Injectable()
 export class UnimedImportService {
@@ -110,7 +111,7 @@ export class UnimedImportService {
    * Insere dados de cobrança no banco
    */
   private async inserirDadosCobranca(
-    dadosUnimed: UnimedApiResponse,
+    dadosUnimed: DemonstrativoDto,
     empresa: EmpresaFilialListDto,
     mes: string,
     ano: string,
@@ -143,8 +144,8 @@ export class UnimedImportService {
     let count = 0;
 
     for (const mensalidade of dadosUnimed.mensalidades) {
-      if (mensalidade.fatura && mensalidade.fatura.fatura) {
-        for (const beneficiario of mensalidade.fatura.fatura) {
+      if (mensalidade.composicoes) {
+        for (const beneficiario of mensalidade.composicoes) {
           binds.push({
             cod_empresa: empresa.COD_EMPRESA,
             codcoligada: empresa.CODCOLIGADA,
