@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { UnimedApiModule } from './modules/unimed/unimed.module';
 import { UnimedApiService } from './modules/unimed/services/unimed-api.service';
+import { UnimedImportService } from './modules/unimed/services/unimed-import.service';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { UnimedApiService } from './modules/unimed/services/unimed-api.service';
     UnimedApiModule,
   ],
   controllers: [AppController],
-  providers: [AppService, UnimedApiService],
+  providers: [AppService, UnimedApiService, UnimedImportService],
 })
 export class AppModule {}
