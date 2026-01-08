@@ -17,6 +17,8 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     try {
+      oracledb.initOracleClient({ libDir: 'C:\\oracle\\instantclient_21_10' });
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       this.pool = await oracledb.createPool({
         user: this.configService.get<string>('DB_USER'),
