@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.services';
-import { UnimedApiService } from './unimed-api.service';
-import { EmpresaFilialListDto } from '../dtos/empresa-filial-list.dto';
+import { DemonstrativoDto } from '../dtos/demonstrativo.dto';
+import { UnimedApiService } from 'src/modules/unimed/services/unimed-api.service';
 import { ImportUnimedDto } from '../dtos/import-unimed.dto';
-import { DemonstrativoDto } from '../entities/demonstrativo.dto';
+import { EmpresaFilialListDto } from 'src/modules/unimed/dtos/empresa-filial-list.dto';
 
 @Injectable()
 export class UnimedImportService {
@@ -68,6 +68,29 @@ export class UnimedImportService {
     }
   }
 
+  async importPorContrato(dto: ImportUnimedDto) {
+    if (!dto.mes || !dto.ano) {
+      throw new Error('Mês e Ano são obrigatórios para a importação.');
+    }
+
+    const sql = `select 
+          a.cod_empresa,
+          a.codcoligada,
+          a.codfilial,              
+          a.cod_band,
+          a.cnpj,
+          a.contrato
+          from 
+          gc.uni_dados_contrato a
+          where 
+          1=1  
+          and a.ativo='S'       
+          order by 
+          a.cod_band,
+          a.cod_empresa`;
+    return this.databaseService.executeQuery(sql);
+  }
+
   async buscaEmpresasUnimed(): Promise<EmpresaFilialListDto[]> {
     const sql = `
       SELECT 
@@ -78,7 +101,7 @@ export class UnimedImportService {
         ef.cnpj
       FROM gc.empresa_filial ef
       WHERE ef.processa_unimed = 'S'
-      AND ef.cnpj ='28941028000142'
+      AND ef.cnpj ='28941028000142' 
       ORDER BY ef.cod_band, ef.cod_empresa
     `;
 
