@@ -56,7 +56,7 @@ export class UnimedApiService {
   ): Promise<DemonstrativoDto> {
     try {
       const response = await this.apiClient.get<DemonstrativoDto>(
-        '/Demonstrativo/BuscarPorPeriodoCnpj',
+        '/Demonstrativo/buscaporperiodocnpj',
         {
           params: {
             periodo,

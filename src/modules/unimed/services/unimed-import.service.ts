@@ -15,6 +15,10 @@ export class UnimedImportService {
   ) {}
 
   async importarPorCnpj(dto: ImportUnimedDto) {
+    if (!dto.mes || !dto.ano) {
+      throw new Error('Mês e Ano são obrigatórios para a importação.');
+    }
+
     const periodo = `${dto.mes.padStart(2, '0')}${dto.ano}`;
 
     const empresas = await this.buscaEmpresasUnimed();
