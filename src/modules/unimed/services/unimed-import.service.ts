@@ -25,7 +25,6 @@ export class UnimedImportService {
 
     let totalImportado = 0;
 
-    // 2. Para cada empresa, buscar dados na API
     for (const empresa of empresas) {
       try {
         const dadosUnimed = await this.unimedApiService.buscarPorPeriodoCnpj(
@@ -33,7 +32,6 @@ export class UnimedImportService {
           empresa.CNPJ,
         );
 
-        // 3. Limpar dados antigos da empresa
         await this.limparDadosImportacao(
           empresa.COD_EMPRESA,
           empresa.CODCOLIGADA,
@@ -42,7 +40,6 @@ export class UnimedImportService {
           dto.ano,
         );
 
-        // 4. Inserir novos dados
         const qtdInserida = await this.inserirDadosCobranca(
           dadosUnimed,
           empresa,
@@ -70,14 +67,15 @@ export class UnimedImportService {
   async buscaEmpresasUnimed(): Promise<EmpresaFilialListDto[]> {
     const sql = `
       SELECT 
-        a.cod_empresa,
-        a.codcoligada,
-        a.codfilial,
-        a.cod_band,
-        a.cnpj
-      FROM gc.empresa_filial a
-      WHERE a.processa_unimed = 'S'
-      ORDER BY a.cod_band, a.cod_empresa
+        ef.cod_empresa,
+        ef.codcoligada,
+        ef.codfilial,
+        ef.cod_band,
+        ef.cnpj
+      FROM gc.empresa_filial ef
+      WHERE ef.processa_unimed = 'S'
+      AND ef.cnpj ='28941028000142'
+      ORDER BY ef.cod_band, ef.cod_empresa
     `;
 
     return this.databaseService.executeQuery(sql);
@@ -110,9 +108,6 @@ export class UnimedImportService {
     await this.databaseService.executeQuery(sql, binds);
   }
 
-  /**
-   * Insere dados de cobrança no banco
-   */
   private async inserirDadosCobranca(
     dadosUnimed: DemonstrativoDto,
     empresa: EmpresaFilialListDto,
@@ -194,24 +189,17 @@ export class UnimedImportService {
   }
 
   private calcularMesRef(periodo: string): string {
-    // Formato: MM-YYYY
     const [mes] = periodo.split('-');
     const mesNum = parseInt(mes, 10) - 1;
     return mesNum === 0 ? '12' : mesNum.toString().padStart(2, '0');
   }
 
-  /**
-   * Calcula ano de referência
-   */
   private calcularAnoRef(periodo: string): string {
     const [mes, ano] = periodo.split('-');
     const mesNum = parseInt(mes, 10);
     return mesNum === 1 ? (parseInt(ano) - 1).toString() : ano;
   }
 
-  /**
-   * Remove acentos de uma string
-   */
   private removerAcentos(str: string): string {
     const acentos = {
       À: 'A',
@@ -274,9 +262,6 @@ export class UnimedImportService {
       .toUpperCase();
   }
 
-  /**
-   * Executa procedure de resumo
-   */
   async executarResumo(
     dto: ImportUnimedDto,
   ): Promise<{ result: boolean; msg: string }> {

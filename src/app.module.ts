@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { UnimedApiModule } from './modules/unimed/unimed.module';
 import { UnimedApiService } from './modules/unimed/services/unimed-api.service';
 import { UnimedImportService } from './modules/unimed/services/unimed-import.service';
+import { UnimedController } from './modules/unimed/unimed.controller';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { UnimedImportService } from './modules/unimed/services/unimed-import.ser
     DatabaseModule,
     UnimedApiModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, UnimedController],
   providers: [AppService, UnimedApiService, UnimedImportService],
 })
 export class AppModule {}
