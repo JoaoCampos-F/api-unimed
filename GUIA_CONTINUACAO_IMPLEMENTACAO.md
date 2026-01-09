@@ -5,12 +5,14 @@
 ### ✅ O que já está implementado
 
 #### **1. Estrutura Base**
+
 - ✅ DatabaseService completo (executeQuery, executeMany, executeProcedure)
 - ✅ DatabaseModule configurado como global
 - ✅ Conexão com Oracle Database funcionando
 - ✅ ConfigModule com variáveis de ambiente
 
 #### **2. Integração com API Unimed**
+
 - ✅ UnimedApiService implementado
   - ✅ `getToken()` - Autenticação via headers (usuario/senha)
   - ✅ `buscarPorPeriodoCnpj()` - Busca por CNPJ
@@ -18,6 +20,7 @@
   - ✅ Renovação automática de token em caso de 401
 
 #### **3. DTOs e Entities**
+
 - ✅ DemonstrativoDto completo (alinhado com resposta real da API)
   - ✅ MensalidadeDto
   - ✅ ComposicaoDto
@@ -25,6 +28,7 @@
 - ✅ ImportUnimedDto
 
 #### **4. Service de Importação**
+
 - ✅ UnimedImportService completo
   - ✅ `importarPorCnpj()` - Importação completa por CNPJ
   - ✅ `buscaEmpresasUnimed()` - Lista empresas que processam Unimed
@@ -34,6 +38,7 @@
   - ✅ Funções auxiliares (calcularMesRef, calcularAnoRef, removerAcentos)
 
 #### **5. Módulos**
+
 - ✅ UnimedModule criado e registrado
 - ✅ AppModule configurado
 
@@ -44,6 +49,7 @@
 ### ⚠️ **Prioridade ALTA - Deve ser corrigido agora**
 
 #### **1. Deletar Interface Incorreta**
+
 ```typescript
 // Arquivo: src/modules/unimed/entities/unimed-api-response.interface.ts
 // ❌ DELETAR este arquivo - estrutura incorreta
@@ -79,10 +85,10 @@ async executeQuery<T = any>(
 // Arquivo: src/modules/unimed/entities/demonstrativo.dto.ts
 export class MensalidadeDto {
   // ... outros campos
-  
-  @IsNumber()  // ← ADICIONAR
+
+  @IsNumber() // ← ADICIONAR
   valor_fatura: number;
-  
+
   // ... resto
 }
 ```
@@ -164,6 +170,7 @@ export class UnimedImportController {
 **Arquivo**: `src/modules/unimed/services/unimed-import.service.ts`
 
 Adicionar método:
+
 ```typescript
 async importarPorContrato(dto: ImportUnimedDto) {
   const periodo = `${dto.mes.padStart(2, '0')}${dto.ano}`;
@@ -216,7 +223,7 @@ async importarPorContrato(dto: ImportUnimedDto) {
 
 private async buscarContratosUnimed() {
   const sql = `
-    SELECT 
+    SELECT
       a.cod_empresa,
       a.codcoligada,
       a.codfilial,
@@ -244,7 +251,7 @@ import { UnimedImportController } from './controllers/unimed-import.controller';
 
 @Module({
   imports: [],
-  controllers: [UnimedImportController],  // ← ADICIONAR
+  controllers: [UnimedImportController], // ← ADICIONAR
   providers: [UnimedApiService, UnimedImportService],
   exports: [UnimedApiService, UnimedImportService],
 })
@@ -482,10 +489,8 @@ export class UnimedColaboradorService {
 
     sql += ` ORDER BY a.cod_band, a.apelido, a.colaborador`;
 
-    const result = await this.databaseService.executeQuery<UniResumoColaborador>(
-      sql,
-      binds,
-    );
+    const result =
+      await this.databaseService.executeQuery<UniResumoColaborador>(sql, binds);
 
     return {
       data: result,
@@ -505,10 +510,12 @@ export class UnimedColaboradorService {
         AND a.ano_ref = :anoRef
     `;
 
-    const result = await this.databaseService.executeQuery<UniResumoColaborador>(
-      sql,
-      { cpf, mesRef, anoRef },
-    );
+    const result =
+      await this.databaseService.executeQuery<UniResumoColaborador>(sql, {
+        cpf,
+        mesRef,
+        anoRef,
+      });
 
     return result[0] || null;
   }
@@ -546,10 +553,8 @@ export class UnimedColaboradorService {
     `;
 
     const result = await this.databaseService.executeQuery(sql, dto);
-    
-    this.logger.log(
-      `Atualizados colaboradores da empresa ${dto.codEmpresa}`,
-    );
+
+    this.logger.log(`Atualizados colaboradores da empresa ${dto.codEmpresa}`);
 
     return result.length;
   }
@@ -566,9 +571,7 @@ export class UnimedColaboradorService {
 
     await this.databaseService.executeQuery(sql, dto);
 
-    this.logger.log(
-      `Valor Unimed atualizado para empresa ${dto.codEmpresa}`,
-    );
+    this.logger.log(`Valor Unimed atualizado para empresa ${dto.codEmpresa}`);
   }
 }
 ```
@@ -598,9 +601,7 @@ import {
 
 @Controller('unimed/colaboradores')
 export class UnimedColaboradorController {
-  constructor(
-    private readonly colaboradorService: UnimedColaboradorService,
-  ) {}
+  constructor(private readonly colaboradorService: UnimedColaboradorService) {}
 
   @Get()
   async buscarColaboradores(@Query() dto: BuscaColaboradorDto) {
@@ -631,9 +632,7 @@ export class UnimedColaboradorController {
 
   @Patch('empresa/:sigla')
   @HttpCode(HttpStatus.OK)
-  async atualizarTodosColaboradores(
-    @Body() dto: UpdateTodosColaboradoresDto,
-  ) {
+  async atualizarTodosColaboradores(@Body() dto: UpdateTodosColaboradoresDto) {
     const qtd = await this.colaboradorService.atualizarTodosColaboradores(dto);
     return {
       success: true,
@@ -644,9 +643,7 @@ export class UnimedColaboradorController {
 
 @Controller('unimed/valores')
 export class UnimedValoresController {
-  constructor(
-    private readonly colaboradorService: UnimedColaboradorService,
-  ) {}
+  constructor(private readonly colaboradorService: UnimedColaboradorService) {}
 
   @Patch('empresa/:sigla')
   @HttpCode(HttpStatus.OK)
@@ -668,9 +665,9 @@ import { UnimedApiService } from './services/unimed-api.service';
 import { UnimedImportService } from './services/unimed-import.service';
 import { UnimedColaboradorService } from './services/unimed-colaborador.service';
 import { UnimedImportController } from './controllers/unimed-import.controller';
-import { 
+import {
   UnimedColaboradorController,
-  UnimedValoresController 
+  UnimedValoresController,
 } from './controllers/unimed-colaborador.controller';
 
 @Module({
@@ -680,16 +677,8 @@ import {
     UnimedColaboradorController,
     UnimedValoresController,
   ],
-  providers: [
-    UnimedApiService,
-    UnimedImportService,
-    UnimedColaboradorService,
-  ],
-  exports: [
-    UnimedApiService,
-    UnimedImportService,
-    UnimedColaboradorService,
-  ],
+  providers: [UnimedApiService, UnimedImportService, UnimedColaboradorService],
+  exports: [UnimedApiService, UnimedImportService, UnimedColaboradorService],
 })
 export class UnimedApiModule {}
 ```
@@ -703,7 +692,13 @@ export class UnimedApiModule {}
 **Arquivo**: `src/modules/unimed/dtos/processo.dto.ts`
 
 ```typescript
-import { IsString, IsNumber, IsOptional, IsIn, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsIn,
+  IsBoolean,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ExecutarProcessoDto {
@@ -808,7 +803,7 @@ export class UnimedProcessoService {
       LEFT OUTER JOIN mcw_processo_log b ON (a.codigo = b.codigo)
       WHERE a.ativo = 'S'
         AND a.categoria = :categoria
-        ${dto.tipoDado ? "AND a.tipo_dado = :tipoDado" : ""}
+        ${dto.tipoDado ? 'AND a.tipo_dado = :tipoDado' : ''}
         AND a.codigo NOT IN ('70000008','70000009')
       ORDER BY a.ordem_procedure
     `;
@@ -973,6 +968,7 @@ export class UnimedProcessoController {
 ### **FASE 6: Exportação e DIRF** ⏱️ 2-3 dias
 
 Esta fase envolve implementar endpoints para:
+
 - Exportação para Totvs (procedure `ExUnimed`)
 - Geração de dados para DIRF
 
@@ -1000,17 +996,17 @@ Para relatórios em PDF, você precisará:
 
 ## 📊 Cronograma Estimado
 
-| Fase | Descrição | Dias | Acumulado |
-|------|-----------|------|-----------|
-| ✅ 1-2 | Setup e estrutura base | 2 | 2 |
-| ✅ 2 | Módulo de importação (services) | 5 | 7 |
-| 🔄 3 | Controllers de importação | 3 | 10 |
-| ⏳ 4 | Módulo de colaboradores | 5 | 15 |
-| ⏳ 5 | Módulo de processos | 4 | 19 |
-| ⏳ 6 | Exportação e DIRF | 3 | 22 |
-| ⏳ 7 | Relatórios | 7 | 29 |
-| ⏳ 8 | Testes e ajustes | 3 | 32 |
-| ⏳ 9 | Documentação final | 2 | 34 |
+| Fase   | Descrição                       | Dias | Acumulado |
+| ------ | ------------------------------- | ---- | --------- |
+| ✅ 1-2 | Setup e estrutura base          | 2    | 2         |
+| ✅ 2   | Módulo de importação (services) | 5    | 7         |
+| 🔄 3   | Controllers de importação       | 3    | 10        |
+| ⏳ 4   | Módulo de colaboradores         | 5    | 15        |
+| ⏳ 5   | Módulo de processos             | 4    | 19        |
+| ⏳ 6   | Exportação e DIRF               | 3    | 22        |
+| ⏳ 7   | Relatórios                      | 7    | 29        |
+| ⏳ 8   | Testes e ajustes                | 3    | 32        |
+| ⏳ 9   | Documentação final              | 2    | 34        |
 
 **Estimativa total**: ~34 dias úteis (7 semanas)
 
@@ -1029,21 +1025,25 @@ Para relatórios em PDF, você precisará:
 ## 🔍 Pontos de Atenção
 
 ### **Performance**
+
 - Importação em massa pode demorar (múltiplas empresas/CNPJs)
 - Considerar implementar fila (Bull/BullMQ) para processos longos
 - Adicionar indicador de progresso
 
 ### **Segurança**
+
 - Implementar autenticação JWT
 - Validar permissões de acesso (78003, 78004, 78005)
 - Logs de auditoria para operações críticas
 
 ### **Observabilidade**
+
 - Adicionar mais logs estruturados
 - Implementar health checks
 - Monitorar tempo de execução de procedures
 
 ### **Testes**
+
 - Testes unitários para services
 - Testes de integração para controllers
 - Testes end-to-end para fluxos completos
