@@ -4,6 +4,7 @@ import { DemonstrativoDto } from '../dtos/demonstrativo.dto';
 import { UnimedApiService } from 'src/modules/unimed/services/unimed-api.service';
 import { ImportUnimedDto } from '../dtos/import-unimed.dto';
 import { EmpresaFilialListDto } from 'src/modules/unimed/dtos/empresa-filial-list.dto';
+import { BuscaEmpresasUnimedService } from './busca-empresas-unimed.service';
 
 @Injectable()
 export class UnimedImportService {
@@ -12,6 +13,7 @@ export class UnimedImportService {
   constructor(
     private databaseService: DatabaseService,
     private unimedApiService: UnimedApiService,
+    private buscaEmpresasUnimedService: BuscaEmpresasUnimedService,
   ) {}
 
   async importarPorCnpj(dto: ImportUnimedDto) {
@@ -21,7 +23,7 @@ export class UnimedImportService {
 
     const periodo = `${dto.mes.padStart(2, '0')}${dto.ano}`;
 
-    const empresas = await this.buscaEmpresasUnimed();
+    const empresas = await this.buscaEmpresasUnimedService.execute();
 
     if (empresas.length == 0) {
       this.logger.warn('Nenhuma empresa encontrada para importação.');
@@ -54,7 +56,7 @@ export class UnimedImportService {
         totalImportado += qtdInserida;
 
         this.logger.log(
-          `✅ Empresa ${empresa.COD_EMPRESA} - ${qtdInserida} registros importados`,
+          `Empresa ${empresa.COD_EMPRESA} - ${qtdInserida} registros importados`,
         );
 
         this.logger.log(
@@ -88,23 +90,6 @@ export class UnimedImportService {
           order by 
           a.cod_band,
           a.cod_empresa`;
-    return this.databaseService.executeQuery(sql);
-  }
-
-  async buscaEmpresasUnimed(): Promise<EmpresaFilialListDto[]> {
-    const sql = `
-      SELECT 
-        ef.cod_empresa,
-        ef.codcoligada,
-        ef.codfilial,
-        ef.cod_band,
-        ef.cnpj
-      FROM gc.empresa_filial ef
-      WHERE ef.processa_unimed = 'S'
-      AND ef.cnpj ='28941028000142' 
-      ORDER BY ef.cod_band, ef.cod_empresa
-    `;
-
     return this.databaseService.executeQuery(sql);
   }
 

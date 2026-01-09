@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+import { BuscaEmpresasUnimedService } from './services/busca-empresas-unimed.service';
 
 @Module({
   imports: [],
   controllers: [],
-  providers: [],
+  providers: [BuscaEmpresasUnimedService],
 })
 export class ImportacaoModule {}
