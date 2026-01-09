@@ -3,7 +3,6 @@ import { DatabaseService } from 'src/database/database.services';
 import { UnimedApiService } from './unimed-api.service';
 import { EmpresaFilialListDto } from '../dtos/empresa-filial-list.dto';
 import { ImportUnimedDto } from '../dtos/import-unimed.dto';
-import { UnimedApiResponse } from '../entities/unimed-api-response.interface';
 import { DemonstrativoDto } from '../entities/demonstrativo.dto';
 
 @Injectable()
@@ -55,6 +54,10 @@ export class UnimedImportService {
 
         this.logger.log(
           `✅ Empresa ${empresa.COD_EMPRESA} - ${qtdInserida} registros importados`,
+        );
+
+        this.logger.log(
+          `Total de registros importados até agora: ${totalImportado}`,
         );
       } catch (error) {
         this.logger.error(
@@ -189,9 +192,7 @@ export class UnimedImportService {
 
     return count;
   }
-  /**
-   * Calcula mês de referência (mês anterior ao período)
-   */
+
   private calcularMesRef(periodo: string): string {
     // Formato: MM-YYYY
     const [mes] = periodo.split('-');
@@ -266,7 +267,10 @@ export class UnimedImportService {
     };
 
     return str
-      .replace(/[À-ÿ]/g, (match) => acentos[match] || match)
+      .replace(
+        /[À-ÿ]/g,
+        (match) => acentos[match as keyof typeof acentos] || match,
+      )
       .toUpperCase();
   }
 

@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { Injectable, Logger } from '@nestjs/common';
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { DemonstrativoDto } from '../entities/demonstrativo.dto';
 
 @Injectable()
@@ -15,6 +15,8 @@ export class UnimedApiService {
   private readonly logger = new Logger(UnimedApiService.name);
 
   constructor(private configService: ConfigService) {
+    this.token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiY29tZXRhIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiREVNT05TVFJBVElWTyIsIm5iZiI6MTc2Nzk2MzQ0OCwiZXhwIjoxNzY3OTg1MDQ4fQ.eTJtWonMRBlfCrG8N09e7KqA7Pt-BsgqlCHvqm2Tu-o';
     this.apiUrl = this.configService.get<string>('UNIMED_API_URL') || '';
     this.apiUser = this.configService.get<string>('UNIMED_API_USER') || '';
     this.apiPassword =
@@ -73,7 +75,7 @@ export class UnimedApiService {
         return this.buscarPorPeriodoCnpj(periodo, cnpj);
       }
       this.logger.error('Erro ao obter dados:', e.response?.data || e.message);
-      throw e;
+      throw 'dados não encontrados: ' + e.response?.data || e.message;
     }
   }
 
@@ -105,7 +107,7 @@ export class UnimedApiService {
         return this.buscaPorPeriodoContrato(periodo, contrato);
       }
       this.logger.error('Erro ao obter dados:', e.response?.data || e.message);
-      throw e;
+      throw 'Erro ao obter dados:' + e.response?.data || e.message;
     }
   }
 }

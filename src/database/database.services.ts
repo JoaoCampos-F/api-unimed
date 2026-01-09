@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Injectable,
   Logger,
@@ -43,7 +46,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
   async executeQuery<T = any>(
     sql: string,
-    binds: any[] = [],
+    binds: any[] | Record<string, any> = [],
     options: oracledb.ExecuteOptions = {},
   ): Promise<T[]> {
     let connection: oracledb.Connection;
