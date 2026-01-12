@@ -54,6 +54,9 @@ export class UnimedApiService {
     cnpj: string,
   ): Promise<DemonstrativoDto> {
     try {
+      if (!this.token) {
+        await this.getToken();
+      }
       const response = await this.apiClient.get<DemonstrativoDto>(
         '/Demonstrativo/buscaporperiodocnpj',
         {
