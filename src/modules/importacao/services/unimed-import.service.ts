@@ -5,6 +5,7 @@ import { UnimedApiService } from 'src/modules/unimed/services/unimed-api.service
 import { ImportUnimedDto } from '../dtos/import-unimed.dto';
 import { EmpresaFilialListDto } from 'src/modules/unimed/dtos/empresa-filial-list.dto';
 import { BuscaEmpresasUnimedService } from './busca-empresas-unimed.service';
+import { removerAcentos } from '../utils/remove-acentos';
 
 @Injectable()
 export class UnimedImportService {
@@ -182,7 +183,7 @@ export class UnimedImportService {
             dependencia: beneficiario.dependencia?.trim(),
             cpf: beneficiario.cpf,
             valor: beneficiario.valorcobrado,
-            descricao: this.removerAcentos(beneficiario.descricao),
+            descricao: removerAcentos(beneficiario.descricao),
             mes_import: mes.padStart(2, '0'),
             ano_import: ano,
             mes_ref: this.calcularMesRef(mensalidade.periodo),
@@ -210,68 +211,6 @@ export class UnimedImportService {
     const [mes, ano] = periodo.split('-');
     const mesNum = parseInt(mes, 10);
     return mesNum === 1 ? (parseInt(ano) - 1).toString() : ano;
-  }
-
-  private removerAcentos(str: string): string {
-    const acentos = {
-      À: 'A',
-      Á: 'A',
-      Â: 'A',
-      Ã: 'A',
-      Ä: 'A',
-      Å: 'A',
-      à: 'a',
-      á: 'a',
-      â: 'a',
-      ã: 'a',
-      ä: 'a',
-      å: 'a',
-      È: 'E',
-      É: 'E',
-      Ê: 'E',
-      Ë: 'E',
-      è: 'e',
-      é: 'e',
-      ê: 'e',
-      ë: 'e',
-      Ì: 'I',
-      Í: 'I',
-      Î: 'I',
-      Ï: 'I',
-      ì: 'i',
-      í: 'i',
-      î: 'i',
-      ï: 'i',
-      Ò: 'O',
-      Ó: 'O',
-      Ô: 'O',
-      Õ: 'O',
-      Ö: 'O',
-      ò: 'o',
-      ó: 'o',
-      ô: 'o',
-      õ: 'o',
-      ö: 'o',
-      Ù: 'U',
-      Ú: 'U',
-      Û: 'U',
-      Ü: 'U',
-      ù: 'u',
-      ú: 'u',
-      û: 'u',
-      ü: 'u',
-      Ç: 'C',
-      ç: 'c',
-      Ñ: 'N',
-      ñ: 'n',
-    };
-
-    return str
-      .replace(
-        /[À-ÿ]/g,
-        (match) => acentos[match as keyof typeof acentos] || match,
-      )
-      .toUpperCase();
   }
 
   async executarResumo(
