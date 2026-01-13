@@ -2,7 +2,9 @@ import { EmpresaFilialListDto } from 'src/modules/unimed/dtos/empresa-filial-lis
 import { DemonstrativoDto } from '../dtos/demonstrativo.dto';
 import { DatabaseService } from 'src/database/database.services';
 import { removerAcentos } from '../utils/remove-acentos';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class PersisteDadosCobrancaService {
   constructor(private databaseService: DatabaseService) {}
 

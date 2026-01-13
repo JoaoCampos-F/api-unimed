@@ -46,7 +46,7 @@ export class UnimedImportService {
           dto.ano,
         );
 
-        const qtdInserida = await this.inserirDadosCobranca(
+        const qtdInserida = await this.persisteDadosCobrancaService.execute(
           dadosUnimed,
           empresa,
           dto.mes,

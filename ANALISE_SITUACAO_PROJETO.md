@@ -12,14 +12,14 @@ Após análise profunda do código legado PHP e do projeto atual NestJS, identif
 
 ### Estatísticas Gerais
 
-| Métrica | NPD-Legacy (PHP) | API-Unimed (NestJS) | Gap |
-|---------|------------------|---------------------|-----|
-| **Endpoints** | 20+ | 1 | 95% |
-| **Métodos DAO** | 25+ | 3 | 88% |
-| **Linhas de Código** | ~2.000 | ~500 | 75% |
-| **Funcionalidades** | 100% | 15-20% | 80-85% |
-| **Relatórios** | 6 | 0 | 100% |
-| **Exportações** | 2 | 0 | 100% |
+| Métrica              | NPD-Legacy (PHP) | API-Unimed (NestJS) | Gap    |
+| -------------------- | ---------------- | ------------------- | ------ |
+| **Endpoints**        | 20+              | 1                   | 95%    |
+| **Métodos DAO**      | 25+              | 3                   | 88%    |
+| **Linhas de Código** | ~2.000           | ~500                | 75%    |
+| **Funcionalidades**  | 100%             | 15-20%              | 80-85% |
+| **Relatórios**       | 6                | 0                   | 100%   |
+| **Exportações**      | 2                | 0                   | 100%   |
 
 ---
 
@@ -45,6 +45,7 @@ Total: ~2.000 linhas de código backend
 #### **1. IMPORTAÇÃO DE DADOS (4 métodos)**
 
 ##### ✅ SOAP Legacy
+
 - **Método:** `InsertUnimed()`
 - **Descrição:** WebService SOAP antigo com parsing XML
 - **Endpoint Legacy:** `acao=saveUnimed2`
@@ -52,6 +53,7 @@ Total: ~2.000 linhas de código backend
 - **Tabela Destino:** `nbs.uni_rd_cobr`
 
 ##### ✅ API REST por CNPJ
+
 - **Método:** `getDadosUniCnpj()`
 - **Descrição:** Importa dados por CNPJ de empresas cadastradas
 - **Endpoint Legacy:** `acao=saveUnimedCnpj`
@@ -64,6 +66,7 @@ Total: ~2.000 linhas de código backend
   4. Insere novos dados com tratamento de acentos
 
 ##### ✅ API REST por Contrato
+
 - **Método:** `getDadosUniContrato()`
 - **Descrição:** Importa por número de contrato específico
 - **Endpoint Legacy:** `acao=saveUnimedContrato`
@@ -71,6 +74,7 @@ Total: ~2.000 linhas de código backend
 - **Tabela Destino:** `gc.UNI_DADOS_COBRANCA`
 
 ##### ✅ Importação de Detalhes
+
 - **Método:** `InsertUnimedDetalhes()`
 - **Descrição:** Importa detalhes de coparticipação
 - **Tabela Destino:** `nbs.uni_rd_cobr_detalhe`
@@ -79,6 +83,7 @@ Total: ~2.000 linhas de código backend
 #### **2. PROCESSAMENTO E CÁLCULOS (7 métodos)**
 
 ##### ✅ Procedure de Resumo
+
 - **Método:** `procedure_p_uni_insert_extrato()`
 - **Endpoint Legacy:** `acao=save`
 - **Procedure Oracle:** `gc.PKG_UNI_SAUDE.p_uni_resumo(mes_ref, ano_ref)`
@@ -86,6 +91,7 @@ Total: ~2.000 linhas de código backend
 - **Tabela Gerada:** `gc.uni_resumo_colaborador`
 
 ##### ✅ Processamento de Fechamento
+
 - **Método:** `processarUnimed()`
 - **Endpoint Legacy:** `acao=Execute`
 - **Procedure Oracle:** `GC.PGK_GLOBAL.P_MCW_FECHA_COMISSAO_GLOBAL()`
@@ -105,6 +111,7 @@ Total: ~2.000 linhas de código backend
   - Log de erros detalhado
 
 ##### ✅ Listagem de Processos
+
 - **Método:** `carregaProcessosProcessa()`
 - **Endpoint Legacy:** `acao=Buscarprocesso`
 - **Descrição:** Lista processos disponíveis para execução
@@ -113,27 +120,32 @@ Total: ~2.000 linhas de código backend
 - **Join com Log:** Mostra última data de execução
 
 ##### ✅ Histórico de Processos
+
 - **Método:** `carregaProcessoshistUnimed()`
 - **Endpoint Legacy:** `acao=H_unimed`
 - **View:** `gc.vw_mcw_processo_log`
 - **Retorna:** código, descrição, usuário, data_proc, tempo de execução
 
 ##### ✅ Histórico Específico
+
 - **Endpoint Legacy:** `acao=HistoricoProcesso`
 - **Descrição:** Histórico detalhado de um processo específico
 
 ##### ✅ Validação de Período
+
 - **Método:** `carrregaPeriodoFechamento()`
 - **Tabela:** `gc.mcw_periodo`
 - **Retorna:** data_final para validação de prazos
 
 ##### ✅ Detalhes de Processo
+
 - **Método:** `carregaProcessoInterno($a)`
 - **Retorna:** dias limite, descrição do processo
 
 #### **3. GERENCIAMENTO DE COLABORADORES (4 métodos)**
 
 ##### ✅ Atualização Individual
+
 - **Método:** `updateColaborador($valor, $busca_usuario, $busca_mes, $busca_ano)`
 - **Endpoint Legacy:** `acao=update`
 - **Tabela:** `gc.uni_resumo_colaborador`
@@ -141,6 +153,7 @@ Total: ~2.000 linhas de código backend
 - **Descrição:** Define se o colaborador terá desconto na folha
 
 ##### ✅ Atualização em Massa
+
 - **Método:** `updateTodosColaborador()`
 - **Endpoint Legacy:** `acao=updateTodosColaborador`
 - **Tabela:** `gc.uni_resumo_colaborador`
@@ -148,6 +161,7 @@ Total: ~2.000 linhas de código backend
 - **Filtros:** cod_empresa, codcoligada, codfilial, mes_ref, ano_ref
 
 ##### ✅ Atualização de Valor Empresa
+
 - **Método:** `updateValorColaborador($codempresa, $coligada, $filial, $valor)`
 - **Endpoint Legacy:** `acao=updateValor`
 - **Tabela:** `nbs.mcw_colaborador`
@@ -155,6 +169,7 @@ Total: ~2.000 linhas de código backend
 - **Descrição:** Define quanto a empresa paga do plano
 
 ##### ✅ Consulta de Colaboradores
+
 - **Endpoint Legacy:** `acao=Buscar`
 - **View:** `gc.vw_uni_resumo_colaborador`
 - **Filtros:**
@@ -176,6 +191,7 @@ Total: ~2.000 linhas de código backend
 #### **4. AUTENTICAÇÃO E TOKEN (4 métodos)**
 
 ##### ✅ Obtenção de Token
+
 - **Método:** `getDadosToken()`
 - **API:** `https://ws.unimedcuiaba.coop.br/api/Token/geratoken`
 - **Método HTTP:** POST
@@ -186,6 +202,7 @@ Total: ~2.000 linhas de código backend
 - **Validade:** Aproximadamente 6 horas
 
 ##### ✅ Verificação e Renovação
+
 - **Método:** `VerificaHashToken()`
 - **Descrição:** Verifica se token existe e está válido
 - **Lógica:**
@@ -195,12 +212,14 @@ Total: ~2.000 linhas de código backend
   4. Define token no objeto Unimed
 
 ##### ✅ Carregamento de Token
+
 - **Método:** `carrregaHash()`
 - **Tabela:** `gc.api_gc_servicos`
 - **Filtros:** `tipo='U'`, `ativo='S'`, `data_atualizacao = hoje`
 - **Retorna:** Hash (token) válido para o dia
 
 ##### ✅ Atualização de Token
+
 - **Método:** `updateHash($hash)`
 - **Tabela:** `gc.api_gc_servicos`
 - **Atualiza:** `hash` e `data_atualizacao`
@@ -209,6 +228,7 @@ Total: ~2.000 linhas de código backend
 #### **5. CONSULTAS E BUSCAS (2 métodos)**
 
 ##### ✅ Listagem de Empresas
+
 - **Método:** `getDadosCnpj()`
 - **Tabela:** `gc.empresa_filial`
 - **Filtros:** `processa_unimed='S'`
@@ -216,6 +236,7 @@ Total: ~2.000 linhas de código backend
 - **Ordem:** cod_band, cod_empresa
 
 ##### ✅ Listagem de Contratos
+
 - **Método:** `getDadosContrato()`
 - **Tabela:** `gc.uni_dados_contrato`
 - **Filtros:** `ativo='S'`
@@ -223,16 +244,17 @@ Total: ~2.000 linhas de código backend
 
 #### **6. RELATÓRIOS JASPER (6 relatórios PDF)**
 
-| Ação | Endpoint Legacy | Arquivo Jasper | Parâmetros |
-|------|----------------|----------------|------------|
-| **Relatório Colaborador** | `acao=RelatorioColaborador` | `RelatorioColaborador.jasper` | empresa, cpf, contrato, mês, ano |
-| **Relatório Empresa** | `acao=RelatorioEmpresaColaborador` | `relatorioCobranca_por_empresa.jasper` | empresa, contrato, mês, ano |
-| **Relatório Pagamento** | `acao=RelatorioPagamento` | `relatorioPagamentos.jasper` | empresa, contrato, mês, ano |
-| **Relatório Não Pagamento** | `acao=RelatorioNaoPagamento` | `relatorioNaolancamento.jasper` | empresa, contrato, mês, ano |
-| **Resumo Departamento** | `acao=resumoDept` | `resumoCentro.jasper` | empresa, contrato, mês, ano |
-| **Resumo Centro Custo** | `acao=resumoCentroCust` | `relatorioCentroCusto.jasper` | empresa, contrato, mês, ano |
+| Ação                        | Endpoint Legacy                    | Arquivo Jasper                         | Parâmetros                       |
+| --------------------------- | ---------------------------------- | -------------------------------------- | -------------------------------- |
+| **Relatório Colaborador**   | `acao=RelatorioColaborador`        | `RelatorioColaborador.jasper`          | empresa, cpf, contrato, mês, ano |
+| **Relatório Empresa**       | `acao=RelatorioEmpresaColaborador` | `relatorioCobranca_por_empresa.jasper` | empresa, contrato, mês, ano      |
+| **Relatório Pagamento**     | `acao=RelatorioPagamento`          | `relatorioPagamentos.jasper`           | empresa, contrato, mês, ano      |
+| **Relatório Não Pagamento** | `acao=RelatorioNaoPagamento`       | `relatorioNaolancamento.jasper`        | empresa, contrato, mês, ano      |
+| **Resumo Departamento**     | `acao=resumoDept`                  | `resumoCentro.jasper`                  | empresa, contrato, mês, ano      |
+| **Resumo Centro Custo**     | `acao=resumoCentroCust`            | `relatorioCentroCusto.jasper`          | empresa, contrato, mês, ano      |
 
 **Parâmetros Comuns:**
+
 - `in_codEmpresa` - Código da empresa
 - `in_codColigada` - Código da coligada
 - `in_codFilial` - Código da filial
@@ -243,6 +265,7 @@ Total: ~2.000 linhas de código backend
 - `in_codContrato` - Código do contrato (opcional)
 
 **Geração:**
+
 - Classe: `Jasper::loadReport($dir, $arr, $file)`
 - Header: `Content-Type: application/pdf`
 - Diretório: `/jasper/uni/`
@@ -250,6 +273,7 @@ Total: ~2.000 linhas de código backend
 #### **7. EXPORTAÇÃO E INTEGRAÇÃO (2 métodos)**
 
 ##### ✅ Exportação Totvs
+
 - **Endpoint Legacy:** `acao=ExUnimed`
 - **Descrição:** Exporta dados para sistema de folha Totvs RM
 - **Procedure:** `GC.PGK_GLOBAL.P_MCW_FECHA_COMISSAO_GLOBAL()`
@@ -267,6 +291,7 @@ Total: ~2.000 linhas de código backend
   - Por bandeira
 
 ##### ✅ Geração DIRF
+
 - **Endpoint Legacy:** `acao=unimedDIRF`
 - **Método DAO:** `unimedDIRFDAO()` (não mostrado no código analisado)
 - **Descrição:** Gera dados para Declaração de Imposto de Renda
@@ -275,12 +300,14 @@ Total: ~2.000 linhas de código backend
 #### **8. UTILITÁRIOS (2 métodos)**
 
 ##### ✅ Remoção de Acentos
+
 - **Método:** `_deletaAcentos($string)`
 - **Descrição:** Remove acentuação para padronização no banco
 - **Conversão:** Para uppercase após remoção
 - **Uso:** Campos como contratante, beneficiário, lançamento, prestador
 
 ##### ✅ Limpeza de Dados
+
 - **Método:** `delImport()`
 - **Descrição:** Limpa dados antes de reimportar
 - **Tabela:** `gc.uni_dados_cobranca`
@@ -329,6 +356,7 @@ Total: ~500 linhas de código
 ##### **UnimedImportService** (`unimed-import.service.ts`)
 
 **✅ Método: `importarPorCnpj(dto: ImportUnimedDto)`**
+
 - **Equivalente Legacy:** `getDadosUniCnpj()`
 - **Status:** ✅ Implementado e funcional
 - **Processo:**
@@ -344,11 +372,13 @@ Total: ~500 linhas de código
 - **Retorno:** Total de registros importados
 
 **⚠️ Método: `importPorContrato(dto: ImportUnimedDto)`**
+
 - **Equivalente Legacy:** `getDadosUniContrato()`
 - **Status:** ⚠️ Apenas SQL definido, não implementado
 - **TODO:** Implementar lógica similar ao importarPorCnpj
 
 **✅ Método: `executarResumo(dto: ImportUnimedDto)`**
+
 - **Equivalente Legacy:** `procedure_p_uni_insert_extrato()`
 - **Status:** ✅ Implementado
 - **Procedure:** `gc.PKG_UNI_SAUDE.p_uni_resumo(:mes_ref, :ano_ref)`
@@ -356,10 +386,12 @@ Total: ~500 linhas de código
 - **Retorno:** `{ result: boolean, msg: string }`
 
 **✅ Método Privado: `limparDadosImportacao()`**
+
 - **SQL:** `DELETE FROM gc.uni_dados_cobranca WHERE ...`
 - **Parâmetros:** codEmpresa, codColigada, codFilial, mes, ano
 
 **✅ Método Privado: `inserirDadosCobranca()`**
+
 - **SQL:** Batch insert com `executeMany()`
 - **Tratamento:**
   - ✅ Processa mensalidades e composições
@@ -369,12 +401,14 @@ Total: ~500 linhas de código
 - **Retorno:** Quantidade de registros inseridos
 
 **✅ Métodos de Cálculo:**
+
 - `calcularMesRef()` - Subtrai 1 do mês
 - `calcularAnoRef()` - Ajusta ano se necessário
 
 ##### **BuscaEmpresasUnimedService**
 
 **✅ Método: `execute()`**
+
 - **Equivalente Legacy:** `getDadosCnpj()`
 - **SQL:** Busca empresas com `processa_unimed='S'`
 - **Retorno:** Array de `EmpresaFilialListDto`
@@ -382,11 +416,13 @@ Total: ~500 linhas de código
 ##### **UnimedApiService** (`unimed-api.service.ts`)
 
 **⚠️ Atributo: `token`**
+
 - **Status:** ⚠️ HARDCODED no código (má prática de segurança)
 - **Valor:** Token JWT fixo
 - **TODO:** Remover e implementar refresh dinâmico
 
 **✅ Método: `getToken()`**
+
 - **Equivalente Legacy:** `getDadosToken()`
 - **API:** `POST /Token/geratoken`
 - **Headers:** `usuario`, `senha`
@@ -394,6 +430,7 @@ Total: ~500 linhas de código
 - **Log:** ✅ Sucesso e erro
 
 **✅ Método: `buscarPorPeriodoCnpj(periodo, cnpj)`**
+
 - **Equivalente Legacy:** `getWebserviceCNPJ()`
 - **API:** `GET /Demonstrativo/buscaporperiodocnpj`
 - **Params:** periodo, cnpj
@@ -402,6 +439,7 @@ Total: ~500 linhas de código
 - **Retorno:** `DemonstrativoDto`
 
 **✅ Método: `buscaPorPeriodoContrato(periodo, contrato)`**
+
 - **Equivalente Legacy:** `getWebserviceContrato()`
 - **API:** `GET /Demonstrativo/BuscarPorPeriodoContrato`
 - **Retry:** ✅ Se 401, renova token
@@ -412,6 +450,7 @@ Total: ~500 linhas de código
 **UnimedController** (`unimed.controller.ts`)
 
 **✅ Endpoint: `GET /busca-empresas-unimed`**
+
 - **Único endpoint ativo**
 - **Retorna:** Lista de empresas
 - **TODO:** Mover para módulo correto (está usando serviço de importação)
@@ -419,16 +458,19 @@ Total: ~500 linhas de código
 #### **3. Entities e DTOs (100% - estrutura)**
 
 **✅ Interface: `UniDadosCobranca`**
+
 - **Arquivo:** `uni-dados-cobranca.entity.ts`
 - **Campos:** 31 campos mapeados corretamente
 - **Tipos:** number, string, Date
 
 **✅ Interface: `UniResumoColaborador`**
+
 - **Arquivo:** `uni-resumo-colaborador.entity.ts`
 - **Campos:** 16 campos
 - **Status:** Estrutura completa
 
 **✅ DTOs Criados:**
+
 - `BuscaColaboradorDto` - Filtros de busca (não usado ainda)
 - `UpdateColaboradorDto` - Atualização de exporta (não usado)
 - `EmpresaFilialListDto` - Lista empresas (✅ em uso)
@@ -438,6 +480,7 @@ Total: ~500 linhas de código
 #### **4. Utilitários**
 
 **✅ Função: `removerAcentos(texto)`**
+
 - **Arquivo:** `remove-acentos.ts`
 - **Equivalente Legacy:** `_deletaAcentos()`
 - **Implementação:** Similar ao PHP
@@ -451,6 +494,7 @@ Total: ~500 linhas de código
 #### **Endpoints Necessários:**
 
 **❌ `GET /api/v1/unimed/colaboradores`**
+
 - **Equivalente Legacy:** `acao=Buscar`
 - **Funcionalidade:** Listar colaboradores com filtros
 - **Filtros:** empresa, cpf, mês, ano, departamento, função
@@ -458,6 +502,7 @@ Total: ~500 linhas de código
 - **View Oracle:** `gc.vw_uni_resumo_colaborador`
 
 **❌ `PATCH /api/v1/unimed/colaboradores/:cpf`**
+
 - **Equivalente Legacy:** `acao=update`
 - **Funcionalidade:** Atualizar flag exportação individual
 - **Body:** `{ busca_mes, busca_ano, checkbox: 'S'|'N' }`
@@ -465,12 +510,14 @@ Total: ~500 linhas de código
 - **Campo:** `exporta`
 
 **❌ `PATCH /api/v1/unimed/colaboradores/empresa/:sigla`**
+
 - **Equivalente Legacy:** `acao=updateTodosColaborador`
 - **Funcionalidade:** Atualizar todos colaboradores de uma empresa
 - **Body:** `{ mes, ano, valor: 'S'|'N' }`
 - **Escopo:** Por empresa/filial/período
 
 **❌ `PATCH /api/v1/unimed/valores/empresa/:sigla`**
+
 - **Equivalente Legacy:** `acao=updateValor`
 - **Funcionalidade:** Atualizar percentual pago pela empresa
 - **Body:** `{ valor: number }`
@@ -478,6 +525,7 @@ Total: ~500 linhas de código
 - **Campo:** `unimed`
 
 #### **Services Necessários:**
+
 - `ColaboradorService` com métodos de busca e atualização
 - `EmpresaService` para atualização de valores
 
@@ -486,6 +534,7 @@ Total: ~500 linhas de código
 #### **Endpoints Necessários:**
 
 **❌ `GET /api/v1/unimed/processos`**
+
 - **Equivalente Legacy:** `acao=Buscarprocesso`
 - **Funcionalidade:** Listar processos disponíveis
 - **Query:** categoria, tipo, mes, ano
@@ -493,6 +542,7 @@ Total: ~500 linhas de código
 - **Join:** `mcw_processo_log` para última execução
 
 **❌ `POST /api/v1/unimed/processos/executar`**
+
 - **Equivalente Legacy:** `acao=Execute`
 - **Funcionalidade:** Executar processos de fechamento
 - **Body:**
@@ -517,18 +567,21 @@ Total: ~500 linhas de código
   - Empresa obrigatória se CPF informado
 
 **❌ `GET /api/v1/unimed/processos/historico`**
+
 - **Equivalente Legacy:** `acao=H_unimed`
 - **Funcionalidade:** Histórico de processamentos
 - **Query:** mes, ano, param (categoria), codigo
 - **View:** `gc.vw_mcw_processo_log`
 
 **❌ `GET /api/v1/unimed/processos/:codigo/historico`**
+
 - **Equivalente Legacy:** `acao=HistoricoProcesso`
 - **Funcionalidade:** Histórico específico de um processo
 - **Params:** codigo do processo
 - **Query:** mes_ref, ano_ref, cat_ref
 
 #### **Services Necessários:**
+
 - `ProcessoService` - Gerenciamento de processos
 - `FechamentoService` - Lógica de fechamento
 - `PeriodoService` - Validação de datas
@@ -536,11 +589,11 @@ Total: ~500 linhas de código
 ### **❌ 3. Relatórios (0% implementado)**
 
 #### **Tecnologia a Definir:**
+
 - **Opção 1:** JasperReports (mantém compatibilidade)
   - Requer: `jasper-reports-node` ou similar
   - Prós: Reutiliza relatórios existentes
   - Contras: Complexidade de setup
-  
 - **Opção 2:** Biblioteca Node.js alternativa
   - `pdfmake`, `puppeteer`, `@ag-grid/enterprise`
   - Prós: Mais moderno, TypeScript nativo
@@ -549,36 +602,43 @@ Total: ~500 linhas de código
 #### **Endpoints Necessários:**
 
 **❌ `GET /api/v1/relatorios/unimed/colaborador`**
+
 - **Query:** empresa, cpf, contrato, busca_mes, ano_ref
 - **Formato:** PDF
 - **Conteúdo:** Detalhamento por colaborador
 
 **❌ `GET /api/v1/relatorios/unimed/empresa`**
+
 - **Query:** empresa, contrato, busca_mes, ano_ref
 - **Formato:** PDF
 - **Conteúdo:** Resumo por empresa
 
 **❌ `GET /api/v1/relatorios/unimed/pagamento`**
+
 - **Query:** empresa, contrato, busca_mes, ano_ref
 - **Formato:** PDF
 - **Conteúdo:** Lançamentos confirmados
 
 **❌ `GET /api/v1/relatorios/unimed/nao-pagamento`**
+
 - **Query:** empresa, contrato, busca_mes, ano_ref
 - **Formato:** PDF
 - **Conteúdo:** Não lançados na folha
 
 **❌ `GET /api/v1/relatorios/unimed/departamento`**
+
 - **Query:** empresa, contrato, busca_mes, ano_ref
 - **Formato:** PDF
 - **Conteúdo:** Resumo por departamento
 
 **❌ `GET /api/v1/relatorios/unimed/centro-custo`**
+
 - **Query:** empresa, contrato, busca_mes, ano_ref
 - **Formato:** PDF
 - **Conteúdo:** Resumo por centro de custo
 
 #### **Services Necessários:**
+
 - `RelatorioService` - Geração de PDFs
 - `JasperService` - Se optar por manter Jasper
 
@@ -587,6 +647,7 @@ Total: ~500 linhas de código
 #### **Endpoints Necessários:**
 
 **❌ `POST /api/v1/unimed/exportacao/totvs`**
+
 - **Equivalente Legacy:** `acao=ExUnimed`
 - **Funcionalidade:** Exportar para Totvs RM
 - **Body:**
@@ -608,6 +669,7 @@ Total: ~500 linhas de código
 - **Procedure:** `GC.PGK_GLOBAL.P_MCW_FECHA_COMISSAO_GLOBAL()`
 
 **❌ `POST /api/v1/unimed/dirf`**
+
 - **Equivalente Legacy:** `acao=unimedDIRF`
 - **Funcionalidade:** Gerar dados para DIRF
 - **Body:**
@@ -621,6 +683,7 @@ Total: ~500 linhas de código
 - **Método DAO:** Não identificado no código analisado
 
 #### **Services Necessários:**
+
 - `ExportacaoService` - Lógica de exportação
 - `TotvsIntegrationService` - Integração específica Totvs
 - `DirfService` - Geração DIRF
@@ -628,6 +691,7 @@ Total: ~500 linhas de código
 ### **❌ 5. Segurança e Logs (0% implementado)**
 
 #### **Sistema de Logs:**
+
 - **Tabela:** `gc.mcw_log` (presumido)
 - **Campos:** usuario, descricao, modulo, tipo_acao, data
 - **Ações a Logar:**
@@ -638,6 +702,7 @@ Total: ~500 linhas de código
   - Alterações de valores
 
 #### **Controle de Acesso (ACL):**
+
 - **Códigos Identificados:**
   - `78003` - Atualizar flag exportação colaborador
   - `78004` - Apagar dados antigos na exportação
@@ -645,6 +710,7 @@ Total: ~500 linhas de código
   - `78000` - Outros acessos (presumidos)
 
 #### **Implementação Necessária:**
+
 - `AuthGuard` com verificação de permissões
 - `LogService` para auditoria
 - `AclService` para controle de acesso
@@ -653,6 +719,7 @@ Total: ~500 linhas de código
 ### **❌ 6. Importação de Detalhes (0% implementado)**
 
 **❌ Método: `importarDetalhes()`**
+
 - **Equivalente Legacy:** `InsertUnimedDetalhes()`
 - **API Unimed:** `RelatorioDetalhadoCoParticipacao`
 - **Tabela:** `nbs.uni_rd_cobr_detalhe`
@@ -666,11 +733,13 @@ Total: ~500 linhas de código
 ### **❌ 7. Melhorias de Token (Prioridade Alta)**
 
 **⚠️ Problema Atual:**
+
 - Token hardcoded no código fonte
 - Sem verificação de expiração
 - Sem armazenamento no banco
 
 **✅ Implementação Necessária:**
+
 - Remover token hardcoded
 - Implementar armazenamento em `gc.api_gc_servicos`
 - Verificar validade por `data_atualizacao`
@@ -694,37 +763,38 @@ async getValidToken(): Promise<string> {
 
 ### **Tabelas Principais Utilizadas:**
 
-| Tabela | Schema | Uso | Status API-Unimed |
-|--------|--------|-----|-------------------|
-| **UNI_DADOS_COBRANCA** | gc | Dados importados da Unimed | ✅ Usado (INSERT/DELETE) |
-| **uni_dados_contrato** | gc | Contratos ativos | ✅ Consultado (SELECT) |
-| **uni_resumo_colaborador** | gc | Resumo após procedure | ⚠️ Entity criado, não usado |
-| **uni_rd_cobr** | nbs | Dados SOAP legado | ❌ Não usado |
-| **uni_rd_cobr_detalhe** | nbs | Detalhes coparticipação | ❌ Não usado |
-| **mcw_colaborador** | nbs | Dados gerais colaboradores | ❌ Não usado |
-| **mcw_processo** | gc | Processos de fechamento | ❌ Não usado |
-| **mcw_processo_log** | gc | Log de processos | ❌ Não usado |
-| **mcw_periodo** | gc | Períodos de fechamento | ❌ Não usado |
-| **empresa_filial** | gc | Empresas e filiais | ✅ Usado (SELECT) |
-| **api_gc_servicos** | gc | Armazenamento de tokens | ❌ Não usado |
+| Tabela                     | Schema | Uso                        | Status API-Unimed           |
+| -------------------------- | ------ | -------------------------- | --------------------------- |
+| **UNI_DADOS_COBRANCA**     | gc     | Dados importados da Unimed | ✅ Usado (INSERT/DELETE)    |
+| **uni_dados_contrato**     | gc     | Contratos ativos           | ✅ Consultado (SELECT)      |
+| **uni_resumo_colaborador** | gc     | Resumo após procedure      | ⚠️ Entity criado, não usado |
+| **uni_rd_cobr**            | nbs    | Dados SOAP legado          | ❌ Não usado                |
+| **uni_rd_cobr_detalhe**    | nbs    | Detalhes coparticipação    | ❌ Não usado                |
+| **mcw_colaborador**        | nbs    | Dados gerais colaboradores | ❌ Não usado                |
+| **mcw_processo**           | gc     | Processos de fechamento    | ❌ Não usado                |
+| **mcw_processo_log**       | gc     | Log de processos           | ❌ Não usado                |
+| **mcw_periodo**            | gc     | Períodos de fechamento     | ❌ Não usado                |
+| **empresa_filial**         | gc     | Empresas e filiais         | ✅ Usado (SELECT)           |
+| **api_gc_servicos**        | gc     | Armazenamento de tokens    | ❌ Não usado                |
 
 ### **Views Oracle:**
 
-| View | Uso | Status |
-|------|-----|--------|
+| View                          | Uso                                 | Status       |
+| ----------------------------- | ----------------------------------- | ------------ |
 | **vw_uni_resumo_colaborador** | Consulta principal de colaboradores | ❌ Não usado |
-| **vw_mcw_processo_log** | Histórico de processos | ❌ Não usado |
+| **vw_mcw_processo_log**       | Histórico de processos              | ❌ Não usado |
 
 ### **Stored Procedures Oracle:**
 
-| Procedure | Descrição | Status |
-|-----------|-----------|--------|
-| **gc.PKG_UNI_SAUDE.p_uni_resumo()** | Gera resumo por colaborador | ✅ Chamada |
+| Procedure                                       | Descrição                          | Status         |
+| ----------------------------------------------- | ---------------------------------- | -------------- |
+| **gc.PKG_UNI_SAUDE.p_uni_resumo()**             | Gera resumo por colaborador        | ✅ Chamada     |
 | **GC.PGK_GLOBAL.P_MCW_FECHA_COMISSAO_GLOBAL()** | Processamento global de fechamento | ❌ Não chamada |
 
 ### **Estrutura de Tabelas:**
 
 #### **gc.UNI_DADOS_COBRANCA** (Principal)
+
 ```sql
 CREATE TABLE gc.UNI_DADOS_COBRANCA (
     -- Identificação Empresa
@@ -732,24 +802,24 @@ CREATE TABLE gc.UNI_DADOS_COBRANCA (
     codcoligada         NUMBER,
     codfilial           NUMBER,
     cod_band            NUMBER,
-    
+
     -- Dados Contrato
     contrato            VARCHAR2(50),
     cnpj                VARCHAR2(20),
     contratante         VARCHAR2(200),
     nomeplano           VARCHAR2(200),
     abrangencia         VARCHAR2(50),
-    
+
     -- Dados Fatura
     codfatura           VARCHAR2(50),
     valorFatura         NUMBER(10,2),
     periodo             VARCHAR2(10),
-    
+
     -- Dados Titular
     codtitular          VARCHAR2(50),
     titular             VARCHAR2(200),
     cpftitular          VARCHAR2(14),
-    
+
     -- Dados Beneficiário
     matricula           VARCHAR2(50),
     acomodacao          VARCHAR2(100),
@@ -760,11 +830,11 @@ CREATE TABLE gc.UNI_DADOS_COBRANCA (
     inclusao            VARCHAR2(10),
     dependencia         VARCHAR2(50),
     cpf                 VARCHAR2(14),
-    
+
     -- Valores
     valor               NUMBER(10,2),
     descricao           VARCHAR2(500),
-    
+
     -- Controle Importação
     mes_import          VARCHAR2(2),
     ano_import          VARCHAR2(4),
@@ -775,6 +845,7 @@ CREATE TABLE gc.UNI_DADOS_COBRANCA (
 ```
 
 #### **gc.uni_resumo_colaborador** (Gerada por Procedure)
+
 ```sql
 CREATE TABLE gc.uni_resumo_colaborador (
     cod_empresa         NUMBER,
@@ -846,17 +917,17 @@ CREATE TABLE gc.uni_resumo_colaborador (
 
 O projeto possui **documentação extensa** em Markdown:
 
-| Arquivo | Linhas | Status | Conteúdo |
-|---------|--------|--------|----------|
-| `GUIA_IMPLEMENTACAO_COMPLETO.md` | 1.472 | ✅ Completo | Guia detalhado de implementação |
-| `MAPEAMENTO_ENDPOINTS.md` | 205 | ✅ Completo | Mapeamento Legacy → NestJS |
-| `DICIONARIO_DADOS.md` | ? | ✅ Existe | Dicionário de dados |
-| `CHECKLIST_IMPLEMENTACAO.md` | ? | ✅ Existe | Checklist de tarefas |
-| `GUIA_CONTINUACAO_IMPLEMENTACAO.md` | ? | ✅ Existe | Próximos passos |
-| `EXEMPLO_PRATICO.md` | ? | ✅ Existe | Exemplos práticos |
-| `DICAS_BOAS_PRATICAS.md` | ? | ✅ Existe | Boas práticas |
-| `INDICE_DOCUMENTACAO.md` | ? | ✅ Existe | Índice geral |
-| `PACOTE_COMPLETO.md` | ? | ✅ Existe | Pacote completo |
+| Arquivo                             | Linhas | Status      | Conteúdo                        |
+| ----------------------------------- | ------ | ----------- | ------------------------------- |
+| `GUIA_IMPLEMENTACAO_COMPLETO.md`    | 1.472  | ✅ Completo | Guia detalhado de implementação |
+| `MAPEAMENTO_ENDPOINTS.md`           | 205    | ✅ Completo | Mapeamento Legacy → NestJS      |
+| `DICIONARIO_DADOS.md`               | ?      | ✅ Existe   | Dicionário de dados             |
+| `CHECKLIST_IMPLEMENTACAO.md`        | ?      | ✅ Existe   | Checklist de tarefas            |
+| `GUIA_CONTINUACAO_IMPLEMENTACAO.md` | ?      | ✅ Existe   | Próximos passos                 |
+| `EXEMPLO_PRATICO.md`                | ?      | ✅ Existe   | Exemplos práticos               |
+| `DICAS_BOAS_PRATICAS.md`            | ?      | ✅ Existe   | Boas práticas                   |
+| `INDICE_DOCUMENTACAO.md`            | ?      | ✅ Existe   | Índice geral                    |
+| `PACOTE_COMPLETO.md`                | ?      | ✅ Existe   | Pacote completo                 |
 
 **Conclusão:** A documentação está completa e bem detalhada, mas a **implementação está muito aquém do planejado** (~15% vs 100% documentado).
 
@@ -867,6 +938,7 @@ O projeto possui **documentação extensa** em Markdown:
 ### **FASE 1 - FUNDAÇÃO (Prioridade CRÍTICA)**
 
 #### **Sprint 1.1 - Segurança e Token (1 semana)**
+
 - [ ] Remover token hardcoded
 - [ ] Implementar `TokenService`
 - [ ] Armazenar token em `gc.api_gc_servicos`
@@ -874,12 +946,14 @@ O projeto possui **documentação extensa** em Markdown:
 - [ ] Renovação automática
 
 #### **Sprint 1.2 - Logs e Auditoria (1 semana)**
+
 - [ ] Criar `LogService`
 - [ ] Integrar com tabela de logs Oracle
 - [ ] Implementar interceptor de logs
 - [ ] Log de todas importações e atualizações
 
 #### **Sprint 1.3 - Controle de Acesso (1 semana)**
+
 - [ ] Criar `AclService`
 - [ ] Implementar `@RequirePermission` decorator
 - [ ] Integrar com sistema de permissões existente
@@ -888,6 +962,7 @@ O projeto possui **documentação extensa** em Markdown:
 ### **FASE 2 - COLABORADORES (Prioridade ALTA)**
 
 #### **Sprint 2.1 - Consultas (1 semana)**
+
 - [ ] Criar `ColaboradorService`
 - [ ] Implementar `GET /colaboradores` com filtros
 - [ ] Integrar com `vw_uni_resumo_colaborador`
@@ -895,6 +970,7 @@ O projeto possui **documentação extensa** em Markdown:
 - [ ] Formatação de valores (R$)
 
 #### **Sprint 2.2 - Atualizações (1 semana)**
+
 - [ ] Implementar `PATCH /colaboradores/:cpf`
 - [ ] Implementar `PATCH /colaboradores/empresa/:sigla`
 - [ ] Implementar `PATCH /valores/empresa/:sigla`
@@ -904,6 +980,7 @@ O projeto possui **documentação extensa** em Markdown:
 ### **FASE 3 - PROCESSOS E FECHAMENTOS (Prioridade ALTA)**
 
 #### **Sprint 3.1 - Listagem de Processos (1 semana)**
+
 - [ ] Criar `ProcessoService`
 - [ ] Implementar `GET /processos`
 - [ ] Integrar com `gc.mcw_processo`
@@ -911,6 +988,7 @@ O projeto possui **documentação extensa** em Markdown:
 - [ ] Filtros por categoria e tipo
 
 #### **Sprint 3.2 - Execução de Processos (2 semanas)**
+
 - [ ] Criar `FechamentoService`
 - [ ] Implementar `POST /processos/executar`
 - [ ] Chamar procedure `P_MCW_FECHA_COMISSAO_GLOBAL`
@@ -920,6 +998,7 @@ O projeto possui **documentação extensa** em Markdown:
 - [ ] Tratamento de erros robusto
 
 #### **Sprint 3.3 - Histórico (1 semana)**
+
 - [ ] Implementar `GET /processos/historico`
 - [ ] Implementar `GET /processos/:codigo/historico`
 - [ ] Integrar com `vw_mcw_processo_log`
@@ -928,11 +1007,13 @@ O projeto possui **documentação extensa** em Markdown:
 ### **FASE 4 - IMPORTAÇÕES COMPLEMENTARES (Prioridade MÉDIA)**
 
 #### **Sprint 4.1 - Importação por Contrato (1 semana)**
+
 - [ ] Completar `importPorContrato()` no service
 - [ ] Criar endpoint `POST /import/contrato`
 - [ ] Testes de integração
 
 #### **Sprint 4.2 - Importação de Detalhes (1 semana)**
+
 - [ ] Criar método `importarDetalhes()`
 - [ ] Integrar com API `RelatorioDetalhadoCoParticipacao`
 - [ ] Inserir em `nbs.uni_rd_cobr_detalhe`
@@ -941,11 +1022,13 @@ O projeto possui **documentação extensa** em Markdown:
 ### **FASE 5 - RELATÓRIOS (Prioridade MÉDIA-BAIXA)**
 
 #### **Sprint 5.1 - Decisão Tecnológica (1 semana)**
+
 - [ ] Avaliar JasperReports vs alternativas
 - [ ] POC com tecnologia escolhida
 - [ ] Definir arquitetura de relatórios
 
 #### **Sprint 5.2 - Implementação de Relatórios (4 semanas)**
+
 - [ ] Relatório por Colaborador
 - [ ] Relatório por Empresa
 - [ ] Relatório de Pagamento
@@ -956,6 +1039,7 @@ O projeto possui **documentação extensa** em Markdown:
 ### **FASE 6 - EXPORTAÇÕES (Prioridade BAIXA)**
 
 #### **Sprint 6.1 - Exportação Totvs (2 semanas)**
+
 - [ ] Criar `TotvsIntegrationService`
 - [ ] Implementar `POST /exportacao/totvs`
 - [ ] Validações de mês atual
@@ -963,6 +1047,7 @@ O projeto possui **documentação extensa** em Markdown:
 - [ ] Log de exportação
 
 #### **Sprint 6.2 - Exportação DIRF (1 semana)**
+
 - [ ] Investigar método DIRF no legado
 - [ ] Criar `DirfService`
 - [ ] Implementar `POST /dirf`
@@ -970,12 +1055,14 @@ O projeto possui **documentação extensa** em Markdown:
 ### **FASE 7 - QUALIDADE (Contínuo)**
 
 #### **Sprint 7.1 - Testes (2 semanas)**
+
 - [ ] Testes unitários de services
 - [ ] Testes de integração de endpoints
 - [ ] Testes E2E de fluxos principais
 - [ ] Coverage mínimo de 70%
 
 #### **Sprint 7.2 - Refatoração (1 semana)**
+
 - [ ] Code review geral
 - [ ] Refatoração de código duplicado
 - [ ] Otimização de queries
@@ -987,19 +1074,20 @@ O projeto possui **documentação extensa** em Markdown:
 
 ### **Resumo por Fase:**
 
-| Fase | Duração | Prioridade | Dependências |
-|------|---------|------------|--------------|
-| **Fase 1 - Fundação** | 3 semanas | CRÍTICA | Nenhuma |
-| **Fase 2 - Colaboradores** | 2 semanas | ALTA | Fase 1 |
-| **Fase 3 - Processos** | 4 semanas | ALTA | Fase 1, 2 |
-| **Fase 4 - Importações** | 2 semanas | MÉDIA | Fase 1 |
-| **Fase 5 - Relatórios** | 5 semanas | MÉDIA-BAIXA | Fase 2 |
-| **Fase 6 - Exportações** | 3 semanas | BAIXA | Fase 3 |
-| **Fase 7 - Qualidade** | 3 semanas | Contínuo | Todas |
+| Fase                       | Duração   | Prioridade  | Dependências |
+| -------------------------- | --------- | ----------- | ------------ |
+| **Fase 1 - Fundação**      | 3 semanas | CRÍTICA     | Nenhuma      |
+| **Fase 2 - Colaboradores** | 2 semanas | ALTA        | Fase 1       |
+| **Fase 3 - Processos**     | 4 semanas | ALTA        | Fase 1, 2    |
+| **Fase 4 - Importações**   | 2 semanas | MÉDIA       | Fase 1       |
+| **Fase 5 - Relatórios**    | 5 semanas | MÉDIA-BAIXA | Fase 2       |
+| **Fase 6 - Exportações**   | 3 semanas | BAIXA       | Fase 3       |
+| **Fase 7 - Qualidade**     | 3 semanas | Contínuo    | Todas        |
 
 ### **TOTAL ESTIMADO: 22 semanas (~5.5 meses)**
 
 **Observações:**
+
 - Considerando 1 desenvolvedor full-time
 - Com 2 desenvolvedores: ~3 meses
 - Fase 7 (Qualidade) é paralela
@@ -1011,6 +1099,7 @@ O projeto possui **documentação extensa** em Markdown:
 ### **Critérios de Aceitação:**
 
 #### **MVP (Mínimo Viável):**
+
 - ✅ Importação por CNPJ funcional (já tem)
 - ⚠️ Token seguro sem hardcode
 - ⚠️ Consulta de colaboradores
@@ -1019,6 +1108,7 @@ O projeto possui **documentação extensa** em Markdown:
 - ⚠️ Logs de auditoria
 
 #### **Produção (Paridade com Legacy):**
+
 - ✅ Todos 20 endpoints funcionais
 - ✅ 6 relatórios gerando PDFs
 - ✅ Exportação Totvs e DIRF
@@ -1027,6 +1117,7 @@ O projeto possui **documentação extensa** em Markdown:
 - ✅ Documentação atualizada
 
 ### **KPIs Técnicos:**
+
 - **Coverage de Testes:** ≥ 70%
 - **Tempo de Resposta API:** < 2s (95th percentile)
 - **Queries Oracle:** Otimizadas (< 1s)
@@ -1038,6 +1129,7 @@ O projeto possui **documentação extensa** em Markdown:
 ## 📝 NOTAS FINAIS
 
 ### **Pontos Positivos:**
+
 1. ✅ Arquitetura NestJS bem estruturada
 2. ✅ Integração Oracle funcionando
 3. ✅ DTOs e Entities bem tipados
@@ -1045,6 +1137,7 @@ O projeto possui **documentação extensa** em Markdown:
 5. ✅ Importação básica funcionando corretamente
 
 ### **Pontos de Atenção:**
+
 1. ⚠️ **Token hardcoded é GRAVE** - resolver urgentemente
 2. ⚠️ Falta de logs pode dificultar troubleshooting
 3. ⚠️ Sem controle de acesso pode causar problemas de segurança
@@ -1054,18 +1147,21 @@ O projeto possui **documentação extensa** em Markdown:
 ### **Recomendações Estratégicas:**
 
 #### **Curto Prazo (1 mês):**
+
 1. **URGENTE:** Corrigir issue de token hardcoded
 2. Implementar logs de auditoria
 3. Implementar consulta e atualização de colaboradores
 4. Adicionar controle de permissões básico
 
 #### **Médio Prazo (3 meses):**
+
 5. Implementar sistema completo de processos
 6. Adicionar importação por contrato
 7. Implementar históricos
 8. Começar relatórios
 
 #### **Longo Prazo (6 meses):**
+
 9. Completar todos relatórios
 10. Implementar exportações
 11. Testes completos
