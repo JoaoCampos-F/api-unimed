@@ -38,12 +38,16 @@ export class UnimedImportService {
           empresa.CNPJ,
         );
 
-        await this.limparDadosImportacao(
+        const resp = await this.limparDadosImportacao(
           empresa.COD_EMPRESA,
           empresa.CODCOLIGADA,
           empresa.CODFILIAL,
           dto.mes,
           dto.ano,
+        );
+
+        this.logger.log(
+          `Quantidade de registros limpos para empresa ${empresa.COD_EMPRESA}: ${resp}`,
         );
 
         const qtdInserida = await this.persisteDadosCobrancaService.execute(
@@ -99,7 +103,7 @@ export class UnimedImportService {
     codFilial: number,
     mes: string,
     ano: string,
-  ): Promise<void> {
+  ): Promise<number> {
     const sql = `
       DELETE FROM gc.uni_dados_cobranca
       WHERE cod_empresa = :codEmpresa
@@ -117,7 +121,7 @@ export class UnimedImportService {
       ano,
     };
 
-    await this.databaseService.executeQuery(sql, binds);
+    return await this.databaseService.executeDelete(sql, binds);
   }
 
   async executarResumo(

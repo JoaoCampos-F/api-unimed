@@ -15,7 +15,7 @@ export class UnimedApiService {
 
   constructor(private configService: ConfigService) {
     this.token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiY29tZXRhIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiREVNT05TVFJBVElWTyIsIm5iZiI6MTc2ODMxODcxOCwiZXhwIjoxNzY4MzQwMzE4fQ.BjtQeaSciTT2VCcwjnyh9arlikLpQXXk2bnPW7_h09A';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiY29tZXRhIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiREVNT05TVFJBVElWTyIsIm5iZiI6MTc2ODM5NzU1OCwiZXhwIjoxNzY4NDE5MTU4fQ.Bm34KacauoJVp7FgVnkcCHaW3eVyDgioLMSiMJXj9Io';
     this.apiUrl = this.configService.get<string>('UNIMED_API_URL') || '';
     this.apiUser = this.configService.get<string>('UNIMED_API_USER') || '';
     this.apiPassword =

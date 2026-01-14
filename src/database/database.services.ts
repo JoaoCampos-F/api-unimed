@@ -141,4 +141,34 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     const result = await this.executeQuery(sql, binds);
     return result.length;
   }
+
+  async executeDelete(
+    sql: string,
+    binds: any[] | Record<string, any> = [],
+  ): Promise<number> {
+    let connection: oracledb.Connection;
+
+    try {
+      connection = await this.pool.getConnection();
+      const result = await connection.execute(sql, binds, {
+        autoCommit: true,
+      });
+
+      return result.rowsAffected || 0;
+    } catch (error) {
+      this.logger.error(
+        `Erro ao executar delete: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (err) {
+          this.logger.error('Erro ao fechar conexão', err);
+        }
+      }
+    }
+  }
 }

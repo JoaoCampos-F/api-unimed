@@ -73,8 +73,8 @@ export class PersisteDadosCobrancaService {
             descricao: removerAcentos(beneficiario.descricao),
             mes_import: mes.padStart(2, '0'),
             ano_import: ano,
-            mes_ref: this.calcularMesRef(mensalidade.periodo),
-            ano_ref: this.calcularAnoRef(mensalidade.periodo),
+            mes_ref: this.calcularMesRef(`${mes.padStart(2, '0')}-${ano}`),
+            ano_ref: this.calcularAnoRef(`${mes.padStart(2, '0')}-${ano}`),
           });
           count++;
         }
