@@ -1,0 +1,68 @@
+import { Injectable } from '@nestjs/common';
+import { IEmpresaRepository } from '../../domain/repositories/empresa.repository.interface';
+import { Empresa } from '../../domain/entities/empresa.entity';
+import { CNPJ } from '../../domain/value-objects/cnpj.value-object';
+import { DatabaseService } from '../../database/database.services';
+
+@Injectable()
+export class EmpresaRepository implements IEmpresaRepository {
+  constructor(private readonly databaseService: DatabaseService) {}
+
+  async buscarEmpresasAtivasUnimed(): Promise<Empresa[]> {
+    const sql = `
+      SELECT 
+        ef.cod_empresa,
+        ef.codcoligada,
+        ef.codfilial,
+        ef.cod_band,
+        ef.cnpj
+      FROM gc.empresa_filial ef
+      WHERE ef.processa_unimed = 'S'
+      ORDER BY ef.cod_band, ef.cod_empresa
+    `;
+
+    const resultado = await this.databaseService.executeQuery<any>(sql);
+
+    return resultado.map(
+      (row) =>
+        new Empresa(
+          row.COD_EMPRESA,
+          row.CODCOLIGADA,
+          row.CODFILIAL,
+          row.COD_BAND,
+          new CNPJ(row.CNPJ),
+          true,
+        ),
+    );
+  }
+
+  async buscarPorCodigo(codEmpresa: number): Promise<Empresa | null> {
+    const sql = `
+      SELECT 
+        ef.cod_empresa,
+        ef.codcoligada,
+        ef.codfilial,
+        ef.cod_band,
+        ef.cnpj,
+        ef.processa_unimed
+      FROM gc.empresa_filial ef
+      WHERE ef.cod_empresa = :codEmpresa
+    `;
+
+    const resultado = await this.databaseService.executeQuery<any>(sql, {
+      codEmpresa,
+    });
+
+    if (resultado.length === 0) return null;
+
+    const row = resultado[0];
+    return new Empresa(
+      row.COD_EMPRESA,
+      row.CODCOLIGADA,
+      row.CODFILIAL,
+      row.COD_BAND,
+      new CNPJ(row.CNPJ),
+      row.PROCESSA_UNIMED === 'S',
+    );
+  }
+}

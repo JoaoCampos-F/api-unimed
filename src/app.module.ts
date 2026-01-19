@@ -1,17 +1,37 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
-import { UnimedApiModule } from './modules/unimed/unimed.module';
-import { ImportacaoModule } from './modules/importacao/importacao.module';
+import { CommonModule } from './common/common.module';
+import { InfrastructureModule } from './infrastructure/infrastructure.module';
+import { ApplicationModule } from './application/application.module';
+import { PresentationModule } from './presentation/presentation.module';
+import appConfig from './config/app.config';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [appConfig],
+      envFilePath: '.env',
+    }),
     DatabaseModule,
-    UnimedApiModule,
-    ImportacaoModule,
+    CommonModule,
+    InfrastructureModule,
+    ApplicationModule,
+    PresentationModule,
   ],
-  controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
 })
 export class AppModule {}
