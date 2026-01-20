@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Beneficiario } from '../../domain/entities/beneficiario.entity';
 import { CPF } from '../../domain/value-objects/cpf.value-object';
-import { DemonstrativoDto } from '../../modules/importacao/dtos/demonstrativo.dto';
+import { DemonstrativoDto } from '../dtos/demonstrativo.dto';
 
 @Injectable()
 export class BeneficiarioFactory {

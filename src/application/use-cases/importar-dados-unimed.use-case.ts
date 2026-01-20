@@ -5,6 +5,7 @@ import { Periodo } from '../../domain/value-objects/periodo.value-object';
 import { UnimedApiService } from '../../infrastructure/external-apis/unimed-api.service';
 import { BeneficiarioFactory } from '../factories/beneficiario.factory';
 import { Inject } from '@nestjs/common';
+import { Empresa } from 'src/domain/entities/empresa.entity';
 
 export interface ImportarDadosUnimedRequest {
   mes: number;
@@ -87,7 +88,10 @@ export class ImportarDadosUnimedUseCase {
     };
   }
 
-  private async processarEmpresa(empresa, periodo): Promise<number> {
+  private async processarEmpresa(
+    empresa: Empresa,
+    periodo: Periodo,
+  ): Promise<number> {
     // 1. Limpar dados anteriores
     const registrosLimpos =
       await this.dadosCobrancaRepository.limparDadosImportacao(

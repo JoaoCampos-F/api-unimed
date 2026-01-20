@@ -65,4 +65,21 @@ export class EmpresaRepository implements IEmpresaRepository {
       row.PROCESSA_UNIMED === 'S',
     );
   }
+
+  async buscarContratosAtivos(): Promise<any[]> {
+    const sql = `
+      SELECT 
+        a.cod_empresa,
+        a.codcoligada,
+        a.codfilial,              
+        a.cod_band,
+        a.cnpj,
+        a.contrato
+      FROM gc.uni_dados_contrato a
+      WHERE a.ativo = 'S'       
+      ORDER BY a.cod_band, a.cod_empresa
+    `;
+
+    return this.databaseService.executeQuery(sql);
+  }
 }
