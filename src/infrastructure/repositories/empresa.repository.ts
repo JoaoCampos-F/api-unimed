@@ -3,6 +3,8 @@ import { IEmpresaRepository } from '../../domain/repositories/empresa.repository
 import { Empresa } from '../../domain/entities/empresa.entity';
 import { CNPJ } from '../../domain/value-objects/cnpj.value-object';
 import { DatabaseService } from '../../database/database.services';
+import { EmpresaFilialDto } from 'src/application/dtos/empresa-filial.dto';
+import { EmpresaDadosContratoDto } from 'src/application/dtos/empresa-dados-contrato.dto';
 
 @Injectable()
 export class EmpresaRepository implements IEmpresaRepository {
@@ -18,10 +20,12 @@ export class EmpresaRepository implements IEmpresaRepository {
         ef.cnpj
       FROM gc.empresa_filial ef
       WHERE ef.processa_unimed = 'S'
+      AND ef.CNPJ='28941028000142'
       ORDER BY ef.cod_band, ef.cod_empresa
     `;
 
-    const resultado = await this.databaseService.executeQuery<any>(sql);
+    const resultado =
+      await this.databaseService.executeQuery<EmpresaFilialDto>(sql);
 
     return resultado.map(
       (row) =>
@@ -56,6 +60,7 @@ export class EmpresaRepository implements IEmpresaRepository {
     if (resultado.length === 0) return null;
 
     const row = resultado[0];
+
     return new Empresa(
       row.COD_EMPRESA,
       row.CODCOLIGADA,
@@ -66,7 +71,7 @@ export class EmpresaRepository implements IEmpresaRepository {
     );
   }
 
-  async buscarContratosAtivos(): Promise<any[]> {
+  async buscarContratosAtivos(): Promise<EmpresaDadosContratoDto[]> {
     const sql = `
       SELECT 
         a.cod_empresa,

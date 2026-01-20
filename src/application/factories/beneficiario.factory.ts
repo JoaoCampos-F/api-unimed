@@ -3,6 +3,10 @@ import { Beneficiario } from '../../domain/entities/beneficiario.entity';
 import { CPF } from '../../domain/value-objects/cpf.value-object';
 import { DemonstrativoDto } from '../dtos/demonstrativo.dto';
 
+type Error = {
+  message: string;
+  [key: string]: any;
+};
 @Injectable()
 export class BeneficiarioFactory {
   private readonly logger = new Logger(BeneficiarioFactory.name);
@@ -36,9 +40,10 @@ export class BeneficiarioFactory {
             beneficiarios.push(beneficiario);
           } catch (error) {
             // Log do erro mas continua processamento
-            this.logger.warn(
-              `Erro ao criar beneficiário ${composicao.codbeneficiario}: ${error.message}`,
-            );
+            if (error instanceof Error)
+              this.logger.warn(
+                `Erro ao criar beneficiário ${composicao.codbeneficiario}: ${error.message}`,
+              );
           }
         }
       }

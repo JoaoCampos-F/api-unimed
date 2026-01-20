@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, Logger } from '@nestjs/common';
 import { ImportUnimedDto } from '../dtos/import-unimed.dto';
 import { UnimedApiService } from '../../infrastructure/external-apis/unimed-api.service';
@@ -76,7 +77,7 @@ export class ImportarUnimedPorContratoUseCase {
         this.logger.log(
           `Contrato ${contrato.CONTRATO}: ${qtdInserida} registros importados`,
         );
-      } catch (error) {
+      } catch (error: any) {
         const mensagemErro = `Erro no contrato ${contrato.CONTRATO}: ${error.message}`;
         this.logger.error(mensagemErro);
         erros.push(mensagemErro);

@@ -43,7 +43,7 @@ export class ImportarUnimedPorCnpjUseCase {
 
         const dadosUnimed = await this.unimedApiService.buscarPorPeriodoCnpj(
           periodo,
-          empresa.cnpj.valor,
+          empresa.cnpj.value,
         );
 
         const qtdLimpa = await this.cobrancaRepository.limparDadosImportacao(
@@ -64,7 +64,7 @@ export class ImportarUnimedPorCnpjUseCase {
           CODCOLIGADA: empresa.codColigada,
           CODFILIAL: empresa.codFilial,
           COD_BAND: empresa.codBand,
-          CNPJ: empresa.cnpj.valor,
+          CNPJ: empresa.cnpj.value,
         };
 
         const qtdInserida =
