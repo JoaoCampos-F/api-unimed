@@ -44,18 +44,15 @@ export class ImportacaoController {
   }
 
   @Get('dados-periodo-contrato')
-  importarDadosContrato(@Query() params: ImportarDadosUnimedDto) {
+  async importarDadosContrato(@Query() params: ImportarDadosUnimedDto) {
     try {
-      // const request = {
-      //   mes: parseInt(params.mes, 10),
-      //   ano: parseInt(params.ano, 10),
-      // };
+      const resultado = await this.importarDadosContratoUseCase.execute(params);
 
-      // const resultado =
-      //   await this.importarDadosContratoUseCase.execute(request);
-
-      const resultado = params;
-      return resultado;
+      return {
+        sucesso: true,
+        dados: resultado,
+        timestamp: new Date().toISOString(),
+      };
     } catch (error) {
       throw new HttpException(
         `Erro na importação: ${error.message}`,

@@ -2,14 +2,19 @@ export class CPF {
   private readonly _value: string;
 
   constructor(value: string) {
-    if (!this.isValid(value)) {
+    const cleanValue = value.replace(/\D/g, '');
+    if (!this.isValid(cleanValue)) {
       throw new Error('CPF inválido');
     }
-    this._value = this.format(value);
+    this._value = cleanValue;
   }
 
   get value(): string {
     return this._value;
+  }
+
+  getFormatted(): string {
+    return this._value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
   }
 
   private isValid(cpf: string): boolean {
@@ -40,11 +45,6 @@ export class CPF {
     if (digito2 !== parseInt(cleanCpf.charAt(10))) return false;
 
     return true;
-  }
-
-  private format(cpf: string): string {
-    const clean = cpf.replace(/\D/g, '');
-    return clean.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
   }
 
   equals(other: CPF): boolean {

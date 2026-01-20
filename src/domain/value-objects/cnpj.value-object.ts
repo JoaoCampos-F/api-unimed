@@ -2,14 +2,22 @@ export class CNPJ {
   private readonly _value: string;
 
   constructor(value: string) {
-    if (!this.isValid(value)) {
+    const cleanValue = value.replace(/\D/g, '');
+    if (!this.isValid(cleanValue)) {
       throw new Error('CNPJ inválido');
     }
-    this._value = this.format(value);
+    this._value = cleanValue;
   }
 
   get value(): string {
     return this._value;
+  }
+
+  getFormatted(): string {
+    return this._value.replace(
+      /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+      '$1.$2.$3/$4-$5',
+    );
   }
 
   private isValid(cnpj: string): boolean {
@@ -48,14 +56,6 @@ export class CNPJ {
     if (resultado !== parseInt(digitos.charAt(1))) return false;
 
     return true;
-  }
-
-  private format(cnpj: string): string {
-    const clean = cnpj.replace(/\D/g, '');
-    return clean.replace(
-      /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
-      '$1.$2.$3/$4-$5',
-    );
   }
 
   equals(other: CNPJ): boolean {

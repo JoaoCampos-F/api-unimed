@@ -5,7 +5,14 @@ import { CNPJ } from '../../domain/value-objects/cnpj.value-object';
 import { DatabaseService } from '../../database/database.services';
 import { EmpresaFilialDto } from 'src/application/dtos/empresa-filial.dto';
 import { EmpresaDadosContratoDto } from 'src/application/dtos/empresa-dados-contrato.dto';
-
+interface EmpresaDadosCodigo {
+  COD_EMPRESA: number;
+  CODCOLIGADA: number;
+  CODFILIAL: number;
+  COD_BAND: number;
+  CNPJ: string;
+  PROCESSA_UNIMED: string;
+}
 @Injectable()
 export class EmpresaRepository implements IEmpresaRepository {
   constructor(private readonly databaseService: DatabaseService) {}
@@ -53,9 +60,10 @@ export class EmpresaRepository implements IEmpresaRepository {
       WHERE ef.cod_empresa = :codEmpresa
     `;
 
-    const resultado = await this.databaseService.executeQuery<any>(sql, {
-      codEmpresa,
-    });
+    const resultado =
+      await this.databaseService.executeQuery<EmpresaDadosCodigo>(sql, {
+        codEmpresa,
+      });
 
     if (resultado.length === 0) return null;
 

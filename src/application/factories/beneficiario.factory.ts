@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Beneficiario } from '../../domain/entities/beneficiario.entity';
 import { CPF } from '../../domain/value-objects/cpf.value-object';
 import { DemonstrativoDto } from '../dtos/demonstrativo.dto';
+import { parseBrazilianDate } from '../../common/utils/date.utils';
 
 type Error = {
   message: string;
@@ -25,13 +26,23 @@ export class BeneficiarioFactory {
       if (mensalidade.composicoes) {
         for (const composicao of mensalidade.composicoes) {
           try {
+            const dataNascimento = parseBrazilianDate(composicao.nascimento);
+            const dataInclusao = parseBrazilianDate(composicao.inclusao);
+
+            if (!dataNascimento || !dataInclusao) {
+              this.logger.warn(
+                `Datas inválidas para beneficiário ${composicao.codbeneficiario}: nascimento=${composicao.nascimento}, inclusão=${composicao.inclusao}`,
+              );
+              continue;
+            }
+
             const beneficiario = new Beneficiario(
               composicao.codbeneficiario,
               composicao.beneficiario,
               new CPF(composicao.cpf),
               parseInt(composicao.idade, 10),
-              new Date(composicao.nascimento),
-              new Date(composicao.inclusao),
+              dataNascimento,
+              dataInclusao,
               composicao.dependencia,
               composicao.valorcobrado,
               composicao.descricao,
