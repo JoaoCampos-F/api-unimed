@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { IEmpresaRepository } from '../../domain/repositories/empresa.repository.interface';
-import type { IDadosCobrancaRepository } from '../../domain/repositories/dados-cobranca.repository.interface';
+
 import { Periodo } from '../../domain/value-objects/periodo.value-object';
 import { UnimedApiService } from '../../infrastructure/external-apis/unimed-api.service';
 import { BeneficiarioFactory } from '../factories/beneficiario.factory';
 import { Inject } from '@nestjs/common';
 import { Empresa } from 'src/domain/entities/empresa.entity';
+import type { IDadosCobrancaRepository } from 'src/domain/repositories/dados-cobranca.repository.interface';
 
 export interface ImportarDadosUnimedRequest {
   mes: number;

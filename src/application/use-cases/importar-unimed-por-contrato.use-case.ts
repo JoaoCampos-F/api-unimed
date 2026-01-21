@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ImportUnimedDto } from '../dtos/import-unimed.dto';
 import { UnimedApiService } from '../../infrastructure/external-apis/unimed-api.service';
 import { EmpresaRepository } from '../../infrastructure/repositories/empresa.repository';
-import { UnimedCobrancaRepository } from '../../infrastructure/repositories/unimed-cobranca.repository';
+import type { IDadosCobrancaRepository } from '../../domain/repositories/dados-cobranca.repository.interface';
 import { ImportacaoResult } from './importar-unimed-por-cnpj.use-case';
+import { Periodo } from '../../domain/value-objects/periodo.value-object';
+import { Empresa } from '../../domain/entities/empresa.entity';
+import { CNPJ } from '../../domain/value-objects/cnpj.value-object';
 
 @Injectable()
 export class ImportarUnimedPorContratoUseCase {
@@ -13,11 +16,13 @@ export class ImportarUnimedPorContratoUseCase {
   constructor(
     private readonly unimedApiService: UnimedApiService,
     private readonly empresaRepository: EmpresaRepository,
-    private readonly cobrancaRepository: UnimedCobrancaRepository,
+    @Inject('IDadosCobrancaRepository')
+    private readonly dadosCobrancaRepository: IDadosCobrancaRepository,
   ) {}
 
   async execute(dto: ImportUnimedDto): Promise<ImportacaoResult> {
-    const periodo = `${dto.mes.padStart(2, '0')}${dto.ano}`;
+    const periodo = new Periodo(parseInt(dto.mes, 10), parseInt(dto.ano, 10));
+    const periodoFormatado = `${dto.mes.padStart(2, '0')}${dto.ano}`;
     const contratos = await this.empresaRepository.buscarContratosAtivos();
 
     if (contratos.length === 0) {
@@ -39,36 +44,35 @@ export class ImportarUnimedPorContratoUseCase {
 
         const dadosUnimed =
           await this.unimedApiService.buscarPorPeriodoContrato(
-            periodo,
+            periodoFormatado,
             contrato.CONTRATO,
           );
 
-        const qtdLimpa = await this.cobrancaRepository.limparDadosImportacao(
+        // Converter DTO para Entity
+        const empresa = new Empresa(
           contrato.COD_EMPRESA,
           contrato.CODCOLIGADA,
           contrato.CODFILIAL,
-          dto.mes,
-          dto.ano,
+          contrato.COD_BAND,
+          new CNPJ(contrato.CNPJ),
+          true,
         );
+
+        const qtdLimpa =
+          await this.dadosCobrancaRepository.limparDadosImportacao(
+            empresa,
+            periodo,
+          );
 
         this.logger.log(
           `Contrato ${contrato.CONTRATO}: ${qtdLimpa} registros antigos removidos`,
         );
 
-        const empresaDto = {
-          COD_EMPRESA: contrato.COD_EMPRESA,
-          CODCOLIGADA: contrato.CODCOLIGADA,
-          CODFILIAL: contrato.CODFILIAL,
-          COD_BAND: contrato.COD_BAND,
-          CNPJ: contrato.CNPJ,
-        };
-
         const qtdInserida =
-          await this.cobrancaRepository.persistirDadosCobranca(
+          await this.dadosCobrancaRepository.persistirDeDemonstrativo(
             dadosUnimed,
-            empresaDto,
-            dto.mes,
-            dto.ano,
+            empresa,
+            periodo,
           );
 
         totalImportado += qtdInserida;

@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ImportUnimedDto } from '../dtos/import-unimed.dto';
 import { UnimedApiService } from '../../infrastructure/external-apis/unimed-api.service';
 import { EmpresaRepository } from '../../infrastructure/repositories/empresa.repository';
-import { UnimedCobrancaRepository } from '../../infrastructure/repositories/unimed-cobranca.repository';
+import type { IDadosCobrancaRepository } from '../../domain/repositories/dados-cobranca.repository.interface';
+import { Periodo } from '../../domain/value-objects/periodo.value-object';
 
 export interface ImportacaoResult {
   totalImportado: number;
@@ -17,11 +18,13 @@ export class ImportarUnimedPorCnpjUseCase {
   constructor(
     private readonly unimedApiService: UnimedApiService,
     private readonly empresaRepository: EmpresaRepository,
-    private readonly cobrancaRepository: UnimedCobrancaRepository,
+    @Inject('IDadosCobrancaRepository')
+    private readonly dadosCobrancaRepository: IDadosCobrancaRepository,
   ) {}
 
   async execute(dto: ImportUnimedDto): Promise<ImportacaoResult> {
-    const periodo = `${dto.mes.padStart(2, '0')}${dto.ano}`;
+    const periodo = new Periodo(parseInt(dto.mes, 10), parseInt(dto.ano, 10));
+    const periodoFormatado = `${dto.mes.padStart(2, '0')}${dto.ano}`;
     const empresas = await this.empresaRepository.buscarEmpresasAtivasUnimed();
 
     if (empresas.length === 0) {
@@ -42,37 +45,25 @@ export class ImportarUnimedPorCnpjUseCase {
         this.logger.log(`Processando empresa ${empresa.codEmpresa}...`);
 
         const dadosUnimed = await this.unimedApiService.buscarPorPeriodoCnpj(
-          periodo,
+          periodoFormatado,
           empresa.cnpj.value,
         );
 
-        const qtdLimpa = await this.cobrancaRepository.limparDadosImportacao(
-          empresa.codEmpresa,
-          empresa.codColigada,
-          empresa.codFilial,
-          dto.mes,
-          dto.ano,
-        );
+        const qtdLimpa =
+          await this.dadosCobrancaRepository.limparDadosImportacao(
+            empresa,
+            periodo,
+          );
 
         this.logger.log(
           `Empresa ${empresa.codEmpresa}: ${qtdLimpa} registros antigos removidos`,
         );
 
-        // Converter Empresa domain para DTO temporário
-        const empresaDto = {
-          COD_EMPRESA: empresa.codEmpresa,
-          CODCOLIGADA: empresa.codColigada,
-          CODFILIAL: empresa.codFilial,
-          COD_BAND: empresa.codBand,
-          CNPJ: empresa.cnpj.value,
-        };
-
         const qtdInserida =
-          await this.cobrancaRepository.persistirDadosCobranca(
+          await this.dadosCobrancaRepository.persistirDeDemonstrativo(
             dadosUnimed,
-            empresaDto,
-            dto.mes,
-            dto.ano,
+            empresa,
+            periodo,
           );
 
         totalImportado += qtdInserida;

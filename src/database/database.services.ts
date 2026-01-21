@@ -55,8 +55,13 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       connection = await this.pool.getConnection();
       const result = await connection.execute(sql, binds, {
         outFormat: oracledb.OUT_FORMAT_OBJECT,
+        autoCommit: true,
         ...options,
       });
+
+      this.logger.log(
+        `✅ Query executada - rowsAffected: ${result.rowsAffected || 0}`,
+      );
 
       return result.rows as T[];
     } catch (error) {
