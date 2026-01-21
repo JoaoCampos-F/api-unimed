@@ -8,7 +8,7 @@ export class UnimedApiService {
   private readonly logger = new Logger(UnimedApiService.name);
   private readonly apiClient: AxiosInstance;
   private token: string | null =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiY29tZXRhIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiREVNT05TVFJBVElWTyIsIm5iZiI6MTc2ODkzOTU0NSwiZXhwIjoxNzY4OTYxMTQ1fQ.jzSdhKqkA2objCwljah3Dri9SeUaxpO53p-U108Nnbg';
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiY29tZXRhIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiREVNT05TVFJBVElWTyIsIm5iZiI6MTc2ODk5NzAwNiwiZXhwIjoxNzY5MDE4NjA2fQ.e1tuKGYHeOH1y-VyPVPfQgv3Mm4UThS7dKit7-zui8o';
 
   constructor(private readonly configService: ConfigService) {
     const baseURL = this.configService.get<string>('UNIMED_API_URL');

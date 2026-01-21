@@ -26,23 +26,23 @@ export class BeneficiarioFactory {
       if (mensalidade.composicoes) {
         for (const composicao of mensalidade.composicoes) {
           try {
-            const dataNascimento = parseBrazilianDate(composicao.nascimento);
-            const dataInclusao = parseBrazilianDate(composicao.inclusao);
+            // const dataNascimento = parseBrazilianDate(composicao.nascimento);
+            // const dataInclusao = parseBrazilianDate(composicao.inclusao);
 
-            if (!dataNascimento || !dataInclusao) {
-              this.logger.warn(
-                `Datas inválidas para beneficiário ${composicao.codbeneficiario}: nascimento=${composicao.nascimento}, inclusão=${composicao.inclusao}`,
-              );
-              continue;
-            }
+            // if (!dataNascimento || !dataInclusao) {
+            //   this.logger.warn(
+            //     `Datas inválidas para beneficiário ${composicao.codbeneficiario}: nascimento=${composicao.nascimento}, inclusão=${composicao.inclusao}`,
+            //   );
+            //   continue;
+            // }
 
             const beneficiario = new Beneficiario(
               composicao.codbeneficiario,
               composicao.beneficiario,
               new CPF(composicao.cpf),
               parseInt(composicao.idade, 10),
-              dataNascimento,
-              dataInclusao,
+              composicao.nascimento,
+              composicao.inclusao,
               composicao.dependencia,
               composicao.valorcobrado,
               composicao.descricao,

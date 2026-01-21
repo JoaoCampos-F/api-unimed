@@ -6,8 +6,8 @@ export class Beneficiario {
     private readonly _nome: string,
     private readonly _cpf: CPF,
     private readonly _idade: number,
-    private readonly _nascimento: Date,
-    private readonly _inclusao: Date,
+    private readonly _nascimento: string,
+    private readonly _inclusao: string,
     private readonly _dependencia: string,
     private readonly _valorCobrado: number,
     private readonly _descricao: string,
@@ -29,11 +29,11 @@ export class Beneficiario {
     return this._idade;
   }
 
-  get nascimento(): Date {
+  get nascimento(): string {
     return this._nascimento;
   }
 
-  get inclusao(): Date {
+  get inclusao(): string {
     return this._inclusao;
   }
 
