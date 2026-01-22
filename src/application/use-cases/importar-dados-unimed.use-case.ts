@@ -3,7 +3,6 @@ import type { IEmpresaRepository } from '../../domain/repositories/empresa.repos
 
 import { Periodo } from '../../domain/value-objects/periodo.value-object';
 import { UnimedApiService } from '../../infrastructure/external-apis/unimed-api.service';
-import { BeneficiarioFactory } from '../factories/beneficiario.factory';
 import { Inject } from '@nestjs/common';
 import { Empresa } from 'src/domain/entities/empresa.entity';
 import type { IDadosCobrancaRepository } from 'src/domain/repositories/dados-cobranca.repository.interface';
@@ -30,7 +29,6 @@ export class ImportarDadosUnimedUseCase {
     @Inject('IDadosCobrancaRepository')
     private readonly dadosCobrancaRepository: IDadosCobrancaRepository,
     private readonly unimedApiService: UnimedApiService,
-    private readonly beneficiarioFactory: BeneficiarioFactory,
   ) {}
 
   async execute(
@@ -110,14 +108,10 @@ export class ImportarDadosUnimedUseCase {
       empresa.cnpj.value,
     );
 
-    // 3. Converter e validar dados
-    const beneficiarios =
-      this.beneficiarioFactory.criarDeDemonstrativo(dadosUnimed);
-
-    // 4. Persistir dados
+    // 3. Persistir dados completos (com todos os campos da mensalidade)
     const registrosInseridos =
-      await this.dadosCobrancaRepository.persistirBeneficiarios(
-        beneficiarios,
+      await this.dadosCobrancaRepository.persistirDeDemonstrativo(
+        dadosUnimed,
         empresa,
         periodo,
       );

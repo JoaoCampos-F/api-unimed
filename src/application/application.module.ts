@@ -5,8 +5,6 @@ import { ExecutarResumoUnimedUseCase } from './use-cases/executar-resumo-unimed.
 import { BuscarEmpresasUnimedUseCase } from './use-cases/buscar-empresas-unimed.use-case';
 import { ImportarUnimedPorCnpjUseCase } from './use-cases/importar-unimed-por-cnpj.use-case';
 import { ImportarUnimedPorContratoUseCase } from './use-cases/importar-unimed-por-contrato.use-case';
-import { BeneficiarioFactory } from './factories/beneficiario.factory';
-
 @Module({
   imports: [InfrastructureModule],
   providers: [
@@ -15,7 +13,6 @@ import { BeneficiarioFactory } from './factories/beneficiario.factory';
     BuscarEmpresasUnimedUseCase,
     ImportarUnimedPorCnpjUseCase,
     ImportarUnimedPorContratoUseCase,
-    BeneficiarioFactory,
   ],
   exports: [
     ImportarDadosUnimedUseCase,
