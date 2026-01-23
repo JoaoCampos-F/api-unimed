@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { IDadosCobrancaRepository } from '../../domain/repositories/dados-cobranca.repository.interface';
 import { Periodo } from '../../domain/value-objects/periodo.value-object';

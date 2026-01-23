@@ -147,6 +147,40 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     return result.length;
   }
 
+  async executeUpdate(
+    sql: string,
+    binds: any[] | Record<string, any> = [],
+  ): Promise<number> {
+    let connection: oracledb.Connection;
+
+    try {
+      connection = await this.pool.getConnection();
+      const result = await connection.execute(sql, binds, {
+        autoCommit: true,
+      });
+
+      this.logger.log(
+        `✅ Update executado - rowsAffected: ${result.rowsAffected || 0}`,
+      );
+
+      return result.rowsAffected || 0;
+    } catch (error) {
+      this.logger.error(
+        `Erro ao executar update: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (err) {
+          this.logger.error('Erro ao fechar conexão', err);
+        }
+      }
+    }
+  }
+
   async executeDelete(
     sql: string,
     binds: any[] | Record<string, any> = [],
