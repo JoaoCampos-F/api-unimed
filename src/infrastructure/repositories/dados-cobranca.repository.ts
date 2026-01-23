@@ -139,7 +139,6 @@ export class DadosCobrancaRepository implements IDadosCobrancaRepository {
   }
 
   async executarResumo(periodo: Periodo): Promise<void> {
-    const periodoRef = periodo.calcularMesReferencia();
     const plsql = `
       BEGIN
         gc.PKG_UNI_SAUDE.p_uni_resumo(:mes_ref, :ano_ref);
@@ -147,8 +146,8 @@ export class DadosCobrancaRepository implements IDadosCobrancaRepository {
     `;
 
     const binds = {
-      mes_ref: parseInt(periodoRef.mesFormatado, 10),
-      ano_ref: parseInt(periodoRef.anoString, 10),
+      mes_ref: parseInt(periodo.mesFormatado, 10),
+      ano_ref: parseInt(periodo.anoString, 10),
     };
 
     await this.databaseService.executeProcedure(plsql, binds);
