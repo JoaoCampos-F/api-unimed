@@ -1,6 +1,6 @@
 import { Empresa } from '../entities/empresa.entity';
 import { Periodo } from '../value-objects/periodo.value-object';
-import { DemonstrativoDto } from '../../application/dtos/demonstrativo.dto';
+import { DemonstrativoDto } from '../../application/dtos/importacao/demonstrativo.dto';
 
 export interface IDadosCobrancaRepository {
   persistirDeDemonstrativo(

@@ -6,11 +6,11 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { ImportarDadosUnimedDto } from '../../application/dtos/importar-dados-unimed.dto';
-import { ImportarDadosUnimedUseCase } from '../../application/use-cases/importar-dados-unimed.use-case';
-import { ExecutarResumoUnimedUseCase } from '../../application/use-cases/executar-resumo-unimed.use-case';
-import { BuscarEmpresasUnimedUseCase } from '../../application/use-cases/buscar-empresas-unimed.use-case';
-import { ImportarUnimedPorContratoUseCase } from '../../application/use-cases/importar-unimed-por-contrato.use-case';
+import { ImportarDadosUnimedDto } from '../../application/dtos/importacao/importar-dados-unimed.dto';
+import { ImportarDadosUnimedUseCase } from '../../application/use-cases/importacao/importar-dados-unimed.use-case';
+import { ExecutarResumoUnimedUseCase } from '../../application/use-cases/importacao/executar-resumo-unimed.use-case';
+import { BuscarEmpresasUnimedUseCase } from '../../application/use-cases/importacao/buscar-empresas-unimed.use-case';
+import { ImportarUnimedPorContratoUseCase } from '../../application/use-cases/importacao/importar-unimed-por-contrato.use-case';
 
 @Controller('importacao')
 export class ImportacaoController {

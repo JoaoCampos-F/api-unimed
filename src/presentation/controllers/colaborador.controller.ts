@@ -1,12 +1,12 @@
 import { Controller, Get, HttpException, Query } from '@nestjs/common';
-import { BuscarColaboradoresDto } from 'src/application/dtos/buscar-colaboradores.dto';
-import { AtualizarColaboradorUseCase } from 'src/application/use-cases/atualizar-colaborador.use-case';
-import { AtualizarTodosColaboradoresUseCase } from 'src/application/use-cases/atualizar-todos-colaboradores.use-case';
-import { AtualizarValorEmpresaUseCase } from 'src/application/use-cases/atualizar-valor-empresa.use-case';
+import { BuscarColaboradoresDto } from 'src/application/dtos/colaboradores/buscar-colaboradores.dto';
+import { AtualizarColaboradorUseCase } from 'src/application/use-cases/colaborador/atualizar-colaborador.use-case';
+import { AtualizarTodosColaboradoresUseCase } from 'src/application/use-cases/colaborador/atualizar-todos-colaboradores.use-case';
+import { AtualizarValorEmpresaUseCase } from 'src/application/use-cases/colaborador/atualizar-valor-empresa.use-case';
 import {
   BuscarColaboradoresResponse,
   BuscarColaboradoresUseCase,
-} from 'src/application/use-cases/buscar-colaboradores.use-case';
+} from 'src/application/use-cases/colaborador/buscar-colaboradores.use-case';
 @Controller('colaboradores')
 export class ColaboradorController {
   constructor(

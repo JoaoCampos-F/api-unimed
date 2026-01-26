@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import type { IEmpresaRepository } from '../../domain/repositories/empresa.repository.interface';
-
-import { Periodo } from '../../domain/value-objects/periodo.value-object';
-import { UnimedApiService } from '../../infrastructure/external-apis/unimed-api.service';
+import type { IEmpresaRepository } from '../../../domain/repositories/empresa.repository.interface';
+import { Periodo } from '../../../domain/value-objects/periodo.value-object';
+import { UnimedApiService } from '../../../infrastructure/external-apis/unimed-api.service';
 import { Inject } from '@nestjs/common';
 import { Empresa } from 'src/domain/entities/empresa.entity';
 import type { IDadosCobrancaRepository } from 'src/domain/repositories/dados-cobranca.repository.interface';

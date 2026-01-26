@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ImportUnimedDto } from '../dtos/import-unimed.dto';
-import { UnimedApiService } from '../../infrastructure/external-apis/unimed-api.service';
-import { EmpresaRepository } from '../../infrastructure/repositories/empresa.repository';
-import type { IDadosCobrancaRepository } from '../../domain/repositories/dados-cobranca.repository.interface';
+import { ImportUnimedDto } from '../../dtos/importacao/import-unimed.dto';
+import { UnimedApiService } from '../../../infrastructure/external-apis/unimed-api.service';
+import { EmpresaRepository } from '../../../infrastructure/repositories/empresa.repository';
+import type { IDadosCobrancaRepository } from '../../../domain/repositories/dados-cobranca.repository.interface';
 import { ImportacaoResult } from './importar-unimed-por-cnpj.use-case';
-import { Periodo } from '../../domain/value-objects/periodo.value-object';
-import { Empresa } from '../../domain/entities/empresa.entity';
-import { CNPJ } from '../../domain/value-objects/cnpj.value-object';
+import { Periodo } from '../../../domain/value-objects/periodo.value-object';
+import { Empresa } from '../../../domain/entities/empresa.entity';
+import { CNPJ } from '../../../domain/value-objects/cnpj.value-object';
 
 @Injectable()
 export class ImportarUnimedPorContratoUseCase {

@@ -4,7 +4,7 @@ import { DatabaseService } from '../../database/database.services';
 import { IDadosCobrancaRepository } from '../../domain/repositories/dados-cobranca.repository.interface';
 import { Empresa } from '../../domain/entities/empresa.entity';
 import { Periodo } from '../../domain/value-objects/periodo.value-object';
-import { DemonstrativoDto } from '../../application/dtos/demonstrativo.dto';
+import { DemonstrativoDto } from '../../application/dtos/importacao/demonstrativo.dto';
 
 @Injectable()
 export class DadosCobrancaRepository implements IDadosCobrancaRepository {

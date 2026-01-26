@@ -1,9 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ImportUnimedDto } from '../dtos/import-unimed.dto';
-import { UnimedApiService } from '../../infrastructure/external-apis/unimed-api.service';
-import { EmpresaRepository } from '../../infrastructure/repositories/empresa.repository';
-import type { IDadosCobrancaRepository } from '../../domain/repositories/dados-cobranca.repository.interface';
-import { Periodo } from '../../domain/value-objects/periodo.value-object';
+import { ImportUnimedDto } from '../../dtos/importacao/import-unimed.dto';
+import { UnimedApiService } from '../../../infrastructure/external-apis/unimed-api.service';
+import { EmpresaRepository } from '../../../infrastructure/repositories/empresa.repository';
+import type { IDadosCobrancaRepository } from '../../../domain/repositories/dados-cobranca.repository.interface';
+import { Periodo } from '../../../domain/value-objects/periodo.value-object';
 
 export interface ImportacaoResult {
   totalImportado: number;

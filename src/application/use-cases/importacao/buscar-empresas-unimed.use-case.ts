@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import type { IEmpresaRepository } from '../../domain/repositories/empresa.repository.interface';
+import type { IEmpresaRepository } from '../../../domain/repositories/empresa.repository.interface';
 import { Inject } from '@nestjs/common';
 
 export interface BuscarEmpresasUnimedResponse {

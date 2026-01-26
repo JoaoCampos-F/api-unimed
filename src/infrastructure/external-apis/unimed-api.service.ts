@@ -2,7 +2,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
-import { DemonstrativoDto } from '../../application/dtos/demonstrativo.dto';
+import { DemonstrativoDto } from '../../application/dtos/importacao/demonstrativo.dto';
 
 @Injectable()
 export class UnimedApiService {

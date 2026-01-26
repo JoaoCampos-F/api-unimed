@@ -3,8 +3,8 @@ import { IEmpresaRepository } from '../../domain/repositories/empresa.repository
 import { Empresa } from '../../domain/entities/empresa.entity';
 import { CNPJ } from '../../domain/value-objects/cnpj.value-object';
 import { DatabaseService } from '../../database/database.services';
-import { EmpresaFilialDto } from 'src/application/dtos/empresa-filial.dto';
-import { EmpresaDadosContratoDto } from 'src/application/dtos/empresa-dados-contrato.dto';
+import { EmpresaFilialDto } from 'src/application/dtos/importacao/empresa-filial.dto';
+import { EmpresaDadosContratoDto } from 'src/application/dtos/importacao/empresa-dados-contrato.dto';
 interface EmpresaDadosCodigo {
   COD_EMPRESA: number;
   CODCOLIGADA: number;

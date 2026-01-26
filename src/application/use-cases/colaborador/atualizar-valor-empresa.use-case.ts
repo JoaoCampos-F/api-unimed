@@ -1,5 +1,5 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import type { IColaboradorRepository } from '../../domain/repositories/colaborador.repository.interface';
+import type { IColaboradorRepository } from '../../../domain/repositories/colaborador.repository.interface';
 
 export interface AtualizarValorEmpresaRequest {
   codEmpresa: number;
