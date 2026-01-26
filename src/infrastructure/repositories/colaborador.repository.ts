@@ -103,28 +103,50 @@ export class ColaboradorRepository implements IColaboradorRepository {
       binds,
     );
 
-    return rows.map(
-      (row) =>
-        new Colaborador(
-          row.COD_EMPRESA,
-          row.CODCOLIGADA,
-          row.CODFILIAL,
-          row.COD_BAND,
-          new CPF(row.CODIGO_CPF),
-          row.COLABORADOR,
-          row.APELIDO,
-          row.MES_REF,
-          row.ANO_REF,
-          row.M_TITULAR,
-          row.M_DEPENDENTE,
-          row.VALOR_CONSUMO,
-          row.PERC_EMPRESA,
-          row.VALOR_TOTAL,
-          row.VALOR_LIQUIDO,
-          row.EXPORTA,
-          row.ATIVO,
-        ),
-    );
+    return rows
+      .filter((row) => {
+        // Filtra registros sem CPF
+        if (!row.CODIGO_CPF || row.CODIGO_CPF.trim() === '') {
+          this.logger.warn(
+            `Colaborador ${row.COLABORADOR} (empresa ${row.COD_EMPRESA}) sem CPF - ignorado`,
+          );
+          return false;
+        }
+        return true;
+      })
+      .map((row) => {
+        try {
+          // IMPORTANTE: A tabela uni_resumo_colaborador armazena CPFs sem zeros à esquerda
+          // Ex: "12345678" ao invés de "00012345678"
+          // Fazemos LPAD para normalizar antes de criar o Value Object
+          const cpfNormalizado = row.CODIGO_CPF.padStart(11, '0');
+
+          return new Colaborador(
+            row.COD_EMPRESA,
+            row.CODCOLIGADA,
+            row.CODFILIAL,
+            row.COD_BAND,
+            new CPF(cpfNormalizado),
+            row.COLABORADOR,
+            row.APELIDO,
+            row.MES_REF,
+            row.ANO_REF,
+            row.M_TITULAR,
+            row.M_DEPENDENTE,
+            row.VALOR_CONSUMO,
+            row.PERC_EMPRESA,
+            row.VALOR_TOTAL,
+            row.VALOR_LIQUIDO,
+            row.EXPORTA,
+            row.ATIVO,
+          );
+        } catch (error) {
+          this.logger.error(
+            `Erro ao criar colaborador ${row.COLABORADOR} (CPF: ${row.CODIGO_CPF}): ${error.message}`,
+          );
+          throw error;
+        }
+      });
   }
 
   async atualizarExporta(params: AtualizarColaboradorParams): Promise<void> {
@@ -174,10 +196,10 @@ export class ColaboradorRepository implements IColaboradorRepository {
       `Atualizando todos colaboradores: ${JSON.stringify(params)}`,
     );
 
-    const result = await this.databaseService.executeQuery(query, binds);
+    const result = await this.databaseService.executeUpdate(query, binds);
 
     // Oracle retorna rowsAffected em result.rowsAffected
-    return (result as any).rowsAffected || 0;
+    return result || 0;
   }
 
   async atualizarValorEmpresa(
