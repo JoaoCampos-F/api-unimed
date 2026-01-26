@@ -29,7 +29,15 @@ export class AtualizarColaboradorUseCase {
       `Atualizando colaborador CPF: ${request.cpf}, Período: ${request.mesRef}/${request.anoRef}, Exporta: ${request.exporta}`,
     );
 
-    await this.colaboradorRepository.atualizarExporta(request);
+    const rowsAffected =
+      await this.colaboradorRepository.atualizarExporta(request);
+
+    if (rowsAffected === 0) {
+      return {
+        sucesso: false,
+        mensagem: `Colaborador com CPF ${request.cpf} não encontrado para o período ${request.mesRef}/${request.anoRef}`,
+      };
+    }
 
     const mensagem =
       request.exporta === 'N'

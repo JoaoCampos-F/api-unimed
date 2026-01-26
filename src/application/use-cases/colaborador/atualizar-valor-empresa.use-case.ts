@@ -29,11 +29,19 @@ export class AtualizarValorEmpresaUseCase {
       `Atualizando valor empresa: ${request.codEmpresa} para R$ ${request.valor.toFixed(2)}`,
     );
 
-    await this.colaboradorRepository.atualizarValorEmpresa(request);
+    const rowsAffected =
+      await this.colaboradorRepository.atualizarValorEmpresa(request);
+
+    if (rowsAffected === 0) {
+      return {
+        sucesso: false,
+        mensagem: `Nenhum colaborador ativo encontrado para a empresa ${request.codEmpresa}`,
+      };
+    }
 
     return {
       sucesso: true,
-      mensagem: `Valor atualizado com sucesso para R$ ${request.valor.toFixed(2).replace('.', ',')}`,
+      mensagem: `Valor atualizado com sucesso para R$ ${request.valor.toFixed(2).replace('.', ',')} (${rowsAffected} colaboradores)`,
     };
   }
 }

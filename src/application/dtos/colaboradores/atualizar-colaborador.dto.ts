@@ -1,9 +1,11 @@
 import { IsString, IsNotEmpty, IsIn, Matches } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class AtualizarColaboradorDto {
+  @Transform(({ value }) => value?.replace(/^0+/, '') || value)
   @IsString()
   @IsNotEmpty()
-  @Matches(/^\d{11}$/, { message: 'CPF deve ter 11 dígitos' })
+  @Matches(/^\d{1,11}$/, { message: 'CPF deve ter até 11 dígitos' })
   cpf: string;
 
   @IsString()

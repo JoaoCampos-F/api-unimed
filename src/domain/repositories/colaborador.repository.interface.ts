@@ -35,7 +35,7 @@ export interface IColaboradorRepository {
   buscarColaboradores(
     params: BuscarColaboradoresParams,
   ): Promise<Colaborador[]>;
-  atualizarExporta(params: AtualizarColaboradorParams): Promise<void>;
+  atualizarExporta(params: AtualizarColaboradorParams): Promise<number>; // retorna qtd atualizada
   atualizarTodosExporta(params: AtualizarTodosParams): Promise<number>; // retorna qtd atualizada
-  atualizarValorEmpresa(params: AtualizarValorEmpresaParams): Promise<void>;
+  atualizarValorEmpresa(params: AtualizarValorEmpresaParams): Promise<number>; // retorna qtd atualizada
 }

@@ -149,18 +149,21 @@ export class ColaboradorRepository implements IColaboradorRepository {
       });
   }
 
-  async atualizarExporta(params: AtualizarColaboradorParams): Promise<void> {
+  async atualizarExporta(params: AtualizarColaboradorParams): Promise<number> {
+    // Remove zeros à esquerda do CPF para comparação
+    const cpfSemZeros = params.cpf.replace(/^0+/, '');
+
     const query = `
       UPDATE gc.uni_resumo_colaborador
       SET exporta = :exporta
-      WHERE codigo_cpf = :cpf
+      WHERE ltrim(codigo_cpf, '0') = :cpf
         AND mes_ref = :mesRef
         AND ano_ref = :anoRef
     `;
 
     const binds = {
       exporta: params.exporta,
-      cpf: params.cpf,
+      cpf: cpfSemZeros,
       mesRef: params.mesRef,
       anoRef: params.anoRef,
     };
@@ -169,7 +172,15 @@ export class ColaboradorRepository implements IColaboradorRepository {
       `Atualizando exporta colaborador: ${JSON.stringify(params)}`,
     );
 
-    await this.databaseService.executeQuery(query, binds);
+    const rowsAffected = await this.databaseService.executeUpdate(query, binds);
+
+    if (rowsAffected === 0) {
+      this.logger.warn(
+        `Nenhum colaborador encontrado com CPF ${params.cpf} para período ${params.mesRef}/${params.anoRef}`,
+      );
+    }
+
+    return rowsAffected;
   }
 
   async atualizarTodosExporta(params: AtualizarTodosParams): Promise<number> {
@@ -204,7 +215,7 @@ export class ColaboradorRepository implements IColaboradorRepository {
 
   async atualizarValorEmpresa(
     params: AtualizarValorEmpresaParams,
-  ): Promise<void> {
+  ): Promise<number> {
     // IMPORTANTE: Usa vírgula como separador decimal (formato brasileiro)
     const valorFormatado = params.valor.toFixed(2).replace('.', ',');
 
@@ -226,6 +237,12 @@ export class ColaboradorRepository implements IColaboradorRepository {
 
     this.logger.debug(`Atualizando valor empresa: ${JSON.stringify(params)}`);
 
-    await this.databaseService.executeQuery(query, binds);
+    const rowsAffected = await this.databaseService.executeUpdate(query, binds);
+
+    this.logger.log(
+      `Valor empresa atualizado: ${rowsAffected} colaboradores afetados`,
+    );
+
+    return rowsAffected;
   }
 }
