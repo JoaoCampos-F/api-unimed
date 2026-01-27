@@ -29,17 +29,17 @@ Avaliar o estado de migração do módulo UNI (Unimed) do sistema legado PHP (np
 
 ### 📊 **Status Geral do Projeto**
 
-| Categoria                       | % Concluído | Status          | Endpoints    |
-| ------------------------------- | ----------- | --------------- | ------------ |
-| **Arquitetura Base**            | 100%        | ✅ Completo     | -            |
-| **Integração API Unimed**       | 100%        | ✅ Completo     | -            |
-| **Importação de Dados**         | 100%        | ✅ Completo     | 4/4          |
-| **Gerenciamento Colaboradores** | 100%        | ✅ Completo     | 4/4          |
-| **Processos e Fechamentos**     | 100%        | ✅ Completo     | 3/3          |
-| **Relatórios**                  | 0%          | 🔴 Não Iniciado | 0/?          |
-| **Exportação TOTVS**            | 0%          | 🔴 Não Iniciado | 0/?          |
-| **DIRF**                        | 0%          | 🔴 Não Iniciado | 0/?          |
-| **TOTAL GERAL**                 | **62%**     | 🟡 Em Progresso | **11/~20**   |
+| Categoria                       | % Concluído | Status          | Endpoints  |
+| ------------------------------- | ----------- | --------------- | ---------- |
+| **Arquitetura Base**            | 100%        | ✅ Completo     | -          |
+| **Integração API Unimed**       | 100%        | ✅ Completo     | -          |
+| **Importação de Dados**         | 100%        | ✅ Completo     | 4/4        |
+| **Gerenciamento Colaboradores** | 100%        | ✅ Completo     | 4/4        |
+| **Processos e Fechamentos**     | 100%        | ✅ Completo     | 3/3        |
+| **Relatórios**                  | 0%          | 🔴 Não Iniciado | 0/?        |
+| **Exportação TOTVS**            | 0%          | 🔴 Não Iniciado | 0/?        |
+| **DIRF**                        | 0%          | 🔴 Não Iniciado | 0/?        |
+| **TOTAL GERAL**                 | **62%**     | 🟡 Em Progresso | **11/~20** |
 
 ### 🔑 **Principais Descobertas**
 
@@ -70,12 +70,12 @@ Avaliar o estado de migração do módulo UNI (Unimed) do sistema legado PHP (np
 
 📊 **Progresso Detalhado por Camada:**
 
-| Camada            | Implementado                                          | Status |
-| ----------------- | ----------------------------------------------------- | ------ |
-| **Domain**        | 7 Entities, 4 Repository Interfaces, 3 Value Objects | ✅ 100% |
-| **Application**   | 12 Use Cases, 12 DTOs, Factories                     | ✅ 100% |
-| **Infrastructure**| 4 Repositories, UnidedApiService, DatabaseService    | ✅ 100% |
-| **Presentation**  | 3 Controllers (11 endpoints), Filters, Interceptors  | ✅ 100% |
+| Camada             | Implementado                                         | Status  |
+| ------------------ | ---------------------------------------------------- | ------- |
+| **Domain**         | 7 Entities, 4 Repository Interfaces, 3 Value Objects | ✅ 100% |
+| **Application**    | 12 Use Cases, 12 DTOs, Factories                     | ✅ 100% |
+| **Infrastructure** | 4 Repositories, UnidedApiService, DatabaseService    | ✅ 100% |
+| **Presentation**   | 3 Controllers (11 endpoints), Filters, Interceptors  | ✅ 100% |
 
 ⚠️ **Módulos Pendentes:**
 
@@ -85,16 +85,16 @@ Avaliar o estado de migração do módulo UNI (Unimed) do sistema legado PHP (np
 
 ### 📈 **Evolução do Projeto**
 
-| Data       | % Completo | Marcos Atingidos                                    |
-| ---------- | ---------- | --------------------------------------------------- |
-| 21/01/2026 | 28%        | Análise inicial, arquitetura base                   |
-| 23/01/2026 | 50%        | Importação + Colaboradores completos                |
-| 27/01/2026 | **62%**    | Processos implementado (11 endpoints funcionais)    |
+| Data       | % Completo | Marcos Atingidos                                 |
+| ---------- | ---------- | ------------------------------------------------ |
+| 21/01/2026 | 28%        | Análise inicial, arquitetura base                |
+| 23/01/2026 | 50%        | Importação + Colaboradores completos             |
+| 27/01/2026 | **62%**    | Processos implementado (11 endpoints funcionais) |
 
 ### 🎯 **Próximos Passos**
 
 1. ✅ ~~Implementar módulo de Importação~~ **CONCLUÍDO**
-2. ✅ ~~Implementar módulo de Colaboradores~~ **CONCLUÍDO**  
+2. ✅ ~~Implementar módulo de Colaboradores~~ **CONCLUÍDO**
 3. ✅ ~~Implementar módulo de Processos~~ **CONCLUÍDO**
 4. ⏳ **Implementar Exportação TOTVS** (PRÓXIMO)
 5. ⏳ Implementar Relatórios
@@ -781,10 +781,10 @@ api-unimed/src/
     {
       "cpf": "12345678901",
       "nome": "João Silva",
-      "valorConsumo": 450.50,
-      "valorTotal": 450.50,
-      "valorEmpresa": 350.50,
-      "valorLiquido": 100.00,
+      "valorConsumo": 450.5,
+      "valorTotal": 450.5,
+      "valorEmpresa": 350.5,
+      "valorLiquido": 100.0,
       "exporta": "S",
       "mesRef": "10",
       "anoRef": "2025"
@@ -811,8 +811,8 @@ api-unimed/src/
   "mesRef": "10",
   "anoRef": "2025",
   "exporta": "N",
-  "valorEmpresa": 350.50,
-  "valorLiquido": 100.00
+  "valorEmpresa": 350.5,
+  "valorLiquido": 100.0
 }
 ```
 
@@ -982,6 +982,7 @@ api-unimed/src/
 **Status:** ✅ **FUNCIONAL** (Implementado, aguardando testes)
 
 **Features:**
+
 - ✅ Validação de prazo automática
 - ✅ Modo prévia (teste sem commit)
 - ✅ Modo apaga (limpa dados antigos)
@@ -1120,6 +1121,7 @@ ORDER BY cod_band, cod_empresa
 **Tabela:** `gc.uni_resumo_colaborador`
 
 **Features:**
+
 - ✅ Filtros dinâmicos (empresa, nome, CPF, exporta)
 - ✅ Paginação automática
 - ✅ Recálculo de valores (valor_liquido = valor_consumo - valor_empresa)
@@ -1140,6 +1142,7 @@ ORDER BY cod_band, cod_empresa
 - ✅ `validarPrazoExecucao(processo, mes, ano)`: Valida se está no prazo
 
 **Procedure Executada:**
+
 ```sql
 GC.PGK_GLOBAL.P_MCW_FECHA_COMISSAO_GLOBAL(
   p_processo, p_mes, p_ano, p_previa, p_apaga,
@@ -1149,6 +1152,7 @@ GC.PGK_GLOBAL.P_MCW_FECHA_COMISSAO_GLOBAL(
 ```
 
 **Tabelas:**
+
 - `gc.mcw_processo` (cadastro de processos)
 - `gc.mcw_processo_log` (histórico de execuções)
 - `gc.mcw_periodo_fechamento` (controle de períodos)
@@ -1222,46 +1226,48 @@ export default () => ({
 
 ### 📊 **Tabela de Equivalências**
 
-| Funcionalidade          | Legacy (PHP)                       | NestJS                                      | Status            |
-| ----------------------- | ---------------------------------- | ------------------------------------------- | ----------------- |
-| **IMPORTAÇÃO**          |                                    |                                             |                   |
-| Importar por CNPJ       | `acao=saveUnimedCnpj`              | `GET /importacao/dados-periodo-cnpj`        | ✅ IMPLEMENTADO   |
-| Importar por Contrato   | `acao=saveUnimedContrato`          | `GET /importacao/dados-periodo-contrato`    | ✅ IMPLEMENTADO   |
-| Importar SOAP (legado)  | `acao=saveUnimed2`                 | -                                           | ⛔ Não necessário |
-| Executar Resumo         | `acao=save`                        | `GET /importacao/executar-resumo`           | ✅ IMPLEMENTADO   |
-| Buscar Empresas         | Parte de `Buscar`                  | `GET /importacao/empresas-unimed`           | ✅ IMPLEMENTADO   |
-| **COLABORADORES**       |                                    |                                             |                   |
-| Buscar Colaboradores    | `acao=Buscar`                      | `GET /colaboradores`                        | ✅ IMPLEMENTADO   |
-| Buscar com Filtros      | `acao=BuscarColaboradorAjuste`     | `GET /colaboradores?filtros`                | ✅ IMPLEMENTADO   |
-| Atualizar Individual    | `acao=update`                      | `PATCH /colaboradores/atualizar`            | ✅ IMPLEMENTADO   |
-| Marcar Exporta          | `acao=AlteraExporta`               | `PATCH /colaboradores/atualizar`            | ✅ IMPLEMENTADO   |
-| Atualizar Todos         | `acao=updateTodosColaborador`      | `PATCH /colaboradores/atualizar-todos`      | ✅ IMPLEMENTADO   |
-| Atualizar Todos Exporta | `acao=AlteraExportaTodos`          | `PATCH /colaboradores/atualizar-todos`      | ✅ IMPLEMENTADO   |
-| Atualizar Valor Empresa | `acao=updateValor`                 | `PATCH /colaboradores/atualizar-valor-empresa` | ✅ IMPLEMENTADO |
-| Atualizar Valor Filial  | `acao=AtualizaValorEmpresaFilial`  | `PATCH /colaboradores/atualizar-valor-empresa` | ✅ IMPLEMENTADO |
-| **PROCESSOS**           |                                    |                                             |                   |
-| Buscar Processos        | `acao=Buscarprocesso`              | `GET /api/v1/processos/disponiveis`         | ✅ IMPLEMENTADO   |
-| Executar Processos      | `acao=Execute`                     | `POST /api/v1/processos/executar`           | ✅ IMPLEMENTADO   |
-| Histórico Global        | `acao=H_unimed`                    | `GET /api/v1/processos/historico`           | ✅ IMPLEMENTADO   |
-| Histórico Específico    | `acao=HistoricoProcesso`           | `GET /api/v1/processos/historico?codigo=`   | ✅ IMPLEMENTADO   |
-| **EXPORTAÇÃO**          |                                    |                                             |                   |
-| Exportar TOTVS          | `acao=ExUnimed`                    | ❌ Não implementado                         | 🔴 Faltando       |
-| **RELATÓRIOS**          |                                    |                                             |                   |
-| Rel. Colaborador        | `acao=RelatorioColaborador`        | ❌ Não implementado                         | 🔴 Faltando       |
-| Rel. Empresa            | `acao=RelatorioEmpresaColaborador` | ❌ Não implementado                         | 🔴 Faltando       |
-| Rel. Pagamento          | `acao=RelatorioPagamento`          | ❌ Não implementado                         | 🔴 Faltando       |
-| Rel. Não Pagamento      | `acao=RelatorioNaoPagamento`       | ❌ Não implementado                         | 🔴 Faltando       |
-| Rel. Departamento       | `acao=resumoDept`                  | ❌ Não implementado                         | 🔴 Faltando       |
-| Rel. Centro Custo       | `acao=resumoCentroCust`            | ❌ Não implementado                         | 🔴 Faltando       |
-| **DIRF**                |                                    |                                             |                   |
-| Gerar DIRF              | `acao=unimedDIRF`                  | ❌ Não implementado                         | 🔴 Faltando       |
+| Funcionalidade          | Legacy (PHP)                       | NestJS                                         | Status            |
+| ----------------------- | ---------------------------------- | ---------------------------------------------- | ----------------- |
+| **IMPORTAÇÃO**          |                                    |                                                |                   |
+| Importar por CNPJ       | `acao=saveUnimedCnpj`              | `GET /importacao/dados-periodo-cnpj`           | ✅ IMPLEMENTADO   |
+| Importar por Contrato   | `acao=saveUnimedContrato`          | `GET /importacao/dados-periodo-contrato`       | ✅ IMPLEMENTADO   |
+| Importar SOAP (legado)  | `acao=saveUnimed2`                 | -                                              | ⛔ Não necessário |
+| Executar Resumo         | `acao=save`                        | `GET /importacao/executar-resumo`              | ✅ IMPLEMENTADO   |
+| Buscar Empresas         | Parte de `Buscar`                  | `GET /importacao/empresas-unimed`              | ✅ IMPLEMENTADO   |
+| **COLABORADORES**       |                                    |                                                |                   |
+| Buscar Colaboradores    | `acao=Buscar`                      | `GET /colaboradores`                           | ✅ IMPLEMENTADO   |
+| Buscar com Filtros      | `acao=BuscarColaboradorAjuste`     | `GET /colaboradores?filtros`                   | ✅ IMPLEMENTADO   |
+| Atualizar Individual    | `acao=update`                      | `PATCH /colaboradores/atualizar`               | ✅ IMPLEMENTADO   |
+| Marcar Exporta          | `acao=AlteraExporta`               | `PATCH /colaboradores/atualizar`               | ✅ IMPLEMENTADO   |
+| Atualizar Todos         | `acao=updateTodosColaborador`      | `PATCH /colaboradores/atualizar-todos`         | ✅ IMPLEMENTADO   |
+| Atualizar Todos Exporta | `acao=AlteraExportaTodos`          | `PATCH /colaboradores/atualizar-todos`         | ✅ IMPLEMENTADO   |
+| Atualizar Valor Empresa | `acao=updateValor`                 | `PATCH /colaboradores/atualizar-valor-empresa` | ✅ IMPLEMENTADO   |
+| Atualizar Valor Filial  | `acao=AtualizaValorEmpresaFilial`  | `PATCH /colaboradores/atualizar-valor-empresa` | ✅ IMPLEMENTADO   |
+| **PROCESSOS**           |                                    |                                                |                   |
+| Buscar Processos        | `acao=Buscarprocesso`              | `GET /api/v1/processos/disponiveis`            | ✅ IMPLEMENTADO   |
+| Executar Processos      | `acao=Execute`                     | `POST /api/v1/processos/executar`              | ✅ IMPLEMENTADO   |
+| Histórico Global        | `acao=H_unimed`                    | `GET /api/v1/processos/historico`              | ✅ IMPLEMENTADO   |
+| Histórico Específico    | `acao=HistoricoProcesso`           | `GET /api/v1/processos/historico?codigo=`      | ✅ IMPLEMENTADO   |
+| **EXPORTAÇÃO**          |                                    |                                                |                   |
+| Exportar TOTVS          | `acao=ExUnimed`                    | ❌ Não implementado                            | 🔴 Faltando       |
+| **RELATÓRIOS**          |                                    |                                                |                   |
+| Rel. Colaborador        | `acao=RelatorioColaborador`        | ❌ Não implementado                            | 🔴 Faltando       |
+| Rel. Empresa            | `acao=RelatorioEmpresaColaborador` | ❌ Não implementado                            | 🔴 Faltando       |
+| Rel. Pagamento          | `acao=RelatorioPagamento`          | ❌ Não implementado                            | 🔴 Faltando       |
+| Rel. Não Pagamento      | `acao=RelatorioNaoPagamento`       | ❌ Não implementado                            | 🔴 Faltando       |
+| Rel. Departamento       | `acao=resumoDept`                  | ❌ Não implementado                            | 🔴 Faltando       |
+| Rel. Centro Custo       | `acao=resumoCentroCust`            | ❌ Não implementado                            | 🔴 Faltando       |
+| **DIRF**                |                                    |                                                |                   |
+| Gerar DIRF              | `acao=unimedDIRF`                  | ❌ Não implementado                            | 🔴 Faltando       |
 
 **Legenda:**
+
 - ✅ **IMPLEMENTADO** - Funcionalidade completa e testável
 - 🔴 **Faltando** - Não iniciado
 - ⛔ **Não necessário** - Substituído por tecnologia moderna
 
 **Resumo:**
+
 - ✅ **Implementados:** 15 de 27 endpoints (55%)
 - 🔴 **Faltando:** 12 endpoints (45%)
   - 1 Exportação TOTVS (crítico)
@@ -1279,6 +1285,7 @@ export default () => ({
 **Status:** ✅ **COMPLETO**
 
 **Implementado:**
+
 - ✅ Entity `Empresa`, `Beneficiario`
 - ✅ Repository `EmpresaRepository`, `DadosCobrancaRepository`
 - ✅ Use Cases: ImportarDadosUnimed, ImportarPorContrato, ExecutarResumo, BuscarEmpresas
@@ -1287,6 +1294,7 @@ export default () => ({
 - ✅ DTOs completos com validação
 
 **Endpoints Funcionais:**
+
 - ✅ GET `/importacao/dados-periodo-cnpj`
 - ✅ GET `/importacao/dados-periodo-contrato`
 - ✅ GET `/importacao/empresas-unimed`
@@ -1299,6 +1307,7 @@ export default () => ({
 **Status:** ✅ **COMPLETO**
 
 **Implementado:**
+
 - ✅ Entity `Colaborador`
 - ✅ Repository `ColaboradorRepository`
 - ✅ Use Cases: BuscarColaboradores, AtualizarColaborador, AtualizarTodos, AtualizarValorEmpresa
@@ -1306,6 +1315,7 @@ export default () => ({
 - ✅ DTOs completos com validação
 
 **Endpoints Funcionais:**
+
 - ✅ GET `/colaboradores?filtros`
 - ✅ PATCH `/colaboradores/atualizar`
 - ✅ PATCH `/colaboradores/atualizar-todos`
@@ -1318,6 +1328,7 @@ export default () => ({
 **Status:** ✅ **COMPLETO** (Aguardando testes de segurança)
 
 **Implementado:**
+
 - ✅ Entity `Processo`, `ProcessoLog`
 - ✅ Repository `ProcessoRepository`
 - ✅ Use Cases: ListarProcessos, ExecutarProcesso, BuscarHistorico
@@ -1328,6 +1339,7 @@ export default () => ({
 - ✅ Modo prévia (teste sem commit)
 
 **Endpoints Funcionais:**
+
 - ✅ GET `/api/v1/processos/disponiveis`
 - ✅ POST `/api/v1/processos/executar`
 - ✅ GET `/api/v1/processos/historico`
@@ -1343,6 +1355,7 @@ export default () => ({
 **Impacto:** ALTO - Sistema não pode exportar dados para folha de pagamento
 
 **Faltando:**
+
 - ❌ Use Case `ExportarTOTVSUseCase`
 - ❌ Controller endpoint `POST /exportacao/totvs`
 - ❌ Lógica de geração de arquivo texto
@@ -1362,11 +1375,13 @@ export default () => ({
 **Impacto:** MÉDIO - Usuários não podem gerar relatórios
 
 **Faltando:**
+
 - ❌ 6 endpoints de relatórios
 - ❌ Integração com Jasper Reports ou biblioteca PDF alternativa
 - ❌ Queries complexas para agregação de dados
 
 **Opções:**
+
 1. **Manter Jasper + PHP** (temporário) - ⚡ Rápido
 2. **Migrar para NestJS + PDFKit/Puppeteer** - 🎯 Ideal
 3. **Criar API de relatórios separada** - 🏗️ Escalável
@@ -1382,6 +1397,7 @@ export default () => ({
 **Impacto:** BAIXO - Apenas necessário 1x por ano (Janeiro)
 
 **Faltando:**
+
 - ❌ Use Case `GerarDIRFUseCase`
 - ❌ Controller endpoint
 - ❌ Lógica de exportação XML/TXT conforme layout Receita Federal
@@ -1399,6 +1415,7 @@ export default () => ({
 **Problema Atual:** Token parcialmente hardcoded
 
 **Solução Pendente:**
+
 - ⚠️ Buscar token de `gc.api_gc_servicos` (ao invés de hardcoded)
 - ⚠️ Implementar cache de token em memória
 - ⚠️ Renovação automática ao expirar (401)
@@ -1414,6 +1431,7 @@ export default () => ({
 **Problema Atual:** Nenhum teste implementado
 
 **Necessário:**
+
 - ❌ Unit tests (Use Cases, Services)
 - ❌ Integration tests (Repositories)
 - ❌ E2E tests (Controllers)
@@ -1430,6 +1448,7 @@ export default () => ({
 **Problema Atual:** Sem Swagger/OpenAPI
 
 **Necessário:**
+
 - ❌ Instalar `@nestjs/swagger`
 - ❌ Decorators nos DTOs e Controllers
 - ❌ Configurar Swagger UI em `/api/docs`
@@ -1451,6 +1470,7 @@ WHERE processa_unimed = 'S'
 ```
 
 **Solução:**
+
 - ⚠️ Remover filtro de CNPJ antes de produção
 - ⚠️ Processar todas as empresas ativas
 
@@ -1462,15 +1482,15 @@ WHERE processa_unimed = 'S'
 
 ### 📊 **Resumo de Gaps**
 
-| Categoria      | Total | Implementado | Faltando | % Completo |
-| -------------- | ----- | ------------ | -------- | ---------- |
-| Importação     | 4     | 4            | 0        | 100%       |
-| Colaboradores  | 4     | 4            | 0        | 100%       |
-| Processos      | 3     | 3            | 0        | 100%       |
-| Exportação     | 1     | 0            | 1        | 0%         |
-| Relatórios     | 6     | 0            | 6        | 0%         |
-| DIRF           | 1     | 0            | 1        | 0%         |
-| **TOTAL**      | **19**| **11**       | **8**    | **58%**    |
+| Categoria     | Total  | Implementado | Faltando | % Completo |
+| ------------- | ------ | ------------ | -------- | ---------- |
+| Importação    | 4      | 4            | 0        | 100%       |
+| Colaboradores | 4      | 4            | 0        | 100%       |
+| Processos     | 3      | 3            | 0        | 100%       |
+| Exportação    | 1      | 0            | 1        | 0%         |
+| Relatórios    | 6      | 0            | 6        | 0%         |
+| DIRF          | 1      | 0            | 1        | 0%         |
+| **TOTAL**     | **19** | **11**       | **8**    | **58%**    |
 
 **Observação:** Porcentagem baseada em funcionalidades principais, não contando melhorias técnicas.
 
@@ -1597,6 +1617,7 @@ Sem este módulo, o sistema não pode:
 
 - Executar fechamentos mensais
 - Gerar lançamentos para folha
+
 ## 6️⃣ PLANO DE AÇÃO
 
 ### 🎯 **FASE 1 - FUNCIONALIDADES PRINCIPAIS** ✅ CONCLUÍDA (2 semanas)
@@ -1710,12 +1731,14 @@ Sem este módulo, o sistema não pode:
 **Prioridade:** 🟡 **IMPORTANTE** (pode aguardar)
 
 **Opção 1: Manter Jasper (temporário)**
+
 - ✅ Sem esforço adicional
 - ✅ Sistema funcional imediatamente
 - ❌ Dependência do PHP
 - ❌ Duplicação de stack
 
 **Opção 2: Migrar para NestJS + PDFKit**
+
 - ✅ Stack unificado (apenas Node.js)
 - ✅ Mais fácil manutenção
 - ✅ Melhor performance
@@ -1838,10 +1861,12 @@ Sem este módulo, o sistema não pode:
 **Problema:** Procedures podem ter DB_LINK para produção
 
 **Status Atual:**
+
 - ⚠️ `p_uni_resumo` - NÃO VALIDADO
 - ⚠️ `P_MCW_FECHA_COMISSAO_GLOBAL` - NÃO VALIDADO
 
 **Ação Necessária:**
+
 ```sql
 -- Verificar procedures
 SELECT * FROM all_dependencies
@@ -1873,6 +1898,7 @@ WHERE processa_unimed = 'S'
 **Problema:** Token JWT parcialmente hardcoded
 
 **Status:**
+
 - ✅ Renovação automática funciona
 - ⚠️ Token inicial hardcoded no código
 
@@ -1885,6 +1911,7 @@ WHERE processa_unimed = 'S'
 Para substituir o sistema legado em produção, é necessário:
 
 **Funcionalidades Core:**
+
 - [x] ✅ Importação por CNPJ
 - [x] ✅ Importação por Contrato
 - [x] ✅ Executar Resumo
@@ -1896,12 +1923,14 @@ Para substituir o sistema legado em produção, é necessário:
 - [ ] ⏳ **Exportar para TOTVS** 🔥 **CRÍTICO**
 
 **Configurações de Produção:**
+
 - [ ] ⏳ Remover filtro CNPJ hardcoded
 - [ ] ⏳ Token de gc.api_gc_servicos
 - [ ] ⏳ Validar segurança de procedures
 - [ ] ⏳ Variáveis de ambiente (.env.production)
 
 **Opcional (pode usar legado temporariamente):**
+
 - [ ] ⏳ Relatórios (usar Jasper do legado)
 - [ ] ⏳ DIRF (usar legado, apenas 1x/ano)
 
@@ -1909,16 +1938,17 @@ Para substituir o sistema legado em produção, é necessário:
 
 ### 📊 **TIMELINE ESTIMADO**
 
-| Fase                | Duração    | Status         | Data Prevista  |
-| ------------------- | ---------- | -------------- | -------------- |
-| Fase 1 - Core       | 2 semanas  | ✅ CONCLUÍDA   | 21-27/01/2026  |
-| Fase 2 - Exportação | 3-5 dias   | ⏳ PRÓXIMA     | 28-31/01/2026  |
-| Config Produção     | 1-2 dias   | ⏳ PRÓXIMA     | 01-02/02/2026  |
+| Fase                | Duração       | Status         | Data Prevista  |
+| ------------------- | ------------- | -------------- | -------------- |
+| Fase 1 - Core       | 2 semanas     | ✅ CONCLUÍDA   | 21-27/01/2026  |
+| Fase 2 - Exportação | 3-5 dias      | ⏳ PRÓXIMA     | 28-31/01/2026  |
+| Config Produção     | 1-2 dias      | ⏳ PRÓXIMA     | 01-02/02/2026  |
 | **MVP PRODUÇÃO**    | **3 semanas** | **62% pronto** | **03/02/2026** |
-| Fase 3 - Relatórios | 1-2 semanas| ⏳ FUTURO      | Fev-Mar/2026   |
-| Fase 4 - DIRF       | 1-2 dias   | ⏳ FUTURO      | Jan/2027       |
+| Fase 3 - Relatórios | 1-2 semanas   | ⏳ FUTURO      | Fev-Mar/2026   |
+| Fase 4 - DIRF       | 1-2 dias      | ⏳ FUTURO      | Jan/2027       |
 
 **Observação:** MVP pode ir para produção em ~1 semana (após exportação TOTVS)
+
 - [ ] ❌ Buscar Colaboradores
 - [ ] ❌ Atualizar Colaborador Individual
 - [ ] ❌ Atualizar Todos Colaboradores
@@ -1984,12 +2014,14 @@ Para substituir o sistema legado em produção, é necessário:
 #### **1. CURTO PRAZO (Esta Semana)** 🔥
 
 **Implementar Exportação TOTVS** (3-5 dias)
+
 - 🔥 Prioridade CRÍTICA
 - ✅ Todas dependências prontas
 - ✅ Análise do legado necessária
 - 📊 Completa paridade com sistema legado em funcionalidades core
 
 **Ações:**
+
 1. Analisar código legado `acao=ExUnimed`
 2. Criar documento ANALISE_MODULO_EXPORTACAO.md
 3. Implementar módulo completo
@@ -2000,12 +2032,14 @@ Para substituir o sistema legado em produção, é necessário:
 #### **2. MÉDIO PRAZO (Próximas 2-4 Semanas)** 🟡
 
 **Preparar para Produção**
+
 - ⚠️ Validar segurança de procedures Oracle
 - ⚠️ Remover filtros hardcoded (CNPJ)
 - ⚠️ Configurar variáveis de ambiente produção
 - ⚠️ Implementar busca de token de gc.api_gc_servicos
 
 **Migrar Relatórios (Opcional)**
+
 - Opção temporária: Manter Jasper do PHP
 - Opção ideal: Migrar para NestJS + PDFKit (5-7 dias)
 
@@ -2014,6 +2048,7 @@ Para substituir o sistema legado em produção, é necessário:
 #### **3. LONGO PRAZO (Próximos Meses)** 🟢
 
 **Melhorias Contínuas**
+
 - Testes automatizados incrementais
 - Documentação Swagger/OpenAPI
 - Monitoramento e métricas (Prometheus)
@@ -2046,28 +2081,30 @@ Para substituir o sistema legado em produção, é necessário:
 **Recomendação:** 🎯 **Buscar de gc.api_gc_servicos**
 
 **Implementação sugerida:**
+
 ```typescript
 // token.service.ts
 async obterToken(): Promise<string> {
   // 1. Buscar de gc.api_gc_servicos
   const tokenDb = await this.buscarTokenDB();
-  
+
   // 2. Se válido, retornar
   if (tokenDb && !this.isTokenExpired(tokenDb)) {
     return tokenDb;
   }
-  
+
   // 3. Se inválido, gerar novo
   const novoToken = await this.gerarNovoToken();
-  
+
   // 4. Salvar no banco
   await this.salvarTokenDB(novoToken);
-  
+
   return novoToken;
 }
 ```
 
 **Benefícios:**
+
 - ✅ Não expõe credenciais no código
 - ✅ Token compartilhado entre sistemas
 - ✅ Mais fácil rotacionar token
@@ -2142,15 +2179,16 @@ LOG_LEVEL=info
 
 **Indicadores para validar migração:**
 
-| Métrica | Meta | Como Medir |
-| ------- | ---- | ---------- |
-| **Disponibilidade** | 99.9% | Uptime monitoring |
-| **Tempo de Importação** | < 5 min | Logs de duração |
+| Métrica                    | Meta     | Como Medir             |
+| -------------------------- | -------- | ---------------------- |
+| **Disponibilidade**        | 99.9%    | Uptime monitoring      |
+| **Tempo de Importação**    | < 5 min  | Logs de duração        |
 | **Tempo de Processamento** | < 10 min | Histórico de processos |
-| **Taxa de Erro** | < 1% | Logs de exceções |
-| **Tempo de Resposta** | < 2s | APM tools |
+| **Taxa de Erro**           | < 1%     | Logs de exceções       |
+| **Tempo de Resposta**      | < 2s     | APM tools              |
 
 **Baseline (Sistema Legado PHP):**
+
 - Importação: ~8-10 minutos
 - Processamento: ~15-20 minutos
 - Erros: ~5-10% (timeouts, falhas)
@@ -2189,17 +2227,20 @@ LOG_LEVEL=info
 ### 🎓 **LIÇÕES APRENDIDAS**
 
 **O que funcionou bem:**
+
 - ✅ Clean Architecture facilita manutenção
 - ✅ TypeScript previne muitos bugs
 - ✅ Repository Pattern facilita testes
 - ✅ Value Objects garantem validações
 
 **Desafios encontrados:**
+
 - ⚠️ Integração com Oracle procedures complexas
 - ⚠️ Gerenciamento de token JWT externo
 - ⚠️ Migração de lógica de negócio complexa do PHP
 
 **Recomendações para próximos módulos:**
+
 - 📝 Sempre começar com análise do legado
 - 🧪 Implementar testes desde o início
 - 📖 Documentar decisões arquiteturais
@@ -2213,15 +2254,15 @@ LOG_LEVEL=info
 
 O projeto **api-unimed** evoluiu significativamente:
 
-| Aspecto | Status | Observação |
-| ------- | ------ | ---------- |
-| **Arquitetura** | ✅ 100% | Clean Architecture sólida |
-| **Importação** | ✅ 100% | 4 endpoints funcionais |
-| **Colaboradores** | ✅ 100% | 4 endpoints funcionais |
-| **Processos** | ✅ 100% | 3 endpoints (aguardando testes) |
-| **Exportação** | 🔴 0% | Próximo módulo crítico |
-| **Relatórios** | 🔴 0% | Pode usar legado temporariamente |
-| **DIRF** | 🔴 0% | Baixa prioridade (sazonal) |
+| Aspecto           | Status  | Observação                       |
+| ----------------- | ------- | -------------------------------- |
+| **Arquitetura**   | ✅ 100% | Clean Architecture sólida        |
+| **Importação**    | ✅ 100% | 4 endpoints funcionais           |
+| **Colaboradores** | ✅ 100% | 4 endpoints funcionais           |
+| **Processos**     | ✅ 100% | 3 endpoints (aguardando testes)  |
+| **Exportação**    | 🔴 0%   | Próximo módulo crítico           |
+| **Relatórios**    | 🔴 0%   | Pode usar legado temporariamente |
+| **DIRF**          | 🔴 0%   | Baixa prioridade (sazonal)       |
 
 **Progresso Geral:** 62% completo (11 de 19 endpoints core)
 
@@ -2242,14 +2283,12 @@ O projeto **api-unimed** evoluiu significativamente:
 ### 🚀 **Próximos Passos Imediatos**
 
 **Esta Semana (Prioridade MÁXIMA):**
+
 1. 🔥 Implementar Exportação TOTVS (3-5 dias)
 2. ⚠️ Validar segurança de procedures
 3. ⚠️ Remover configurações de teste hardcoded
 
-**Próximas 2 Semanas:**
-4. ⚙️ Configurar ambiente de produção
-5. 🧪 Testes integrados completos
-6. 🚀 Deploy MVP em produção
+**Próximas 2 Semanas:** 4. ⚙️ Configurar ambiente de produção 5. 🧪 Testes integrados completos 6. 🚀 Deploy MVP em produção
 
 **MVP em Produção:** Estimativa 12 de Fevereiro de 2026
 
@@ -2262,6 +2301,7 @@ O projeto **api-unimed** evoluiu significativamente:
 Com **apenas 1 módulo crítico faltando** (Exportação TOTVS), o projeto pode substituir o legado PHP em aproximadamente **1 semana de desenvolvimento + testes**.
 
 **Estratégia recomendada:**
+
 1. ✅ Focar em Exportação TOTVS agora
 2. ✅ Ir para produção com Relatórios do legado
 3. ✅ Migrar Relatórios incrementalmente depois
