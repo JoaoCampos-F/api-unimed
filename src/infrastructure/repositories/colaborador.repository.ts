@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.services';
 import { Colaborador } from 'src/domain/entities/colaborador.entity';
@@ -162,7 +161,7 @@ export class ColaboradorRepository implements IColaboradorRepository {
         AND ano_ref = :anoRef
     `;
 
-    const binds = {
+    const binds: Record<string, any> = {
       exporta: params.exporta,
       cpf: cpfSemZeros,
       mesRef: params.mesRef,

@@ -5,9 +5,10 @@ import { DadosCobrancaRepository } from './repositories/dados-cobranca.repositor
 import { ColaboradorRepository } from './repositories/colaborador.repository';
 import { UnimedApiService } from './external-apis/unimed-api.service';
 import { ProcessoRepository } from './repositories/processo.repository';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, AuthModule],
   providers: [
     {
       provide: 'IEmpresaRepository',
@@ -39,6 +40,7 @@ import { ProcessoRepository } from './repositories/processo.repository';
     DadosCobrancaRepository,
     ProcessoRepository,
     UnimedApiService,
+    AuthModule,
   ],
 })
 export class InfrastructureModule {}

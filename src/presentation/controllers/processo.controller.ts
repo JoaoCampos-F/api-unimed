@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Post, Query, Request } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { BuscarHistoricoDto } from 'src/application/dtos/processos/buscar-historico.dto';
 import { ExecutarProcessoDto } from 'src/application/dtos/processos/executar-processo.dto';
 import { ListarProcessosDisponiveisDto } from 'src/application/dtos/processos/listar-processos-disponiveis.dto';
 import { BuscarHistoricoUseCase } from 'src/application/use-cases/processos/buscar-historico.use-case';
 import { ExecutarProcessoUseCase } from 'src/application/use-cases/processos/executar-processo.use-case';
 import { ListarProcessosDisponiveisUseCase } from 'src/application/use-cases/processos/listar-processos-disponiveis.use-case';
+import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
+import { AuthUser } from 'src/infrastructure/auth/decorators/auth-user.decorator';
+import type { UserAuth } from 'src/infrastructure/auth/types/user-auth.type';
 
 @Controller('api/v1/processos')
 export class ProcessoController {
@@ -15,6 +18,7 @@ export class ProcessoController {
   ) {}
 
   @Get('disponiveis')
+  @Roles('DP', 'ADMIN')
   async listarProcessosDisponiveis(
     @Query() query: ListarProcessosDisponiveisDto,
   ) {
@@ -22,16 +26,17 @@ export class ProcessoController {
   }
 
   @Post('executar')
+  @Roles('DP', 'ADMIN')
   async executarProcesso(
     @Body() body: ExecutarProcessoDto,
-    @Request() req: any, // TODO: Implementar autenticação
+    @AuthUser() user: UserAuth,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const usuario: string = req.user?.usuario || 'sistema'; // TODO: Pegar usuário autenticado
+    const usuario: string = user.preferred_username || user.email || 'sistema';
     return await this.executarProcessoUseCase.execute(body, usuario);
   }
 
   @Get('historico')
+  @Roles('DP', 'ADMIN')
   async buscarHistorico(@Query() query: BuscarHistoricoDto) {
     return await this.buscarHistoricoUseCase.execute(query);
   }

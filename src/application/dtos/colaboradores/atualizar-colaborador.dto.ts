@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsIn, Matches } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsIn,
+  Matches,
+  IsOptional,
+  IsNumber,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class AtualizarColaboradorDto {

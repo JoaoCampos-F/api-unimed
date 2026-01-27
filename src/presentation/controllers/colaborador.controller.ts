@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Controller,
   Get,
@@ -8,6 +7,7 @@ import {
   Query,
   HttpStatus,
   Body,
+  ForbiddenException,
 } from '@nestjs/common';
 import { AtualizarColaboradorDto } from 'src/application/dtos/colaboradores/atualizar-colaborador.dto';
 import { AtualizarTodosColaboradoresDto } from 'src/application/dtos/colaboradores/atualizar-todos-colaboradores.dto';
@@ -20,6 +20,10 @@ import {
   BuscarColaboradoresResponse,
   BuscarColaboradoresUseCase,
 } from 'src/application/use-cases/colaborador/buscar-colaboradores.use-case';
+import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
+import { AuthUser } from 'src/infrastructure/auth/decorators/auth-user.decorator';
+import type { UserAuth } from 'src/infrastructure/auth/types/user-auth.type';
+
 @Controller('colaboradores')
 export class ColaboradorController {
   private readonly logger = new Logger(ColaboradorController.name);
@@ -32,10 +36,33 @@ export class ColaboradorController {
   ) {}
 
   @Get('')
+  @Roles('COLABORADOR', 'DP', 'ADMIN')
   async buscarColaboradores(
     @Query() query: BuscarColaboradoresDto,
+    @AuthUser() user: UserAuth,
   ): Promise<BuscarColaboradoresResponse> {
     try {
+      // COLABORADOR só pode buscar seu próprio CPF
+      if (
+        user.roles.includes('COLABORADOR') &&
+        !user.roles.includes('DP') &&
+        !user.roles.includes('ADMIN')
+      ) {
+        if (query.cpf && query.cpf !== user.cpf) {
+          throw new ForbiddenException(
+            'Colaborador só pode acessar seus próprios dados',
+          );
+        }
+        query.cpf = user.cpf; // Força filtro pelo CPF do colaborador
+      }
+
+      // DP só pode buscar colaboradores de sua empresa
+      if (user.roles.includes('DP') && !user.roles.includes('ADMIN')) {
+        if (user.cod_empresa) {
+          query.codEmpresa = user.cod_empresa;
+        }
+      }
+
       const response = await this.buscarColaboradoresUseCase.execute(query);
       return response;
     } catch (error) {
@@ -51,8 +78,11 @@ export class ColaboradorController {
   }
 
   @Patch('atualizar')
+  @Roles('DP', 'ADMIN')
   async atualizarColaborador(@Body() dto: AtualizarColaboradorDto) {
     try {
+      // No sistema legacy, a atualização individual não filtra por empresa
+      // O controle é apenas por role (quem tem acesso DP pode atualizar qualquer colaborador)
       const resultado = await this.atualizarColaboradorUseCase.execute(dto);
 
       return {
@@ -73,10 +103,13 @@ export class ColaboradorController {
   }
 
   @Patch('atualizar-todos')
+  @Roles('DP', 'ADMIN')
   async atualizarTodosColaboradores(
     @Body() body: AtualizarTodosColaboradoresDto,
   ) {
     try {
+      // No sistema legacy, a empresa é enviada no body pelo frontend
+      // O DP central (EC) pode atualizar colaboradores de qualquer empresa do grupo
       const resultado = await this.atualizarTodosUseCase.execute(body);
 
       return {
@@ -98,8 +131,11 @@ export class ColaboradorController {
   }
 
   @Patch('atualizar-valor-empresa')
+  @Roles('DP', 'ADMIN')
   async atualizarValorEmpresa(@Body() dto: AtualizarValorEmpresaDto) {
     try {
+      // No sistema legacy, a empresa é enviada no body pelo frontend
+      // O DP central (EC) pode atualizar valores de qualquer empresa do grupo
       const resultado = await this.atualizarValorEmpresaUseCase.execute(dto);
 
       return {

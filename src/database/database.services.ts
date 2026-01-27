@@ -15,6 +15,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(DatabaseService.name);
 
   private pool: oracledb.Pool;
+  public readonly oracledb = oracledb;
 
   constructor(private configService: ConfigService) {}
 

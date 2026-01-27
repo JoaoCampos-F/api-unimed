@@ -11,6 +11,7 @@ import { ImportarDadosUnimedUseCase } from '../../application/use-cases/importac
 import { ExecutarResumoUnimedUseCase } from '../../application/use-cases/importacao/executar-resumo-unimed.use-case';
 import { BuscarEmpresasUnimedUseCase } from '../../application/use-cases/importacao/buscar-empresas-unimed.use-case';
 import { ImportarUnimedPorContratoUseCase } from '../../application/use-cases/importacao/importar-unimed-por-contrato.use-case';
+import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
 
 @Controller('importacao')
 export class ImportacaoController {
@@ -22,6 +23,7 @@ export class ImportacaoController {
   ) {}
 
   @Get('dados-periodo-cnpj')
+  @Roles('DP', 'ADMIN')
   async importarDadosPeriodo(@Query() params: ImportarDadosUnimedDto) {
     try {
       const request = {
@@ -45,6 +47,7 @@ export class ImportacaoController {
   }
 
   @Get('dados-periodo-contrato')
+  @Roles('DP', 'ADMIN')
   async importarDadosContrato(@Query() params: ImportarDadosUnimedDto) {
     try {
       const resultado = await this.importarDadosContratoUseCase.execute(params);
@@ -63,6 +66,7 @@ export class ImportacaoController {
   }
 
   @Get('empresas-unimed')
+  @Roles('DP', 'ADMIN')
   async buscarEmpresasUnimed() {
     try {
       const empresas = await this.buscarEmpresasUnimedUseCase.execute();
@@ -82,6 +86,7 @@ export class ImportacaoController {
   }
 
   @Get('executar-resumo')
+  @Roles('DP', 'ADMIN')
   async executarResumo(@Query() params: ImportarDadosUnimedDto) {
     try {
       const request = {
