@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.services';
 import { Colaborador } from 'src/domain/entities/colaborador.entity';

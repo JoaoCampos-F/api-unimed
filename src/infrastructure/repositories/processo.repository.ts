@@ -4,7 +4,6 @@ import { Processo } from 'src/domain/entities/processo.entity';
 import { ProcessoLog } from 'src/domain/entities/processo-log';
 import { IProcessoRepository } from 'src/domain/repositories/processo.repository.interface';
 
-// Tipos para rows do banco de dados
 interface ProcessoRow {
   CODIGO: string;
   DESCRICAO: string;
@@ -53,6 +52,12 @@ interface BuscarHistoricoParams {
   codigo?: string;
 }
 
+type bindParmas = {
+  categoria: string;
+  mesRef?: number;
+  anoRef?: number;
+  codigo?: string;
+};
 @Injectable()
 export class ProcessoRepository implements IProcessoRepository {
   constructor(private readonly databaseService: DatabaseService) {}
@@ -139,8 +144,7 @@ export class ProcessoRepository implements IProcessoRepository {
       WHERE categoria = :categoria
     `;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const binds: any = { categoria: params.categoria };
+    const binds: bindParmas = { categoria: params.categoria };
 
     if (params.mesRef) {
       query += ` AND mes_ref = :mesRef`;

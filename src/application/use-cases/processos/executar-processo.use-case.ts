@@ -33,7 +33,7 @@ export class ExecutarProcessoUseCase {
     if (!validacao.dentroDoPrazo) {
       // TODO: Verificar permissão 78005
       throw new BadRequestException(
-        `Processo fora do prazo. Data máxima: ${validacao.dataMaxima}`,
+        `Processo fora do prazo. Data máxima: ${validacao.dataMaxima.toISOString().split('T')[0]}`,
       );
     }
 
@@ -49,8 +49,8 @@ export class ExecutarProcessoUseCase {
         processo: request.processo,
         mesRef: request.mesRef,
         anoRef: request.anoRef,
-        previa: request.previa,
-        apaga: request.apaga,
+        previa: request.previa || 'N',
+        apaga: request.apaga || 'N',
         usuario,
         todasEmpresas: request.codEmpresa ? 'N' : 'S',
         codEmpresa: request.codEmpresa,

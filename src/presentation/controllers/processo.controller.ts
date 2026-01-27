@@ -26,7 +26,8 @@ export class ProcessoController {
     @Body() body: ExecutarProcessoDto,
     @Request() req: any, // TODO: Implementar autenticação
   ) {
-    const usuario = req.user?.usuario || 'sistema'; // TODO: Pegar usuário autenticado
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const usuario: string = req.user?.usuario || 'sistema'; // TODO: Pegar usuário autenticado
     return await this.executarProcessoUseCase.execute(body, usuario);
   }
 
