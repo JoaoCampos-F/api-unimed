@@ -36,17 +36,17 @@ export class ColaboradorController {
   ) {}
 
   @Get('')
-  @Roles('COLABORADOR', 'DP', 'ADMIN')
+  @Roles('colaborador', 'dp', 'admin')
   async buscarColaboradores(
     @Query() query: BuscarColaboradoresDto,
     @AuthUser() user: UserAuth,
   ): Promise<BuscarColaboradoresResponse> {
     try {
-      // COLABORADOR só pode buscar seu próprio CPF
+      // colaborador só pode buscar seu próprio CPF
       if (
-        user.roles.includes('COLABORADOR') &&
-        !user.roles.includes('DP') &&
-        !user.roles.includes('ADMIN')
+        user.roles.includes('colaborador') &&
+        !user.roles.includes('dp') &&
+        !user.roles.includes('admin')
       ) {
         if (query.cpf && query.cpf !== user.cpf) {
           throw new ForbiddenException(
@@ -56,8 +56,8 @@ export class ColaboradorController {
         query.cpf = user.cpf; // Força filtro pelo CPF do colaborador
       }
 
-      // DP só pode buscar colaboradores de sua empresa
-      if (user.roles.includes('DP') && !user.roles.includes('ADMIN')) {
+      // dp só pode buscar colaboradores de sua empresa
+      if (user.roles.includes('dp') && !user.roles.includes('admin')) {
         if (user.cod_empresa) {
           query.codEmpresa = user.cod_empresa;
         }
@@ -78,11 +78,11 @@ export class ColaboradorController {
   }
 
   @Patch('atualizar')
-  @Roles('DP', 'ADMIN')
+  @Roles('dp', 'admin')
   async atualizarColaborador(@Body() dto: AtualizarColaboradorDto) {
     try {
       // No sistema legacy, a atualização individual não filtra por empresa
-      // O controle é apenas por role (quem tem acesso DP pode atualizar qualquer colaborador)
+      // O controle é apenas por role (quem tem acesso dp pode atualizar qualquer colaborador)
       const resultado = await this.atualizarColaboradorUseCase.execute(dto);
 
       return {
@@ -103,13 +103,13 @@ export class ColaboradorController {
   }
 
   @Patch('atualizar-todos')
-  @Roles('DP', 'ADMIN')
+  @Roles('dp', 'admin')
   async atualizarTodosColaboradores(
     @Body() body: AtualizarTodosColaboradoresDto,
   ) {
     try {
       // No sistema legacy, a empresa é enviada no body pelo frontend
-      // O DP central (EC) pode atualizar colaboradores de qualquer empresa do grupo
+      // O dp central (EC) pode atualizar colaboradores de qualquer empresa do grupo
       const resultado = await this.atualizarTodosUseCase.execute(body);
 
       return {
@@ -131,11 +131,11 @@ export class ColaboradorController {
   }
 
   @Patch('atualizar-valor-empresa')
-  @Roles('DP', 'ADMIN')
+  @Roles('dp', 'admin')
   async atualizarValorEmpresa(@Body() dto: AtualizarValorEmpresaDto) {
     try {
       // No sistema legacy, a empresa é enviada no body pelo frontend
-      // O DP central (EC) pode atualizar valores de qualquer empresa do grupo
+      // O dp central (EC) pode atualizar valores de qualquer empresa do grupo
       const resultado = await this.atualizarValorEmpresaUseCase.execute(dto);
 
       return {

@@ -38,10 +38,19 @@ export class RolesGuard implements CanActivate {
     const hasRole = requiredRoles.some((role) => userRoles.includes(role));
 
     if (!hasRole) {
+      // this.logger.warn(
+      //   `Acesso negado - Usuário: ${request.userAuth?.preferred_username || 'desconhecido'} | ` +
+      //     `Roles do usuário: [${userRoles.join(', ')}] | ` +
+      //     `Roles necessárias: [${requiredRoles.join(', ')}]`,
+      // );
       throw new ForbiddenException(
         `Acesso negado. Roles necessárias: ${requiredRoles.join(', ')}`,
       );
     }
+
+    // this.logger.debug(
+    //   `Acesso autorizado - Usuário: ${request.userAuth?.preferred_username} | Role: ${userRoles.find((r) => requiredRoles.includes(r))}`,
+    // );
 
     return true;
   }

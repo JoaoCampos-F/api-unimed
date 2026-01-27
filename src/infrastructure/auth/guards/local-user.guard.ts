@@ -72,9 +72,28 @@ export class LocalUserGuard implements CanActivate {
       }
 
       // 4. Injeta no request (com roles do Keycloak)
+      // Prioriza roles do client específico (api-planos-saude)
+      let roles: string[] = [];
+
+      // Opção 1: resource_access['api-planos-saude'].roles (roles do client específico) - PRIORIDADE
+      if (keycloakUser.resource_access?.['api-planos-saude']?.roles) {
+        roles = keycloakUser.resource_access['api-planos-saude'].roles;
+      }
+      // Opção 2: realm_access.roles (roles globais do realm) - FALLBACK
+      else if (keycloakUser.realm_access?.roles) {
+        roles = keycloakUser.realm_access.roles;
+      }
+
+      // Normaliza roles para UPPERCASE (Keycloak retorna lowercase)
+      const normalizedRoles = roles.map((role) => role.toUpperCase());
+
+      this.logger.log(
+        `Usuário autenticado: ${keycloakUser.preferred_username} | Roles: ${normalizedRoles.join(', ')}`,
+      );
+
       request.userAuth = {
         ...userAuth,
-        roles: keycloakUser.realm_access?.roles || [],
+        roles: normalizedRoles,
       };
 
       return true;
