@@ -74,7 +74,6 @@ export class ExportacaoRepository implements IExportacaoRepository {
       cpf,
     } = params;
 
-    // Conversão de boolean para 'S'/'N' conforme esperado pelo Oracle
     const flagPrevia = previa ? 'S' : 'N';
     const flagApagar = apagar ? 'S' : 'N';
     const codigoProcesso = '90000001'; // Código fixo para exportação Unimed

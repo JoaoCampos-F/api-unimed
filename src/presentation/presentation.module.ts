@@ -6,6 +6,7 @@ import { ColaboradorController } from './controllers/colaborador.controller';
 import { ProcessoController } from './controllers/processo.controller';
 import { ExportacaoController } from './controllers/exportacao.controller';
 import { RelatorioPresentationModule } from './relatorio-presentation.module';
+import { ExportacaoRepository } from 'src/infrastructure/repositories/exportacao.repository';
 
 @Module({
   imports: [ApplicationModule, RelatorioPresentationModule],
@@ -15,6 +16,12 @@ import { RelatorioPresentationModule } from './relatorio-presentation.module';
     ColaboradorController,
     ProcessoController,
     ExportacaoController,
+  ],
+  providers: [
+    {
+      provide: 'IExportacaoRepository',
+      useClass: ExportacaoRepository,
+    },
   ],
 })
 export class PresentationModule {}
