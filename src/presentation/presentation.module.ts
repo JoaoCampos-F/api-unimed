@@ -4,6 +4,7 @@ import { ImportacaoController } from './controllers/importacao.controller';
 import { HealthController } from '../common/health/health.controller';
 import { ColaboradorController } from './controllers/colaborador.controller';
 import { ProcessoController } from './controllers/processo.controller';
+import { ExportacaoController } from './controllers/exportacao.controller';
 
 @Module({
   imports: [ApplicationModule],
@@ -12,6 +13,7 @@ import { ProcessoController } from './controllers/processo.controller';
     HealthController,
     ColaboradorController,
     ProcessoController,
+    ExportacaoController,
   ],
 })
 export class PresentationModule {}

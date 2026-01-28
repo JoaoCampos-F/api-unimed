@@ -5,6 +5,7 @@ import { DadosCobrancaRepository } from './repositories/dados-cobranca.repositor
 import { ColaboradorRepository } from './repositories/colaborador.repository';
 import { UnimedApiService } from './external-apis/unimed-api.service';
 import { ProcessoRepository } from './repositories/processo.repository';
+import { ExportacaoRepository } from './repositories/exportacao.repository';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
@@ -26,9 +27,14 @@ import { AuthModule } from './auth/auth.module';
       provide: 'IProcessoRepository',
       useClass: ProcessoRepository,
     },
+    {
+      provide: 'IExportacaoRepository',
+      useClass: ExportacaoRepository,
+    },
     EmpresaRepository,
     DadosCobrancaRepository,
     ProcessoRepository,
+    ExportacaoRepository,
     UnimedApiService,
   ],
   exports: [
@@ -36,9 +42,11 @@ import { AuthModule } from './auth/auth.module';
     'IDadosCobrancaRepository',
     'IColaboradorRepository',
     'IProcessoRepository',
+    'IExportacaoRepository',
     EmpresaRepository,
     DadosCobrancaRepository,
     ProcessoRepository,
+    ExportacaoRepository,
     UnimedApiService,
     AuthModule,
   ],

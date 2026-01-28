@@ -8,6 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { UsuarioRepository } from '../repositories/usuario.repository';
 import { ColaboradorRepository } from '../../repositories/colaborador.repository';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { UserAuth } from '../types/user-auth.type';
 interface DadosBasicosColaborador {
   cod_empresa: number;
   codcoligada: number;
@@ -44,25 +45,26 @@ export class LocalUserGuard implements CanActivate {
     }
 
     try {
-      // 1. Busca usuário no banco local
-      let userAuth: any = await this.usuarioRepository.findByPublicId(
-        keycloakUser.sub,
-      );
+      let userAuth: UserAuth | null =
+        await this.usuarioRepository.findByPublicId(keycloakUser.sub);
 
-      // 2. Se não existir, cria automaticamente
       if (!userAuth) {
         this.logger.log(
           `Criando novo usuário: ${keycloakUser.preferred_username}`,
         );
 
-        // 2.1. Busca dados do colaborador pelo CPF (se disponível)
-        let dadosColaborador: DadosBasicosColaborador | null = null;
-        if (keycloakUser.cpf) {
-          dadosColaborador =
-            await this.colaboradorRepository.buscarDadosBasicosPorCpf(
-              keycloakUser.cpf,
-            );
+        if (!keycloakUser.cpf) {
+          throw new Error(
+            `CPF não encontrado no token do Keycloak para o usuário ${keycloakUser.preferred_username}.`,
+          );
         }
+
+        let dadosColaborador: DadosBasicosColaborador | null = null;
+
+        dadosColaborador =
+          await this.colaboradorRepository.buscarDadosBasicosPorCpf(
+            keycloakUser.cpf,
+          );
 
         if (dadosColaborador == null) {
           throw new Error(
@@ -121,7 +123,6 @@ export class LocalUserGuard implements CanActivate {
         roles = keycloakUser.realm_access.roles;
       }
 
-      // Normaliza roles para UPPERCASE (Keycloak retorna lowercase)
       const normalizedRoles = roles.map((role) => role.toUpperCase());
 
       this.logger.log(

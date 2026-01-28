@@ -36,7 +36,7 @@ export class ColaboradorController {
   ) {}
 
   @Get('')
-  @Roles('colaborador', 'dp', 'admin')
+  @Roles('COLABORADOR', 'DP', 'ADMIN')
   async buscarColaboradores(
     @Query() query: BuscarColaboradoresDto,
     @AuthUser() user: UserAuth,
@@ -44,9 +44,9 @@ export class ColaboradorController {
     try {
       // colaborador só pode buscar seu próprio CPF
       if (
-        user.roles.includes('colaborador') &&
-        !user.roles.includes('dp') &&
-        !user.roles.includes('admin')
+        user.roles.includes('COLABORADOR') &&
+        !user.roles.includes('DP') &&
+        !user.roles.includes('ADMIN')
       ) {
         if (query.cpf && query.cpf !== user.cpf) {
           throw new ForbiddenException(
@@ -57,7 +57,7 @@ export class ColaboradorController {
       }
 
       // dp só pode buscar colaboradores de sua empresa
-      if (user.roles.includes('dp') && !user.roles.includes('admin')) {
+      if (user.roles.includes('DP') && !user.roles.includes('ADMIN')) {
         if (user.cod_empresa) {
           query.codEmpresa = user.cod_empresa;
         }
@@ -78,7 +78,7 @@ export class ColaboradorController {
   }
 
   @Patch('atualizar')
-  @Roles('dp', 'admin')
+  @Roles('DP', 'ADMIN')
   async atualizarColaborador(@Body() dto: AtualizarColaboradorDto) {
     try {
       // No sistema legacy, a atualização individual não filtra por empresa
@@ -103,7 +103,7 @@ export class ColaboradorController {
   }
 
   @Patch('atualizar-todos')
-  @Roles('dp', 'admin')
+  @Roles('DP', 'ADMIN')
   async atualizarTodosColaboradores(
     @Body() body: AtualizarTodosColaboradoresDto,
   ) {
@@ -131,7 +131,7 @@ export class ColaboradorController {
   }
 
   @Patch('atualizar-valor-empresa')
-  @Roles('dp', 'admin')
+  @Roles('DP', 'ADMIN')
   async atualizarValorEmpresa(@Body() dto: AtualizarValorEmpresaDto) {
     try {
       // No sistema legacy, a empresa é enviada no body pelo frontend
