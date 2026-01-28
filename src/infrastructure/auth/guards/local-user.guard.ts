@@ -6,7 +6,13 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UsuarioRepository } from '../repositories/usuario.repository';
+import { ColaboradorRepository } from '../../repositories/colaborador.repository';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+interface DadosBasicosColaborador {
+  cod_empresa: number;
+  codcoligada: number;
+  codfilial: number;
+}
 
 @Injectable()
 export class LocalUserGuard implements CanActivate {
@@ -15,6 +21,7 @@ export class LocalUserGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly usuarioRepository: UsuarioRepository,
+    private readonly colaboradorRepository: ColaboradorRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -47,13 +54,31 @@ export class LocalUserGuard implements CanActivate {
         this.logger.log(
           `Criando novo usuário: ${keycloakUser.preferred_username}`,
         );
+
+        // 2.1. Busca dados do colaborador pelo CPF (se disponível)
+        let dadosColaborador: DadosBasicosColaborador | null = null;
+        if (keycloakUser.cpf) {
+          dadosColaborador =
+            await this.colaboradorRepository.buscarDadosBasicosPorCpf(
+              keycloakUser.cpf,
+            );
+        }
+
+        if (dadosColaborador == null) {
+          throw new Error(
+            `Colaborador com CPF ${keycloakUser.cpf} não encontrado no sistema.`,
+          );
+        }
+
         userAuth = await this.usuarioRepository.create({
           public_id: keycloakUser.sub,
           preferred_username: keycloakUser.preferred_username,
           nome: keycloakUser.name,
           email: keycloakUser.email,
           cpf: keycloakUser.cpf,
-          cod_empresa: keycloakUser.cod_empresa,
+          cod_empresa: dadosColaborador?.cod_empresa,
+          codcoligada: dadosColaborador?.codcoligada,
+          codfilial: dadosColaborador?.codfilial,
           ativo: 'S',
         });
       }
@@ -64,10 +89,22 @@ export class LocalUserGuard implements CanActivate {
         userAuth.nome !== keycloakUser.name
       ) {
         this.logger.log(`Atualizando dados do usuário: ${userAuth.id}`);
+
+        // 3.1. Busca dados atualizados do colaborador
+        let dadosColaborador: DadosBasicosColaborador | null = null;
+        if (keycloakUser.cpf) {
+          dadosColaborador =
+            await this.colaboradorRepository.buscarDadosBasicosPorCpf(
+              keycloakUser.cpf,
+            );
+        }
+
         await this.usuarioRepository.update(userAuth.id, {
           email: keycloakUser.email,
           nome: keycloakUser.name,
-          cod_empresa: keycloakUser.cod_empresa,
+          cod_empresa: dadosColaborador?.cod_empresa,
+          codcoligada: dadosColaborador?.codcoligada,
+          codfilial: dadosColaborador?.codfilial,
         });
       }
 

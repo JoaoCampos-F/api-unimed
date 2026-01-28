@@ -5,6 +5,7 @@ import { AuthGuard, KeycloakConnectModule } from 'nest-keycloak-connect';
 import { LocalUserGuard } from './guards/local-user.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { UsuarioRepository } from './repositories/usuario.repository';
+import { ColaboradorRepository } from '../repositories/colaborador.repository';
 import { DatabaseModule } from '../../database/database.module';
 
 @Module({
@@ -24,13 +25,14 @@ import { DatabaseModule } from '../../database/database.module';
   ],
   providers: [
     UsuarioRepository,
+    ColaboradorRepository,
     {
       provide: APP_GUARD,
       useClass: AuthGuard, // 1º: Valida JWT Keycloak
     },
     {
       provide: APP_GUARD,
-      useClass: LocalUserGuard, // 2º: Busca/cria usuário no banco
+      useClass: LocalUserGuard, // 2º: Busca/cria usuário no banco + enriquece com dados do colaborador
     },
     {
       provide: APP_GUARD,

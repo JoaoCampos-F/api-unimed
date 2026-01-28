@@ -9,7 +9,7 @@ import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
 import { AuthUser } from 'src/infrastructure/auth/decorators/auth-user.decorator';
 import type { UserAuth } from 'src/infrastructure/auth/types/user-auth.type';
 
-@Controller('api/v1/processos')
+@Controller('processos')
 export class ProcessoController {
   constructor(
     private readonly listarProcessosUseCase: ListarProcessosDisponiveisUseCase,

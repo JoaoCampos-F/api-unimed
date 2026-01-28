@@ -38,6 +38,12 @@ interface IBindsBuscarColaboradores {
   cpf?: string;
 }
 
+interface DadosBasicosColaborador {
+  cod_empresa: number;
+  codcoligada: number;
+  codfilial: number;
+}
+
 @Injectable()
 export class ColaboradorRepository implements IColaboradorRepository {
   private readonly logger = new Logger(ColaboradorRepository.name);
@@ -244,5 +250,50 @@ export class ColaboradorRepository implements IColaboradorRepository {
     );
 
     return rowsAffected;
+  }
+
+  /**
+   * Busca dados básicos do colaborador pelo CPF
+   * Usado para enriquecer dados do usuário autenticado
+   */
+  async buscarDadosBasicosPorCpf(
+    cpf: string,
+  ): Promise<DadosBasicosColaborador | null> {
+    const query = `
+      SELECT DISTINCT
+        a.cod_empresa,
+        a.codcoligada,
+        a.codfilial
+      FROM gc.colaborador a
+      WHERE ltrim(a.codigo_cpf, '0000') = ltrim(:cpf, '0000')
+        AND a.ativo = 'S'
+        AND ROWNUM = 1
+    `;
+
+    try {
+      const rows = await this.databaseService.executeQuery<{
+        COD_EMPRESA: number;
+        CODCOLIGADA: number;
+        CODFILIAL: number;
+      }>(query, { cpf });
+
+      if (!rows || rows.length === 0) {
+        this.logger.debug(`Colaborador não encontrado para CPF: ${cpf}`);
+        return null;
+      }
+
+      const row = rows[0];
+      return {
+        cod_empresa: row.COD_EMPRESA,
+        codcoligada: row.CODCOLIGADA,
+        codfilial: row.CODFILIAL,
+      };
+    } catch (error: any) {
+      this.logger.error(
+        `Erro ao buscar dados básicos do colaborador: ${error.message}`,
+        error.stack,
+      );
+      return null;
+    }
   }
 }
