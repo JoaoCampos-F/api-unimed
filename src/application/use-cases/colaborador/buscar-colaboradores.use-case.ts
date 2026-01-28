@@ -10,7 +10,7 @@ export interface BuscarColaboradoresRequest {
 }
 
 export interface BuscarColaboradoresResponse {
-  colaboradores: {
+  data: {
     codEmpresa: number;
     codColigada: number;
     codFilial: number;
@@ -52,24 +52,9 @@ export class BuscarColaboradoresUseCase {
       await this.colaboradorRepository.buscarColaboradores(request);
 
     return {
-      colaboradores: colaboradores.map((c) => ({
-        codEmpresa: c.codEmpresa,
-        codColigada: c.codColigada,
-        codFilial: c.codFilial,
-        codBand: c.codBand,
-        cpf: c.cpf.value,
-        nome: c.nome,
-        apelido: c.apelido,
-        mesRef: c.mesRef,
-        anoRef: c.anoRef,
-        valorTitular: c.valorTitular,
-        valorDependente: c.valorDependente,
-        valorConsumo: c.valorConsumo,
-        valorEmpresa: c.valorEmpresa,
-        valorTotal: c.valorTotal,
-        valorLiquido: c.valorLiquido,
-        exporta: c.exporta,
-        ativo: c.ativo,
+      data: colaboradores.map((colaborador) => ({
+        ...colaborador,
+        cpf: colaborador.cpf.value,
       })),
       total: colaboradores.length,
     };
