@@ -5,9 +5,10 @@ import { HealthController } from '../common/health/health.controller';
 import { ColaboradorController } from './controllers/colaborador.controller';
 import { ProcessoController } from './controllers/processo.controller';
 import { ExportacaoController } from './controllers/exportacao.controller';
+import { RelatorioPresentationModule } from './relatorio-presentation.module';
 
 @Module({
-  imports: [ApplicationModule],
+  imports: [ApplicationModule, RelatorioPresentationModule],
   controllers: [
     ImportacaoController,
     HealthController,
