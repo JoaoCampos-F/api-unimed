@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 import { DemonstrativoDto } from '../../application/dtos/importacao/demonstrativo.dto';
-import { ITokenCacheRepository } from '../../domain/repositories/token-cache.repository.interface';
+import type { ITokenCacheRepository } from '../../domain/repositories/token-cache.repository.interface';
 
 @Injectable()
 export class UnimedApiService {
@@ -14,6 +14,7 @@ export class UnimedApiService {
 
   constructor(
     private readonly configService: ConfigService,
+    @Inject('ITokenCacheRepository')
     private readonly tokenCacheRepository: ITokenCacheRepository,
   ) {
     const baseURL = this.configService.get<string>('UNIMED_API_URL');

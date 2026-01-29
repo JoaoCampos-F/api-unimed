@@ -15,6 +15,7 @@ import { ListarProcessosDisponiveisUseCase } from './use-cases/processos/listar-
 import { ExportarParaTOTVSUseCase } from './use-cases/exportacao/exportar-para-totvs.use-case';
 import { ListarProcessosUseCase } from './use-cases/exportacao/listar-processos.use-case';
 import { Logger } from '@nestjs/common';
+import { EmpresaRepository } from 'src/infrastructure/repositories/empresa.repository';
 @Module({
   imports: [InfrastructureModule],
   providers: [
@@ -33,6 +34,10 @@ import { Logger } from '@nestjs/common';
     ExportarParaTOTVSUseCase,
     ListarProcessosUseCase,
     Logger,
+    {
+      provide: 'IEmpresaRepository',
+      useClass: EmpresaRepository,
+    },
   ],
   exports: [
     ImportarDadosUnimedUseCase,

@@ -165,4 +165,26 @@ export class EmpresaRepository implements IEmpresaRepository {
 
     return this.databaseService.executeQuery(sql);
   }
+
+  async validarExistencia(
+    codEmpresa: number,
+    codColigada: number,
+    codFilial: number,
+  ): Promise<boolean> {
+    const sql = `
+      SELECT 1
+      FROM gc.empresa_filial ef
+      WHERE ef.cod_empresa = :codEmpresa
+        AND ef.codcoligada = :codColigada
+        AND ef.codfilial = :codFilial
+    `;
+
+    const resultado = await this.databaseService.executeQuery(sql, {
+      codEmpresa,
+      codColigada,
+      codFilial,
+    });
+
+    return resultado.length > 0;
+  }
 }

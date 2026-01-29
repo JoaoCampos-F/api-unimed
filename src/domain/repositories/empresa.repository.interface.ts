@@ -5,4 +5,9 @@ export interface IEmpresaRepository {
   buscarPorCodigo(codEmpresa: number): Promise<Empresa | null>;
   buscarPorSigla(sigla: string): Promise<Empresa | null>;
   buscarPorBandeira(codBand: string): Promise<Empresa[]>;
+  validarExistencia(
+    codEmpresa: number,
+    codColigada: number,
+    codFilial: number,
+  ): Promise<boolean>;
 }

@@ -9,6 +9,7 @@ import {
   GerarResumoDeptoUseCase,
   GerarResumoCentroCustoUseCase,
 } from './use-cases/relatorio';
+import { EmpresaRepository } from 'src/infrastructure/repositories/empresa.repository';
 
 @Module({
   imports: [DatabaseModule, RelatorioInfrastructureModule],
@@ -19,6 +20,10 @@ import {
     GerarRelatorioNaoPagamentoUseCase,
     GerarResumoDeptoUseCase,
     GerarResumoCentroCustoUseCase,
+    {
+      provide: 'IEmpresaRepository',
+      useClass: EmpresaRepository,
+    },
   ],
   exports: [
     GerarRelatorioColaboradorUseCase,

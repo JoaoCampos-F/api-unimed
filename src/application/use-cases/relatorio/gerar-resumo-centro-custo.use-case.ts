@@ -3,30 +3,26 @@ import type {
   IRelatorioRepository,
   RelatorioParams,
 } from '../../../domain/repositories/relatorio.repository.interface';
-import { DatabaseService } from '../../../database/database.services';
+import type { IEmpresaRepository } from '../../../domain/repositories/empresa.repository.interface';
 
 @Injectable()
 export class GerarResumoCentroCustoUseCase {
   constructor(
     @Inject('IRelatorioRepository')
     private readonly relatorioRepository: IRelatorioRepository,
-    private readonly databaseService: DatabaseService,
+    @Inject('IEmpresaRepository')
+    private readonly empresaRepository: IEmpresaRepository,
   ) {}
 
   async execute(params: RelatorioParams): Promise<Buffer> {
-    const empresa = await this.databaseService.executeQuery(
-      `SELECT COD_EMPRESA FROM gc.unimed_empresa 
-       WHERE COD_EMPRESA = :codEmpresa 
-         AND CODCOLIGADA = :codColigada 
-         AND CODFILIAL = :codFilial`,
-      {
-        codEmpresa: params.codEmpresa,
-        codColigada: params.codColigada,
-        codFilial: params.codFilial,
-      },
+    // ✅ Usa repositório ao invés de SQL direto (Clean Architecture)
+    const empresaExiste = await this.empresaRepository.validarExistencia(
+      params.codEmpresa,
+      params.codColigada,
+      params.codFilial,
     );
 
-    if (!empresa || empresa.length === 0) {
+    if (!empresaExiste) {
       throw new NotFoundException('Empresa não encontrada');
     }
 
