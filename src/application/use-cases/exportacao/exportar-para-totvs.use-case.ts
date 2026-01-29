@@ -8,13 +8,13 @@ import {
 } from '@nestjs/common';
 import type { IExportacaoRepository } from 'src/domain/repositories/exportacao.repository.interface';
 import type { IEmpresaRepository } from 'src/domain/repositories/empresa.repository.interface';
+import type { IProcessoRepository } from 'src/domain/repositories/processo.repository.interface';
 import { ExportarParaTOTVSDto } from 'src/application/dtos/exportacao/exportar-para-totvs.dto';
 import { Empresa } from 'src/domain/entities/empresa.entity';
 
 @Injectable()
 export class ExportarParaTOTVSUseCase {
   private readonly logger = new Logger(ExportarParaTOTVSUseCase.name);
-  private readonly CODIGO_PROCESSO_UNIMED = '90000001';
 
   constructor(
     @Inject('IExportacaoRepository')
@@ -22,6 +22,9 @@ export class ExportarParaTOTVSUseCase {
 
     @Inject('IEmpresaRepository')
     private readonly empresaRepository: IEmpresaRepository,
+
+    @Inject('IProcessoRepository')
+    private readonly processoRepository: IProcessoRepository,
   ) {}
 
   async execute(
@@ -35,24 +38,39 @@ export class ExportarParaTOTVSUseCase {
     empresasProcessadas?: number;
   }> {
     this.logger.log(
-      `Iniciando exportação TOTVS - Período: ${dto.mesRef}/${dto.anoRef}`,
+      `Iniciando exportação TOTVS - Período: ${dto.mesRef}/${dto.anoRef} - Processo: ${dto.codigoProcesso}`,
     );
 
-    // 1. Validar permissão para apagar dados
+    // 1. Validar processo existe e está ativo
+    const processo = await this.processoRepository.buscarPorCodigo(
+      dto.codigoProcesso,
+    );
+
+    if (!processo) {
+      throw new NotFoundException(
+        `Processo ${dto.codigoProcesso} não encontrado ou inativo`,
+      );
+    }
+
+    this.logger.log(
+      `Processo selecionado: ${processo.descricao} (${processo.codigo})`,
+    );
+
+    // 2. Validar permissão para apagar dados
     if (dto.apagar && !this.temPermissaoApagar(permissoes)) {
       throw new ForbiddenException(
         'Você não possui autorização para apagar dados antigos',
       );
     }
 
-    // 2. Determinar CPF (compatibilidade com campo antigo)
+    // 3. Determinar CPF (compatibilidade com campo antigo)
     const cpfColaborador = dto.cpfColaborador || dto.cpf || null;
 
-    // 3. LÓGICA DE FILTROS EM CASCATA (replicando NPD-Legacy)
+    // 4. LÓGICA DE FILTROS EM CASCATA (replicando NPD-Legacy)
     const exportarTodasEmpresas =
       dto.empresa === 'T' || (!dto.empresa && dto.bandeira);
 
-    // 4. Validação: CPF requer empresa específica (regra do NPD-Legacy)
+    // 5. Validação: CPF requer empresa específica (regra do NPD-Legacy)
     if (cpfColaborador && exportarTodasEmpresas) {
       throw new BadRequestException(
         'Para exportar colaborador específico, é necessário informar a empresa',
@@ -114,7 +132,7 @@ export class ExportarParaTOTVSUseCase {
       todas = 'N';
     }
 
-    // 5. Buscar data final do período (validação de prazo)
+    // 6. Buscar data final do período (validação de prazo)
     const dataFinal = await this.exportacaoRepository.buscarDataFinalPeriodo(
       dto.mesRef,
       dto.anoRef,
@@ -126,21 +144,10 @@ export class ExportarParaTOTVSUseCase {
       );
     }
 
-    // 6. Buscar configuração do processo
-    const configProcesso = await this.exportacaoRepository.buscarConfigProcesso(
-      this.CODIGO_PROCESSO_UNIMED,
-    );
-
-    if (!configProcesso) {
-      throw new NotFoundException(
-        `Processo ${this.CODIGO_PROCESSO_UNIMED} (Exportação Unimed) não encontrado`,
-      );
-    }
-
-    // 7. Validar prazo de execução
+    // 7. Validar prazo de execução (usando dias do processo selecionado)
     const hoje = new Date();
     const dataMaxima = new Date(dataFinal);
-    dataMaxima.setDate(dataMaxima.getDate() + configProcesso.dias);
+    dataMaxima.setDate(dataMaxima.getDate() + processo.dias);
 
     if (
       hoje > dataMaxima &&
@@ -148,7 +155,7 @@ export class ExportarParaTOTVSUseCase {
     ) {
       const dataMaximaFormatada = dataMaxima.toLocaleDateString('pt-BR');
       throw new ForbiddenException(
-        `Processo ${configProcesso.descricao} passou da data limite de exportação. Máximo: ${dataMaximaFormatada}`,
+        `Processo ${processo.descricao} passou da data limite de exportação. Máximo: ${dataMaximaFormatada}`,
       );
     }
 
@@ -294,7 +301,7 @@ export class ExportarParaTOTVSUseCase {
 
   /**
    * Verifica se usuário tem permissão para executar fora do prazo
-   * Equivalente à permissão 78005 do sistema legado
+   * Equivalente à permissão 78005 do sistema legado (comentado, apenas ADMIN)
    */
   private temPermissaoExecutarForaDoPrazo(permissoes: string[]): boolean {
     return permissoes.includes('ADMIN');

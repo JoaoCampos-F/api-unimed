@@ -9,20 +9,68 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ExportarParaTOTVSUseCase } from 'src/application/use-cases/exportacao/exportar-para-totvs.use-case';
+import { ListarProcessosUseCase } from 'src/application/use-cases/exportacao/listar-processos.use-case';
 import { ExportarParaTOTVSDto } from 'src/application/dtos/exportacao/exportar-para-totvs.dto';
+import {
+  ListarProcessosDto,
+  ProcessoResponseDto,
+} from 'src/application/dtos/exportacao/listar-processos.dto';
 import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
 import { AuthUser } from 'src/infrastructure/auth/decorators/auth-user.decorator';
 import type { UserAuth } from 'src/infrastructure/auth/types/user-auth.type';
 import type { IExportacaoRepository } from 'src/domain/repositories/exportacao.repository.interface';
 import { Inject } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
+@ApiTags('Exportação')
 @Controller('exportacao')
 export class ExportacaoController {
   constructor(
     private readonly exportarParaTOTVSUseCase: ExportarParaTOTVSUseCase,
+    private readonly listarProcessosUseCase: ListarProcessosUseCase,
     @Inject('IExportacaoRepository')
     private readonly exportacaoRepository: IExportacaoRepository,
   ) {}
+
+  /**
+   * GET /exportacao/processos
+   *
+   * Lista processos disponíveis para exportação
+   * Replicando comportamento do NPD-Legacy: carregaDadosMCW()
+   *
+   * Requer role DP ou ADMIN
+   */
+  @Get('processos')
+  @Roles('DP', 'ADMIN')
+  @ApiOperation({
+    summary: 'Listar processos disponíveis',
+    description:
+      'Busca processos ativos filtrados por categoria, tipo de dado e período. Inclui data da última execução para auditoria.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de processos disponíveis',
+    type: [ProcessoResponseDto],
+  })
+  async listarProcessos(
+    @Query() dto: ListarProcessosDto,
+    @AuthUser() user: UserAuth,
+  ): Promise<ProcessoResponseDto[]> {
+    try {
+      return await this.listarProcessosUseCase.execute(dto);
+    } catch (error) {
+      throw new HttpException(
+        {
+          sucesso: false,
+          mensagem: `Erro ao listar processos: ${error.message}`,
+          timestamp: new Date().toISOString(),
+        },
+        error instanceof HttpException
+          ? error.getStatus()
+          : HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   /**
    * POST /exportacao/totvs

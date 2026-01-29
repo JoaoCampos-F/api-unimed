@@ -17,6 +17,9 @@ export class ExportarParaTOTVSDto {
   @Min(2000, { message: 'Ano deve ser maior ou igual a 2000' })
   anoRef: number;
 
+  @IsString({ message: 'Código do processo deve ser uma string' })
+  codigoProcesso: string; // Código do processo MCW (ex: '90000001') - Selecionado pelo usuário
+
   @IsString({ message: 'Bandeira deve ser uma string' })
   @IsOptional()
   bandeira?: string; // Código da bandeira/seguimento (ex: '1' = 2 rodas, '2' = 4 rodas)

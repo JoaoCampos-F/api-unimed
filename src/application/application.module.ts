@@ -13,6 +13,7 @@ import { BuscarHistoricoUseCase } from './use-cases/processos/buscar-historico.u
 import { ExecutarProcessoUseCase } from './use-cases/processos/executar-processo.use-case';
 import { ListarProcessosDisponiveisUseCase } from './use-cases/processos/listar-processos-disponiveis.use-case';
 import { ExportarParaTOTVSUseCase } from './use-cases/exportacao/exportar-para-totvs.use-case';
+import { ListarProcessosUseCase } from './use-cases/exportacao/listar-processos.use-case';
 import { Logger } from '@nestjs/common';
 @Module({
   imports: [InfrastructureModule],
@@ -30,6 +31,7 @@ import { Logger } from '@nestjs/common';
     ExecutarProcessoUseCase,
     ListarProcessosDisponiveisUseCase,
     ExportarParaTOTVSUseCase,
+    ListarProcessosUseCase,
     Logger,
   ],
   exports: [
@@ -46,6 +48,7 @@ import { Logger } from '@nestjs/common';
     ExecutarProcessoUseCase,
     ListarProcessosDisponiveisUseCase,
     ExportarParaTOTVSUseCase,
+    ListarProcessosUseCase,
   ],
 })
 export class ApplicationModule {}
