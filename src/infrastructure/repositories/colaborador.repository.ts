@@ -156,20 +156,18 @@ export class ColaboradorRepository implements IColaboradorRepository {
   }
 
   async atualizarExporta(params: AtualizarColaboradorParams): Promise<number> {
-    // Remove zeros à esquerda do CPF para comparação
-    const cpfSemZeros = params.cpf.replace(/^0+/, '');
-
+    // ✅ PADRONIZADO: Usar ltrim('0000') para consistência com buscarColaboradores
     const query = `
       UPDATE gc.uni_resumo_colaborador
       SET exporta = :exporta
-      WHERE ltrim(codigo_cpf, '0') = :cpf
+      WHERE ltrim(codigo_cpf, '0000') = ltrim(:cpf, '0000')
         AND mes_ref = :mesRef
         AND ano_ref = :anoRef
     `;
 
     const binds: Record<string, any> = {
       exporta: params.exporta,
-      cpf: cpfSemZeros,
+      cpf: params.cpf,
       mesRef: params.mesRef,
       anoRef: params.anoRef,
     };

@@ -17,9 +17,10 @@ export class ExportacaoRepository implements IExportacaoRepository {
     mesRef: number,
     anoRef: number,
   ): Promise<Date | null> {
+    // ✅ CORRIGIDO: Usar gc.mcw_periodo (sem _fechamento) conforme NPD-Legacy
     const query = `
       SELECT TO_CHAR(data_final, 'YYYY-MM-DD') AS data_final
-      FROM gc.mcw_periodo_fechamento
+      FROM gc.mcw_periodo
       WHERE mes_ref = :mesRef
         AND ano_ref = :anoRef
     `;
@@ -67,6 +68,7 @@ export class ExportacaoRepository implements IExportacaoRepository {
       previa,
       apagar,
       usuario,
+      todas,
       codEmpresa,
       bandeira,
       tipo,
@@ -77,7 +79,6 @@ export class ExportacaoRepository implements IExportacaoRepository {
     const flagPrevia = previa ? 'S' : 'N';
     const flagApagar = apagar ? 'S' : 'N';
     const codigoProcesso = '90000001'; // Código fixo para exportação Unimed
-    const todas = 'N'; // Sempre 'N' (empresa específica)
 
     const query = `
       BEGIN 
@@ -105,6 +106,7 @@ export class ExportacaoRepository implements IExportacaoRepository {
       previa: flagPrevia,
       apagar: flagApagar,
       usuario,
+      todas,
       codEmpresa,
       bandeira,
       tipo,

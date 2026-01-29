@@ -17,8 +17,17 @@ export class ExportarParaTOTVSDto {
   @Min(2000, { message: 'Ano deve ser maior ou igual a 2000' })
   anoRef: number;
 
+  @IsString({ message: 'Bandeira deve ser uma string' })
+  @IsOptional()
+  bandeira?: string; // Código da bandeira/seguimento (ex: '1' = 2 rodas, '2' = 4 rodas)
+
   @IsString({ message: 'Empresa deve ser uma string' })
-  empresa: string; // Código da empresa como string (ex: '1', '2', '3')
+  @IsOptional()
+  empresa?: string; // Sigla da empresa (ex: 'AF', 'BM') ou 'T' para todas da bandeira
+
+  @IsString({ message: 'CPF do colaborador deve ser uma string' })
+  @IsOptional()
+  cpfColaborador?: string; // CPF do colaborador específico (requer empresa específica)
 
   @IsBoolean({ message: 'Campo prévia deve ser booleano' })
   @IsOptional()
@@ -30,5 +39,5 @@ export class ExportarParaTOTVSDto {
 
   @IsString({ message: 'CPF deve ser uma string' })
   @IsOptional()
-  cpf?: string; // CPF específico (opcional, null = todos os colaboradores)
+  cpf?: string; // @deprecated - Use cpfColaborador (mantido para compatibilidade)
 }

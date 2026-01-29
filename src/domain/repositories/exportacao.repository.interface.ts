@@ -23,7 +23,8 @@ export interface ExportacaoParams {
   previa: boolean;
   apagar: boolean;
   usuario: string;
-  codEmpresa: number;
+  todas: 'S' | 'N'; // 'S' = todas empresas da bandeira, 'N' = empresa específica
+  codEmpresa: number | string; // Número quando todas='N', vazio quando todas='S'
   bandeira: string;
   tipo: string;
   categoria: string;

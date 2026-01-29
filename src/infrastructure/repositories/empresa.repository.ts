@@ -13,6 +13,10 @@ interface EmpresaDadosCodigo {
   CNPJ: string;
   PROCESSA_UNIMED: string;
 }
+
+interface EmpresaDadosCompleto extends EmpresaDadosCodigo {
+  APELIDO?: string;
+}
 @Injectable()
 export class EmpresaRepository implements IEmpresaRepository {
   constructor(private readonly databaseService: DatabaseService) {}
@@ -76,6 +80,72 @@ export class EmpresaRepository implements IEmpresaRepository {
       row.COD_BAND,
       new CNPJ(row.CNPJ),
       row.PROCESSA_UNIMED === 'S',
+    );
+  }
+
+  async buscarPorSigla(sigla: string): Promise<Empresa | null> {
+    const sql = `
+      SELECT 
+        ef.cod_empresa,
+        ef.codcoligada,
+        ef.codfilial,
+        ef.cod_band,
+        ef.cnpj,
+        ef.processa_unimed
+      FROM gc.empresa_filial ef
+      WHERE UPPER(ef.apelido) = UPPER(:sigla)
+        AND ef.processa_unimed = 'S'
+    `;
+
+    const resultado =
+      await this.databaseService.executeQuery<EmpresaDadosCodigo>(sql, {
+        sigla,
+      });
+
+    if (resultado.length === 0) return null;
+
+    const row = resultado[0];
+
+    return new Empresa(
+      row.COD_EMPRESA,
+      row.CODCOLIGADA,
+      row.CODFILIAL,
+      row.COD_BAND,
+      new CNPJ(row.CNPJ),
+      row.PROCESSA_UNIMED === 'S',
+    );
+  }
+
+  async buscarPorBandeira(codBand: string): Promise<Empresa[]> {
+    const sql = `
+      SELECT 
+        ef.cod_empresa,
+        ef.codcoligada,
+        ef.codfilial,
+        ef.cod_band,
+        ef.cnpj,
+        ef.processa_unimed
+      FROM gc.empresa_filial ef
+      WHERE ef.cod_band = :codBand
+        AND ef.processa_unimed = 'S'
+      ORDER BY ef.cod_empresa
+    `;
+
+    const resultado =
+      await this.databaseService.executeQuery<EmpresaDadosCodigo>(sql, {
+        codBand,
+      });
+
+    return resultado.map(
+      (row) =>
+        new Empresa(
+          row.COD_EMPRESA,
+          row.CODCOLIGADA,
+          row.CODFILIAL,
+          row.COD_BAND,
+          new CNPJ(row.CNPJ),
+          row.PROCESSA_UNIMED === 'S',
+        ),
     );
   }
 

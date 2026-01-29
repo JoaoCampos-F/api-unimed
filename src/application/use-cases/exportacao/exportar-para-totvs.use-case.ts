@@ -1,7 +1,15 @@
-import { Injectable, Logger, Inject, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  ForbiddenException,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import type { IExportacaoRepository } from 'src/domain/repositories/exportacao.repository.interface';
 import type { IEmpresaRepository } from 'src/domain/repositories/empresa.repository.interface';
 import { ExportarParaTOTVSDto } from 'src/application/dtos/exportacao/exportar-para-totvs.dto';
+import { Empresa } from 'src/domain/entities/empresa.entity';
 
 @Injectable()
 export class ExportarParaTOTVSUseCase {
@@ -20,9 +28,14 @@ export class ExportarParaTOTVSUseCase {
     dto: ExportarParaTOTVSDto,
     usuario: string,
     permissoes: string[],
-  ): Promise<{ sucesso: boolean; mensagem: string; preview?: any }> {
+  ): Promise<{
+    sucesso: boolean;
+    mensagem: string;
+    preview?: any;
+    empresasProcessadas?: number;
+  }> {
     this.logger.log(
-      `Iniciando exportação TOTVS - Empresa: ${dto.empresa}, Período: ${dto.mesRef}/${dto.anoRef}`,
+      `Iniciando exportação TOTVS - Período: ${dto.mesRef}/${dto.anoRef}`,
     );
 
     // 1. Validar permissão para apagar dados
@@ -32,44 +45,99 @@ export class ExportarParaTOTVSUseCase {
       );
     }
 
-    // 2. Validar código da empresa (deve ser número)
-    const codEmpresa = parseInt(dto.empresa, 10);
-    if (isNaN(codEmpresa)) {
-      throw new Error(
-        `Código da empresa inválido: ${dto.empresa}. Deve ser um número.`,
+    // 2. Determinar CPF (compatibilidade com campo antigo)
+    const cpfColaborador = dto.cpfColaborador || dto.cpf || null;
+
+    // 3. LÓGICA DE FILTROS EM CASCATA (replicando NPD-Legacy)
+    const exportarTodasEmpresas =
+      dto.empresa === 'T' || (!dto.empresa && dto.bandeira);
+
+    // 4. Validação: CPF requer empresa específica (regra do NPD-Legacy)
+    if (cpfColaborador && exportarTodasEmpresas) {
+      throw new BadRequestException(
+        'Para exportar colaborador específico, é necessário informar a empresa',
       );
     }
 
-    // 3. Buscar empresa no banco
-    const empresa = await this.empresaRepository.buscarPorCodigo(codEmpresa);
-    if (!empresa) {
-      throw new Error(`Empresa com código ${dto.empresa} não encontrada`);
+    let empresas: Empresa[];
+    let codBand: string;
+    let todas: 'S' | 'N';
+
+    if (exportarTodasEmpresas) {
+      // CENÁRIO 1: Exportar TODAS empresas de uma bandeira
+      if (!dto.bandeira) {
+        throw new BadRequestException(
+          'Bandeira é obrigatória ao exportar todas as empresas',
+        );
+      }
+
+      this.logger.log(`Modo: TODAS empresas da bandeira ${dto.bandeira}`);
+
+      empresas = await this.empresaRepository.buscarPorBandeira(dto.bandeira);
+
+      if (empresas.length === 0) {
+        throw new NotFoundException(
+          `Nenhuma empresa encontrada para bandeira ${dto.bandeira}`,
+        );
+      }
+
+      codBand = dto.bandeira;
+      todas = 'S';
+
+      this.logger.log(
+        `Encontradas ${empresas.length} empresa(s) para exportar`,
+      );
+    } else {
+      // CENÁRIO 2: Empresa específica (por sigla ou código)
+      if (!dto.empresa) {
+        throw new BadRequestException('Empresa ou bandeira é obrigatória');
+      }
+
+      this.logger.log(`Modo: Empresa específica ${dto.empresa}`);
+
+      // Tentar buscar por sigla primeiro, depois por código
+      let empresa = await this.empresaRepository.buscarPorSigla(dto.empresa);
+
+      if (!empresa) {
+        const codEmpresa = parseInt(dto.empresa, 10);
+        if (!isNaN(codEmpresa)) {
+          empresa = await this.empresaRepository.buscarPorCodigo(codEmpresa);
+        }
+      }
+
+      if (!empresa) {
+        throw new NotFoundException(`Empresa ${dto.empresa} não encontrada`);
+      }
+
+      empresas = [empresa];
+      codBand = empresa.codBand.toString();
+      todas = 'N';
     }
 
-    // 4. Buscar data final do período
+    // 5. Buscar data final do período (validação de prazo)
     const dataFinal = await this.exportacaoRepository.buscarDataFinalPeriodo(
       dto.mesRef,
       dto.anoRef,
     );
 
     if (!dataFinal) {
-      throw new Error(
+      throw new NotFoundException(
         `Período de fechamento não encontrado: ${dto.mesRef}/${dto.anoRef}`,
       );
     }
 
-    // 5. Buscar configuração do processo (sempre '90000001' para Unimed)
+    // 6. Buscar configuração do processo
     const configProcesso = await this.exportacaoRepository.buscarConfigProcesso(
       this.CODIGO_PROCESSO_UNIMED,
     );
 
     if (!configProcesso) {
-      throw new Error(
+      throw new NotFoundException(
         `Processo ${this.CODIGO_PROCESSO_UNIMED} (Exportação Unimed) não encontrado`,
       );
     }
 
-    // 6. Validar prazo de execução
+    // 7. Validar prazo de execução
     const hoje = new Date();
     const dataMaxima = new Date(dataFinal);
     dataMaxima.setDate(dataMaxima.getDate() + configProcesso.dias);
@@ -84,41 +152,84 @@ export class ExportarParaTOTVSUseCase {
       );
     }
 
-    // 7. Determinar modo de execução baseado no ambiente
+    // 8. Determinar modo de execução (preview ou real)
     const nodeEnv = process.env.NODE_ENV || 'development';
     const isProduction = nodeEnv === 'production';
     const isTest = nodeEnv === 'test' || nodeEnv === 'staging';
     const allowExecution = process.env.ALLOW_TOTVS_EXPORT === 'true';
-
-    // MODO PREVIEW: apenas em development (não test/staging)
     const shouldPreview = !isProduction && !isTest && !allowExecution;
 
+    // 9. EXECUTAR EXPORTAÇÃO
     if (shouldPreview) {
-      this.logger.warn(
-        '🔴 MODO PREVIEW - Exportação não executada (ambiente development)',
-      );
-
-      const preview = await this.exportacaoRepository.simularExportacao({
-        mesRef: dto.mesRef,
-        anoRef: dto.anoRef,
-        previa: dto.previa || false,
-        apagar: dto.apagar || false,
+      // MODO PREVIEW (apenas development)
+      return await this.executarPreview(
+        dto,
         usuario,
-        codEmpresa: empresa.codEmpresa,
-        bandeira: empresa.codBand.toString(),
-        tipo: dto.previa ? 'S' : 'C', // S = Simplificado/Prévia, C = Completo
-        categoria: 'UNI',
-        cpf: dto.cpf || null,
-      });
-
-      return {
-        sucesso: true,
-        mensagem: `[PREVIEW] Simulação concluída - ${preview.colaboradoresAfetados} colaborador(es), Total: R$ ${preview.valorTotal.toFixed(2)}`,
-        preview,
-      };
+        empresas[0],
+        codBand,
+        cpfColaborador,
+      );
+    } else {
+      // MODO REAL (production/test ou com flag)
+      return await this.executarExportacaoReal(
+        dto,
+        usuario,
+        empresas,
+        codBand,
+        todas,
+        cpfColaborador,
+        isTest,
+      );
     }
+  }
 
-    // 8. Executar procedure de exportação TOTVS (produção, test/staging ou com flag)
+  /**
+   * Executa preview da exportação (modo desenvolvimento)
+   */
+  private async executarPreview(
+    dto: ExportarParaTOTVSDto,
+    usuario: string,
+    empresa: Empresa,
+    codBand: string,
+    cpf: string | null,
+  ) {
+    this.logger.warn(
+      '🔴 MODO PREVIEW - Exportação não executada (ambiente development)',
+    );
+
+    const preview = await this.exportacaoRepository.simularExportacao({
+      mesRef: dto.mesRef,
+      anoRef: dto.anoRef,
+      previa: dto.previa || false,
+      apagar: dto.apagar || false,
+      usuario,
+      todas: 'N',
+      codEmpresa: empresa.codEmpresa,
+      bandeira: codBand,
+      tipo: dto.previa ? 'S' : 'C',
+      categoria: 'UNI',
+      cpf,
+    });
+
+    return {
+      sucesso: true,
+      mensagem: `[PREVIEW] Simulação concluída - ${preview.colaboradoresAfetados} colaborador(es), Total: R$ ${preview.valorTotal.toFixed(2)}`,
+      preview,
+    };
+  }
+
+  /**
+   * Executa exportação real (production/test)
+   */
+  private async executarExportacaoReal(
+    dto: ExportarParaTOTVSDto,
+    usuario: string,
+    empresas: Empresa[],
+    codBand: string,
+    todas: 'S' | 'N',
+    cpf: string | null,
+    isTest: boolean,
+  ) {
     if (isTest) {
       this.logger.warn(
         '⚠️ EXECUTANDO EM AMBIENTE DE TESTE - Usar @rmteste se disponível',
@@ -126,28 +237,43 @@ export class ExportarParaTOTVSUseCase {
     }
 
     try {
+      // Se todas='S', procedure processa múltiplas empresas
+      // Se todas='N', processa apenas a empresa específica
+      const codEmpresa = todas === 'S' ? '' : empresas[0].codEmpresa.toString();
+
       await this.exportacaoRepository.executarExportacao({
         mesRef: dto.mesRef,
         anoRef: dto.anoRef,
         previa: dto.previa || false,
         apagar: dto.apagar || false,
         usuario,
-        codEmpresa: empresa.codEmpresa,
-        bandeira: empresa.codBand.toString(),
+        todas,
+        codEmpresa,
+        bandeira: codBand,
         tipo: dto.previa ? 'S' : 'C',
         categoria: 'UNI',
-        cpf: dto.cpf || null,
+        cpf,
       });
 
       const tipoExecucao = dto.previa ? 'PRÉVIA' : 'EXPORTAÇÃO';
-      const alcance = dto.cpf ? `CPF ${dto.cpf}` : 'todos os colaboradores';
-      const mensagem = `${tipoExecucao} executada com sucesso para ${alcance} da empresa ${dto.empresa} no período ${dto.mesRef}/${dto.anoRef}`;
+      let alcance: string;
+
+      if (cpf) {
+        alcance = `CPF ${cpf}`;
+      } else if (todas === 'S') {
+        alcance = `todas as ${empresas.length} empresas da bandeira ${codBand}`;
+      } else {
+        alcance = `empresa ${empresas[0].codEmpresa}`;
+      }
+
+      const mensagem = `${tipoExecucao} executada com sucesso para ${alcance} no período ${dto.mesRef}/${dto.anoRef}`;
 
       this.logger.log(mensagem);
 
       return {
         sucesso: true,
         mensagem,
+        empresasProcessadas: empresas.length,
       };
     } catch (error) {
       this.logger.error(

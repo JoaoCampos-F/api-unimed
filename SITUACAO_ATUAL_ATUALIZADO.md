@@ -1,11 +1,12 @@
-# 📥 SITUAÇÃO ATUAL - MÓDULO DE IMPORTAÇÃO E COLABORADORES UNIMED
+# 📥 SITUAÇÃO ATUAL - API UNIMED (NestJS)
 
 **Projeto:** API-UNIMED (NestJS)  
-**Data:** 26 de Janeiro de 2026  
-**Status Geral:** ✅ 95% Implementado e Funcional  
-**Versão:** 2.0
+**Data:** 29 de Janeiro de 2026  
+**Status Geral:** ✅ 5 Módulos Implementados  
+**Versão:** 3.0
 
-> **✅ STATUS:** Módulos de Importação e Colaboradores COMPLETOS e FUNCIONAIS
+> **✅ STATUS:** Importação, Colaboradores, Processos, Exportação TOTVS e Relatórios IMPLEMENTADOS
+> **⚠️ ATENÇÃO:** Módulo Relatórios precisa correções (violação Clean Architecture)
 
 ---
 
@@ -13,10 +14,13 @@
 
 1. [Visão Geral](#visão-geral)
 2. [Módulo de Importação](#módulo-de-importação)
-3. [Módulo de Colaboradores](#módulo-de-colaboradores)
-4. [Arquitetura e Estrutura](#arquitetura-e-estrutura)
-5. [Melhorias Implementadas](#melhorias-implementadas)
-6. [Próximos Passos](#próximos-passos)
+3. [Módulo de Processos](#módulo-de-processos)
+4. [Módulo de Exportação TOTVS](#módulo-de-exportação-totvs)
+5. [Módulo de Relatórios](#módulo-de-relatórios)
+6. [Problemas Identificados](#problemas-identificados)
+7. [Arquitetura e Estrutura](#arquitetura-e-estrutura)
+8. [Melhorias Implementadas](#melhorias-implementadas)
+9. [Próximos Passos](#próximos-passos)
 
 ---
 
@@ -24,27 +28,44 @@
 
 ### 🎯 **Status Resumido**
 
-```
-MÓDULO DE IMPORTAÇÃO:     ✅ 100% COMPLETO E FUNCIONAL
-MÓDULO DE COLABORADORES:  ✅ 100% COMPLETO E FUNCIONAL
+MÓDULO DE PROCESSOS: ✅ 100% COMPLETO E FUNCIONAL
+MÓDULO DE EXPORTAÇÃO: ✅ 100% COMPLETO E FUNCIONAL
+MÓDULO DE RELATÓRIOS: ⚠️ 95% IMPLEMENTADO (precisa correções)
 
-✅ Implementado:      ████████████████████  100%
-```
+✅ Implementado: ████████████████████ 95%
+⚠️ Necessita ajustes: ██ 5NCIONAL
+MÓDULO DE COLABORADORES: ✅ 100% COMPLETO E FUNCIONAL
 
-### 📊 **Funcionalidades Implementadas**
+✅ Implementado: ████████████████████ 100%
 
-| Módulo            | Funcionalidade           | Status          | Testado |
-| ----------------- | ------------------------ | --------------- | ------- |
-| **IMPORTAÇÃO**    |                          |                 |         |
-|                   | Importação por CNPJ      | ✅ Funcional    | ✅ Sim  |
-|                   | Importação por Contrato  | ✅ Funcional    | ✅ Sim  |
-|                   | Executar Resumo          | ✅ Funcional    | ✅ Sim  |
-|                   | Buscar Empresas          | ✅ Funcional    | ✅ Sim  |
-|                   | Tratamento de Erros      | ✅ Completo     | ✅ Sim  |
-|                   | Logs Detalhados          | ✅ Completo     | ✅ Sim  |
-| **COLABORADORES** |                          |                 |         |
-|                   | Buscar Colaboradores     | ✅ Funcional    | ✅ Sim  |
-|                   | Atualizar Individual     | ✅ Funcional    | ✅ Sim  |
+```| Status             | Testado |
+| ----------------- | ------------------------------- | ------------------ | ------- |
+| **IMPORTAÇÃO**    |                                 |                    |         |
+|                   | Importação por CNPJ             | ✅ Funcional       | ✅ Sim  |
+|                   | Importação por Contrato         | ✅ Funcional       | ✅ Sim  |
+|                   | Executar Resumo                 | ✅ Funcional       | ✅ Sim  |
+|                   | Buscar Empresas                 | ✅ Funcional       | ✅ Sim  |
+| **COLABORADORES** |                                 |                    |         |
+|                   | Buscar Colaboradores            | ✅ Funcional       | ✅ Sim  |
+|                   | Atualizar Individual            | ✅ Funcional       | ✅ Sim  |
+|                   | Atualizar em Massa              | ✅ Funcional       | ✅ Sim  |
+|                   | Atualizar Valor Empresa         | ✅ Funcional       | ✅ Sim  |
+| **PROCESSOS**     |                                 |                    |         |
+|                   | Fechar Processos (100/200/300)  | ✅ Funcional       | ✅ Sim  |
+|                   | Reabrir Processos               | ✅ Funcional       | ✅ Sim  |
+|                   | Buscar Status                   | ✅ Funcional       | ✅ Sim  |
+| **EXPORTAÇÃO**    |                                 |                    |         |
+|                   | Exportar para TOTVS RM          | ✅ Funcional       | ✅ Sim  |
+|                   | Buscar Logs                     | ✅ Funcional       | ✅ Sim  |
+|                   | Status Sistema                  | ✅ Funcional       | ✅ Sim  |
+|                   | Preview em DEV                  | ✅ Funcional       | ✅ Sim  |
+| **RELATÓRIOS**    |                                 |                    |         |
+|                   | Relatório Colaborador           | ⚠️ Implementado    | ❌ Não  |
+|                   | Relatório Empresa               | ⚠️ Implementado    | ❌ Não  |
+|                   | Relatório Pagamento             | ⚠️ Implementado    | ❌ Não  |
+|                   | Relatório Não-Pagamento         | ⚠️ Implementado    | ❌ Não  |
+|                   | Resumo Departamento             | ⚠️ Implementado    | ❌ Não  |
+|                   | Resumo Centro Custo             | ⚠️ Implementado    | ❌ Não  |
 |                   | Atualizar em Massa       | ✅ Funcional    | ✅ Sim  |
 |                   | Atualizar Valor Empresa  | ✅ Funcional    | ✅ Sim  |
 |                   | Tratamento CPF sem zeros | ✅ Implementado | ✅ Sim  |
@@ -57,47 +78,49 @@ MÓDULO DE COLABORADORES:  ✅ 100% COMPLETO E FUNCIONAL
 ### 📁 **Estrutura de Arquivos**
 
 ```
+
 src/
 ├── application/
-│   ├── use-cases/
-│   │   ├── importar-dados-unimed.use-case.ts              ✅ Clean Architecture
-│   │   ├── importar-unimed-por-contrato.use-case.ts       ✅ Importação Contrato
-│   │   ├── executar-resumo-unimed.use-case.ts             ✅ Procedure Oracle
-│   │   └── buscar-empresas-unimed.use-case.ts             ✅ Listagem
-│   │
-│   ├── dtos/importacao/
-│   │   ├── demonstrativo.dto.ts                           ✅ Response API Unimed
-│   │   ├── importar-dados-unimed.dto.ts                   ✅ Request Input
-│   │   └── empresa-dados-contrato.dto.ts                  ✅ Contratos
-│   │
-│   └── factories/
-│       └── beneficiario.factory.ts                        🗑️ Removido (não usado)
+│ ├── use-cases/
+│ │ ├── importar-dados-unimed.use-case.ts ✅ Clean Architecture
+│ │ ├── importar-unimed-por-contrato.use-case.ts ✅ Importação Contrato
+│ │ ├── executar-resumo-unimed.use-case.ts ✅ Procedure Oracle
+│ │ └── buscar-empresas-unimed.use-case.ts ✅ Listagem
+│ │
+│ ├── dtos/importacao/
+│ │ ├── demonstrativo.dto.ts ✅ Response API Unimed
+│ │ ├── importar-dados-unimed.dto.ts ✅ Request Input
+│ │ └── empresa-dados-contrato.dto.ts ✅ Contratos
+│ │
+│ └── factories/
+│ └── beneficiario.factory.ts 🗑️ Removido (não usado)
 │
 ├── domain/
-│   ├── entities/
-│   │   └── empresa.entity.ts                              ✅ Domain Model
-│   │
-│   ├── value-objects/
-│   │   ├── periodo.value-object.ts                        ✅ Validação + Cálculo
-│   │   ├── cpf.value-object.ts                            ✅ Validação
-│   │   └── cnpj.value-object.ts                           ✅ Validação
-│   │
-│   └── repositories/
-│       ├── empresa.repository.interface.ts                ✅ Contrato
-│       └── dados-cobranca.repository.interface.ts         ✅ Contrato
+│ ├── entities/
+│ │ └── empresa.entity.ts ✅ Domain Model
+│ │
+│ ├── value-objects/
+│ │ ├── periodo.value-object.ts ✅ Validação + Cálculo
+│ │ ├── cpf.value-object.ts ✅ Validação
+│ │ └── cnpj.value-object.ts ✅ Validação
+│ │
+│ └── repositories/
+│ ├── empresa.repository.interface.ts ✅ Contrato
+│ └── dados-cobranca.repository.interface.ts ✅ Contrato
 │
 ├── infrastructure/
-│   ├── external-apis/
-│   │   └── unimed-api.service.ts                          ✅ Integração + Mock
-│   │
-│   └── repositories/
-│       ├── empresa.repository.ts                          ✅ Implementação
-│       └── dados-cobranca.repository.ts                   ✅ ÚNICO REPOSITORY ATIVO
+│ ├── external-apis/
+│ │ └── unimed-api.service.ts ✅ Integração + Mock
+│ │
+│ └── repositories/
+│ ├── empresa.repository.ts ✅ Implementação
+│ └── dados-cobranca.repository.ts ✅ ÚNICO REPOSITORY ATIVO
 │
 └── presentation/
-    └── controllers/
-        └── importacao.controller.ts                       ✅ REST API
-```
+└── controllers/
+└── importacao.controller.ts ✅ REST API
+
+````
 
 ### 🔄 **Endpoints Implementados**
 
@@ -105,7 +128,7 @@ src/
 
 ```http
 GET /api/v1/importacao/dados-periodo-cnpj?mes=10&ano=2025
-```
+````
 
 **Fluxo:**
 
@@ -896,11 +919,367 @@ interface IColaboradorRepository {
 1. **✅ Validação de DTOs:** Class-validator em todos os endpoints
 2. **✅ SQL Injection:** Usa bind parameters em todas as queries
 3. **✅ Error Handling:** Não expõe detalhes do banco em erros
-4. **⚠️ Pendente:** Autenticação/Autorização (não implementado)
+4. **⚠️ Pendente:** Autenticação/Autorização (implementação futura)
 
 ---
 
-## 6️⃣ PRÓXIMOS PASSOS
+## 9️⃣ PRÓXIMOS PASSOS
+
+### 🔧 **Correções Urgentes**
+
+1. **Corrigir Módulo Relatórios**
+   - [ ] Remover SQL dos Use Cases
+   - [ ] Usar EmpresaRepository correto ou remover validação
+   - [ ] Criar camada validations/ se necessário
+   - [ ] Testar conexão JasperServer
+   - [ ] Validar geração de PDFs
+
+2. **Decisões Pendentes**
+   - [ ] Manter ou remover validações no relatórios?
+   - [ ] Estrutura de validações (validations/ ou direto no use case)?
+   - [ ] Implementar autenticação JWT?
+
+### 🚀 **Para Produção**
+
+1. **Remover Mock da API Unimed**
+
+   ```typescript
+   // Descomentar em unimed-api.service.ts
+   const response = await this.apiClient.get(...)
+   ```
+
+2. **Remover Filtro de Teste**
+
+   ```sql
+   -- Remover AND ef.CNPJ='28941028000142'
+   ```
+
+3. **Configurar Variáveis de Ambiente**
+   - [ ] JASPER_SERVER_URL
+   - [ ] JASPER_USERNAME / JASPER_PASSWORD
+   - [ ] NODE_ENV=production
+   - [ ] DB_LINK correto (@dblrm vs @rmteste)
+
+4. **Implementar Autenticação**
+   - [ ] JWT Guards em todos endpoints
+   - [ ] Permissões por role (DP, ADMIN)
+   - [ ] Logs de auditoria
+
+### 📊 **Monitoramento**
+
+- ✅ **Logs:** NestJS Logger implementado
+- ⏳ **Métricas:** Pendente (Prometheus/Grafana)
+- ⏳ **Alertas:** Pendente
+- ✅ **Health Check:** Implementado
+
+### 🧪 **Testes**
+
+- [ ] E2E tests para todos módulos
+- [ ] Unit tests para Use Cases
+- [ ] Integration tests para repositories
+- [ ] Teste manual de relatórios PDF
+
+---
+
+## 📝 **RESUMO EXECUTIVO**
+
+### ✅ **O QUE ESTÁ PRONTO**
+
+```
+IMPORTAÇÃO:     ████████████████████  100%
+COLABORADORES:  ████████████████████  100%
+PROCESSOS:      ████████████████████  100%
+EXPORTAÇÃO:     ████████████████████  100%
+RELATÓRIOS:     ███████████████████░   95% (precisa correções)
+```
+
+### 🎯 **Status Geral: 95% do Sistema Completo**
+
+- ✅ **Importação Unimed:** COMPLETO E FUNCIONAL
+- ✅ **Colaboradores:** COMPLETO E FUNCIONAL
+- ✅ **Processos:** COMPLETO E FUNCIONAL
+- ✅ **Exportação TOTVS:** COMPLETO E FUNCIONAL
+- ⚠️ **Relatórios:** IMPLEMENTADO (precisa correções arquiteturais)
+
+### 🚨 **Ações Imediatas**
+
+1. **Corrigir violações Clean Architecture no módulo Relatórios**
+2. **Testar geração de PDFs com JasperServer**
+3. **Decidir sobre validações (manter, remover ou refatorar)**
+
+---
+
+## 📚 **DOCUMENTAÇÃO ADICIONAL**
+
+- ✅ [GUIA_TESTE_RELATORIOS.md](GUIA_TESTE_RELATORIOS.md) - Como testar relatórios
+- ✅ [DOCUMENTACAO_RELATORIOS.md](DOCUMENTACAO_RELATORIOS.md) - Arquitetura completa
+- ✅ [ANALISE_MODULO_RELATORIOS.md](ANALISE_MODULO_RELATORIOS.md) - Análise do legado
+- ✅ [DOCUMENTACAO_EXPORTACAO.md](DOCUMENTACAO_EXPORTACAO.md) - Exportação TOTVS
+- ✅ Diversos arquivos de análise e implementação
+
+---
+
+**Última Atualização:** 29/01/2026  
+**Próxima Revisão:** Após correção do módulo Relatórios
+
+---
+
+## 4️⃣ MÓDULO DE PROCESSOS
+
+### 📁 **Estrutura de Arquivos**
+
+```
+src/
+├── application/
+│   ├── use-cases/processo/
+│   │   ├── fechar-processo.use-case.ts              ✅ Fechamento 100/200/300
+│   │   ├── reabrir-processo.use-case.ts             ✅ Reabertura
+│   │   └── buscar-status-processo.use-case.ts       ✅ Consulta status
+│   │
+│   └── dtos/processo/
+│       ├── fechar-processo.dto.ts                   ✅ Input fechamento
+│       └── reabrir-processo.dto.ts                  ✅ Input reabertura
+│
+├── domain/
+│   └── repositories/
+│       └── processo.repository.interface.ts         ✅ Contrato
+│
+├── infrastructure/
+│   └── repositories/
+│       └── processo.repository.ts                   ✅ Procedure Oracle
+│
+└── presentation/
+    └── controllers/
+        └── processo.controller.ts                   ✅ REST API
+```
+
+### 🎯 **Funcionalidades**
+
+1. **Fechar Processo (100, 200, 300)**
+   - Chama `gc.P_MCW_FECHA_COMISSAO_GLOBAL`
+   - Requer mês/ano + tipo processo
+   - Validação se processo já foi fechado
+
+2. **Reabrir Processo**
+   - Atualiza flag `fechado = 'N'`
+   - Permite reprocessamento
+
+3. **Buscar Status**
+   - Consulta `gc.uni_processo_fechamento`
+   - Retorna lista de processos fechados
+
+---
+
+## 5️⃣ MÓDULO DE EXPORTAÇÃO TOTVS
+
+### 📁 **Estrutura de Arquivos**
+
+```
+src/
+├── application/
+│   ├── use-cases/exportacao/
+│   │   └── exportar-para-totvs.use-case.ts          ✅ Lógica exportação
+│   │
+│   └── dtos/exportacao/
+│       └── exportar-para-totvs.dto.ts               ✅ Input
+│
+├── domain/
+│   └── repositories/
+│       └── exportacao.repository.interface.ts       ✅ Contrato
+│
+├── infrastructure/
+│   └── repositories/
+│       └── exportacao.repository.ts                 ✅ Procedure P_EXPORTAR_FINANC
+│
+└── presentation/
+    └── controllers/
+        └── exportacao.controller.ts                 ✅ REST + Logs + Status
+```
+
+### 🎯 **Funcionalidades**
+
+1. **Exportar para TOTVS RM**
+   - Chama procedure `P_EXPORTAR_FINANC@dblrm`
+   - Filtra colaboradores com `EXPORTA='S'`
+   - Preview em ambiente DEV (não executa)
+
+2. **Buscar Logs**
+   - Histórico de exportações
+   - Filtros: categoria, mês, ano, código
+
+3. **Status Sistema**
+   - Modo execução (Preview/Teste/Produção)
+   - Configurações DB_LINK
+   - Avisos ambiente
+
+### ⚙️ **Configuração por Ambiente**
+
+```typescript
+DEV:        Preview mode (não executa)
+TEST:       Executa em @rmteste
+PRODUCTION: Executa em @dblrm
+```
+
+**Variáveis:**
+
+- `NODE_ENV`: production | test | development
+- `ALLOW_TOTVS_EXPORT`: true (forçar execução em DEV)
+
+---
+
+## 6️⃣ MÓDULO DE RELATÓRIOS
+
+### 📁 **Estrutura de Arquivos**
+
+```
+src/
+├── application/
+│   ├── use-cases/relatorio/
+│   │   ├── gerar-relatorio-colaborador.use-case.ts     ⚠️ Violação CA
+│   │   ├── gerar-relatorio-empresa.use-case.ts         ⚠️ Violação CA
+│   │   ├── gerar-relatorio-pagamento.use-case.ts       ⚠️ Violação CA
+│   │   ├── gerar-relatorio-nao-pagamento.use-case.ts   ⚠️ Violação CA
+│   │   ├── gerar-resumo-depto.use-case.ts              ⚠️ Violação CA
+│   │   └── gerar-resumo-centro-custo.use-case.ts       ⚠️ Violação CA
+│   │
+│   └── dtos/relatorio/
+│       ├── gerar-relatorio-colaborador.dto.ts          ✅ Validação
+│       ├── gerar-relatorio-empresa.dto.ts              ✅ Validação
+│       └── gerar-relatorio-pagamento.dto.ts            ✅ Validação
+│
+├── domain/
+│   └── repositories/
+│       └── relatorio.repository.interface.ts           ✅ Contrato
+│
+├── infrastructure/
+│   ├── external-apis/
+│   │   └── jasper-client.service.ts                    ✅ Cliente HTTP
+│   │
+│   └── repositories/
+│       └── relatorio.repository.ts                     ✅ Proxy JasperServer
+│
+└── presentation/
+    └── controllers/
+        └── relatorio.controller.ts                     ✅ 6 Endpoints
+```
+
+### 🎯 **Funcionalidades (6 Relatórios PDF)**
+
+1. **Relatório Colaborador** - Individual ou filtrado por CPF
+2. **Relatório Empresa** - Todos colaboradores
+3. **Relatório Pagamento** - Apenas EXPORTA='S'
+4. **Relatório Não-Pagamento** - Apenas EXPORTA='N'
+5. **Resumo Departamento** - Agrupado por depto
+6. **Resumo Centro Custo** - Totalizado por CC
+
+### ⚙️ **Arquitetura**
+
+**Opção A (Implementada):** Proxy para JasperReports Server
+
+- JasperServer: `http://relatorio.viacometa.com.br:8080/jasperserver`
+- Credenciais: `npd / npd1234@`
+- Templates: `/reports/INTRANET/uni/*.jrxml`
+- Cliente: Axios com autenticação básica
+
+### ⚠️ **Problemas Identificados**
+
+1. **SQL direto no Use Case** (violação Clean Architecture)
+2. **Tabela inventada** `gc.unimed_empresa` (não existe)
+3. **Validação no lugar errado** (deveria estar em `validations/`)
+4. **DatabaseService injetado** diretamente no Use Case
+
+---
+
+## 7️⃣ PROBLEMAS IDENTIFICADOS
+
+### 🚨 **Críticos - Módulo Relatórios**
+
+#### **Problema 1: SQL no Use Case**
+
+**❌ Código Atual:**
+
+```typescript
+// Use Case com SQL direto
+const empresa = await this.databaseService.executeQuery(
+  `SELECT ... FROM gc.unimed_empresa ...`, // Tabela não existe!
+  { codEmpresa, codColigada, codFilial },
+);
+```
+
+**✅ Correção Necessária:**
+
+**Opção 1:** Remover validação (fidelidade ao legado)
+
+```typescript
+async execute(params: RelatorioColaboradorParams): Promise<Buffer> {
+  return this.relatorioRepository.gerarRelatorioColaborador(params);
+}
+```
+
+**Opção 2:** Usar repository existente
+
+```typescript
+constructor(
+  private readonly empresaRepository: IEmpresaRepository, // Já existe!
+) {}
+
+async execute(params: RelatorioColaboradorParams): Promise<Buffer> {
+  const empresa = await this.empresaRepository.buscarPorCodigo(params.codEmpresa);
+  if (!empresa) throw new NotFoundException('Empresa não encontrada');
+
+  return this.relatorioRepository.gerarRelatorioColaborador(params);
+}
+```
+
+**Opção 3:** Criar validação separada
+
+```typescript
+src/application/
+├── validations/
+│   └── relatorio/
+│       └── validar-empresa-existe.validation.ts  // Nova camada
+```
+
+#### **Problema 2: Tabela Inventada**
+
+**Tabela usada:** `gc.unimed_empresa` ❌ NÃO EXISTE  
+**Tabela correta:** `gc.empresa_filial` ✅ (já usada em EmpresaRepository)
+
+**Método existente:**
+
+```typescript
+// src/infrastructure/repositories/empresa.repository.ts
+async buscarPorCodigo(codEmpresa: number): Promise<Empresa | null> {
+  const sql = `SELECT ... FROM gc.empresa_filial WHERE cod_empresa = :codEmpresa`;
+  // ...
+}
+```
+
+#### **Problema 3: Violação Princípio "Zero Alteração"**
+
+**Sistema Legado PHP:**
+
+```php
+// NÃO valida empresa
+Jasper::loadReport($dir, $arr, $file); // Chama direto
+```
+
+**Nossa implementação:**
+
+```typescript
+// Adicionamos validação que não existia
+if (!empresa) throw new NotFoundException();
+```
+
+### 📝 **Decisões Necessárias**
+
+1. **Remover validações** para manter fidelidade ao legado?
+2. **Manter validações** mas usando EmpresaRepository correto?
+3. **Criar camada de validações** separada (validations/)?
+
+---
+
+## 8️⃣ ARQUITETURA E ESTRUTURA
 
 ### 🚀 **Para Produção**
 
