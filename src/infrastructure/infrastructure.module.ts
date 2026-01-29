@@ -6,6 +6,7 @@ import { ColaboradorRepository } from './repositories/colaborador.repository';
 import { UnimedApiService } from './external-apis/unimed-api.service';
 import { ProcessoRepository } from './repositories/processo.repository';
 import { ExportacaoRepository } from './repositories/exportacao.repository';
+import { TokenCacheRepository } from './repositories/token-cache.repository';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
@@ -31,10 +32,15 @@ import { AuthModule } from './auth/auth.module';
       provide: 'IExportacaoRepository',
       useClass: ExportacaoRepository,
     },
+    {
+      provide: 'ITokenCacheRepository',
+      useClass: TokenCacheRepository,
+    },
     EmpresaRepository,
     DadosCobrancaRepository,
     ProcessoRepository,
     ExportacaoRepository,
+    TokenCacheRepository,
     UnimedApiService,
   ],
   exports: [
@@ -43,10 +49,12 @@ import { AuthModule } from './auth/auth.module';
     'IColaboradorRepository',
     'IProcessoRepository',
     'IExportacaoRepository',
+    'ITokenCacheRepository',
     EmpresaRepository,
     DadosCobrancaRepository,
     ProcessoRepository,
     ExportacaoRepository,
+    TokenCacheRepository,
     UnimedApiService,
     AuthModule,
   ],

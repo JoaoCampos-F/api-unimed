@@ -15,8 +15,8 @@ export class GerarRelatorioNaoPagamentoUseCase {
 
   async execute(params: RelatorioParams): Promise<Buffer> {
     const empresa = await this.databaseService.executeQuery(
-      `SELECT CODEMPRESA FROM gc.unimed_empresa 
-       WHERE CODEMPRESA = :codEmpresa 
+      `SELECT COD_EMPRESA FROM gc.empresa_filial 
+       WHERE COD_EMPRESA = :codEmpresa 
          AND CODCOLIGADA = :codColigada 
          AND CODFILIAL = :codFilial`,
       {

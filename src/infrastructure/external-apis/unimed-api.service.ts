@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 import { DemonstrativoDto } from '../../application/dtos/importacao/demonstrativo.dto';
+import { ITokenCacheRepository } from '../../domain/repositories/token-cache.repository.interface';
 
 @Injectable()
 export class UnimedApiService {
@@ -11,7 +12,10 @@ export class UnimedApiService {
   private token: string | null =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiY29tZXRhIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiREVNT05TVFJBVElWTyIsIm5iZiI6MTc2OTA4ODYwNCwiZXhwIjoxNzY5MTEwMjA0fQ.z87u-D_3yILQnUhu3IXHon8UBHTZawAaeMqaGkodweQ';
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly tokenCacheRepository: ITokenCacheRepository,
+  ) {
     const baseURL = this.configService.get<string>('UNIMED_API_URL');
     if (!baseURL) {
       throw new Error('UNIMED_API_URL não configurada');
@@ -243,12 +247,40 @@ export class UnimedApiService {
 
   private async ensureValidToken(): Promise<void> {
     if (!this.token) {
-      await this.obterToken();
+      this.token = await this.obterToken();
     }
   }
 
-  private async obterToken(): Promise<void> {
+  /**
+   * ⚠️ CRÍTICO: Implementação com cache para evitar limite de tokens da API
+   *
+   * Este método implementa cache de token no banco para evitar gerar múltiplos
+   * tokens desnecessariamente. A API Unimed tem LIMITE DIÁRIO de tokens.
+   *
+   * INCIDENTE ANTERIOR: Geração ilimitada de tokens deixou departamento inteiro sem acesso.
+   *
+   * FLUXO:
+   * 1. Verifica cache no banco (válido se < 6 horas)
+   * 2. Se cache válido, usa token existente
+   * 3. Se cache inválido/inexistente, gera novo token
+   * 4. Salva novo token no cache
+   *
+   * VALIDAÇÃO: Token tem validade de 6 HORAS
+   */
+  private async obterToken(): Promise<string> {
     try {
+      // 1️⃣ PRIORIDADE: Verificar cache PRIMEIRO
+      this.logger.log('🔍 Verificando cache de token...');
+      const tokenCacheado = await this.tokenCacheRepository.buscarTokenValido();
+
+      if (tokenCacheado) {
+        this.logger.log('✅ Token válido encontrado no cache - REUTILIZANDO');
+        return tokenCacheado;
+      }
+
+      // 2️⃣ Cache miss ou token expirado - gerar novo
+      this.logger.warn('⚠️  Cache miss ou token expirado - GERANDO NOVO TOKEN');
+
       const usuario = this.configService.get<string>('UNIMED_API_USER');
       const senha = this.configService.get<string>('UNIMED_API_PASSWORD');
 
@@ -256,6 +288,7 @@ export class UnimedApiService {
         throw new Error('Credenciais da API Unimed não configuradas');
       }
 
+      this.logger.log('📡 Chamando API Unimed para gerar token...');
       const response = await this.apiClient.post<string>(
         '/Token/geratoken',
         {},
@@ -264,11 +297,18 @@ export class UnimedApiService {
         },
       );
 
-      this.token = response.data;
-      this.logger.log('Token obtido com sucesso');
+      const novoToken = response.data;
+      this.logger.log('✅ Token gerado com sucesso pela API');
+
+      // 3️⃣ CRÍTICO: Salvar no cache para próximas requisições
+      this.logger.log('💾 Salvando token no cache...');
+      await this.tokenCacheRepository.salvarToken(novoToken);
+      this.logger.log('✅ Token salvo no cache - válido por 6 horas');
+
+      return novoToken;
     } catch (error) {
       this.logger.error(
-        'Erro ao obter token',
+        '❌ Erro ao obter token',
         error.response?.data || error.message,
       );
       throw new Error('Falha na autenticação com a API Unimed');

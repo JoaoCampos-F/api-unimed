@@ -16,9 +16,9 @@ export class GerarRelatorioEmpresaUseCase {
   async execute(params: RelatorioEmpresaParams): Promise<Buffer> {
     // Validar se empresa existe
     const empresa = await this.databaseService.executeQuery(
-      `SELECT CODEMPRESA, CODCOLIGADA, CODFILIAL 
+      `SELECT COD_EMPRESA, CODCOLIGADA, CODFILIAL 
        FROM gc.unimed_empresa 
-       WHERE CODEMPRESA = :codEmpresa 
+       WHERE COD_EMPRESA = :codEmpresa 
          AND CODCOLIGADA = :codColigada 
          AND CODFILIAL = :codFilial`,
       {
