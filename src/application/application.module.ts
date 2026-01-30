@@ -11,9 +11,9 @@ import { AtualizarColaboradorUseCase } from './use-cases/colaborador/atualizar-c
 import { AtualizarTodosColaboradoresUseCase } from './use-cases/colaborador/atualizar-todos-colaboradores.use-case';
 import { BuscarHistoricoUseCase } from './use-cases/processos/buscar-historico.use-case';
 import { ExecutarProcessoUseCase } from './use-cases/processos/executar-processo.use-case';
-import { ListarProcessosDisponiveisUseCase } from './use-cases/processos/listar-processos-disponiveis.use-case';
+import { BuscarProcessosAtivosUseCase } from './use-cases/processos/buscar-processos-ativos.use-case';
 import { ExportarParaTOTVSUseCase } from './use-cases/exportacao/exportar-para-totvs.use-case';
-import { ListarProcessosUseCase } from './use-cases/exportacao/listar-processos.use-case';
+import { BuscarProcessosParaExportacaoUseCase } from './use-cases/exportacao/buscar-processos-para-exportacao.use-case';
 import { Logger } from '@nestjs/common';
 import { EmpresaRepository } from 'src/infrastructure/repositories/empresa.repository';
 @Module({
@@ -30,9 +30,9 @@ import { EmpresaRepository } from 'src/infrastructure/repositories/empresa.repos
     AtualizarValorEmpresaUseCase,
     BuscarHistoricoUseCase,
     ExecutarProcessoUseCase,
-    ListarProcessosDisponiveisUseCase,
+    BuscarProcessosAtivosUseCase,
     ExportarParaTOTVSUseCase,
-    ListarProcessosUseCase,
+    BuscarProcessosParaExportacaoUseCase,
     Logger,
     {
       provide: 'IEmpresaRepository',
@@ -51,9 +51,9 @@ import { EmpresaRepository } from 'src/infrastructure/repositories/empresa.repos
     AtualizarValorEmpresaUseCase,
     BuscarHistoricoUseCase,
     ExecutarProcessoUseCase,
-    ListarProcessosDisponiveisUseCase,
+    BuscarProcessosAtivosUseCase,
     ExportarParaTOTVSUseCase,
-    ListarProcessosUseCase,
+    BuscarProcessosParaExportacaoUseCase,
   ],
 })
 export class ApplicationModule {}

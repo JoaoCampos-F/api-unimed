@@ -2,8 +2,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ListarProcessosDisponiveisDto } from 'src/application/dtos/processos/listar-processos-disponiveis.dto';
 import type { IProcessoRepository } from 'src/domain/repositories/processo.repository.interface';
 
+/**
+ * Use Case: Buscar Processos Ativos
+ *
+ * Retorna listagem simples de processos ativos sem auditoria.
+ * Usado para listagens básicas onde não é necessário saber última execução.
+ */
 @Injectable()
-export class ListarProcessosDisponiveisUseCase {
+export class BuscarProcessosAtivosUseCase {
   constructor(
     @Inject('IProcessoRepository')
     private readonly processoRepository: IProcessoRepository,

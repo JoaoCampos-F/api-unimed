@@ -1,4 +1,4 @@
-import { IsNumber, IsString, IsOptional, Matches } from 'class-validator';
+import { IsNumber, IsString, IsOptional, Matches, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class BuscarColaboradoresDto {
@@ -26,4 +26,21 @@ export class BuscarColaboradoresDto {
   @IsString()
   @Matches(/^\d{11}$/, { message: 'CPF deve ter 11 dígitos' })
   cpf?: string;
+
+  // 🔹 PAGINAÇÃO (DataTables format)
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @Min(1, { message: 'Página deve ser maior ou igual a 1' })
+  page?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @Min(1, { message: 'Page size deve ser maior ou igual a 1' })
+  pageSize?: number;
+
+  @IsOptional()
+  @IsString()
+  search?: string; // Busca por nome ou CPF
 }

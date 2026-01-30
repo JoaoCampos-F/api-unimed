@@ -6,12 +6,19 @@ import {
 } from '../../dtos/exportacao/listar-processos.dto';
 
 /**
- * Use Case: Listar Processos Disponíveis
+ * Use Case: Buscar Processos Para Exportação
+ *
+ * Busca processos com informações de auditoria (última execução)
+ * para seleção antes de exportar para TOTVS.
+ *
  * Replicando comportamento do NPD-Legacy: case 'Buscarprocesso'
+ * Usado na modal de exportação com checkboxes
  */
 @Injectable()
-export class ListarProcessosUseCase {
-  private readonly logger = new Logger(ListarProcessosUseCase.name);
+export class BuscarProcessosParaExportacaoUseCase {
+  private readonly logger = new Logger(
+    BuscarProcessosParaExportacaoUseCase.name,
+  );
 
   constructor(
     @Inject('IProcessoRepository')
@@ -19,12 +26,17 @@ export class ListarProcessosUseCase {
   ) {}
 
   /**
-   * Executa listagem de processos disponíveis
-   * Idêntico ao NPD-Legacy: carregaProcessosProcessa()
+   * Executa listagem de processos para exportação
+   * Idêntico ao NPD-Legacy: carregaDadosMCW()
+   *
+   * Retorna processos com:
+   * - Dados completos do processo
+   * - Data da última execução (para auditoria)
+   * - Usuário que executou
    */
   async execute(dto: ListarProcessosDto): Promise<ProcessoResponseDto[]> {
     this.logger.log(
-      `Listando processos: ${dto.categoria} - ${dto.tipoDado} - ${dto.mesRef}/${dto.anoRef}`,
+      `Buscando processos para exportação: ${dto.categoria} - ${dto.tipoDado} - ${dto.mesRef}/${dto.anoRef}`,
     );
 
     const processos = await this.processoRepository.buscarProcessosDisponiveis({
@@ -34,7 +46,9 @@ export class ListarProcessosUseCase {
       anoRef: dto.anoRef,
     });
 
-    this.logger.log(`${processos.length} processo(s) disponível(is)`);
+    this.logger.log(
+      `${processos.length} processo(s) disponível(is) para exportação`,
+    );
 
     return processos.map((processo) => ({
       codigo: processo.codigo,

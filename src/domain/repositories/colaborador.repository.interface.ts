@@ -6,6 +6,17 @@ export interface BuscarColaboradoresParams {
   mes?: string;
   ano?: string;
   cpf?: string;
+  page?: number;
+  pageSize?: number;
+  search?: string;
+}
+
+export interface BuscarColaboradoresResult {
+  data: Colaborador[];
+  totalRecords: number;
+  filteredRecords: number;
+  page: number;
+  pageSize: number;
 }
 
 export interface AtualizarColaboradorParams {
@@ -34,7 +45,7 @@ export interface AtualizarValorEmpresaParams {
 export interface IColaboradorRepository {
   buscarColaboradores(
     params: BuscarColaboradoresParams,
-  ): Promise<Colaborador[]>;
+  ): Promise<BuscarColaboradoresResult>;
   atualizarExporta(params: AtualizarColaboradorParams): Promise<number>; // retorna qtd atualizada
   atualizarTodosExporta(params: AtualizarTodosParams): Promise<number>; // retorna qtd atualizada
   atualizarValorEmpresa(params: AtualizarValorEmpresaParams): Promise<number>; // retorna qtd atualizada

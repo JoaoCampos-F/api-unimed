@@ -7,6 +7,7 @@ import {
   AtualizarTodosParams,
   AtualizarValorEmpresaParams,
   BuscarColaboradoresParams,
+  BuscarColaboradoresResult,
 } from 'src/domain/repositories/colaborador.repository.interface';
 import { CPF } from 'src/domain/value-objects/cpf.value-object';
 
@@ -36,6 +37,9 @@ interface IBindsBuscarColaboradores {
   mes?: string;
   ano?: string;
   cpf?: string;
+  search?: string;
+  offset?: number;
+  pageSize?: number;
 }
 
 interface DadosBasicosColaborador {
@@ -52,7 +56,58 @@ export class ColaboradorRepository implements IColaboradorRepository {
 
   async buscarColaboradores(
     params: BuscarColaboradoresParams,
-  ): Promise<Colaborador[]> {
+  ): Promise<BuscarColaboradoresResult> {
+    // 🔹 STEP 1: Count total records (sem paginação, sem search)
+    let countQuery = `
+      SELECT COUNT(*) as TOTAL
+      FROM gc.vw_uni_resumo_colaborador a
+      WHERE 1=1
+        AND a.cod_empresa = :codEmpresa
+        AND a.codcoligada = :codColigada
+    `;
+
+    const binds: IBindsBuscarColaboradores = {
+      codEmpresa: params.codEmpresa,
+      codColigada: params.codColigada,
+    };
+
+    if (params.mes) {
+      countQuery += ` AND a.mes_ref = :mes`;
+      binds.mes = params.mes;
+    }
+
+    if (params.ano) {
+      countQuery += ` AND a.ano_ref = :ano`;
+      binds.ano = params.ano;
+    }
+
+    if (params.cpf) {
+      countQuery += ` AND ltrim(a.codigo_cpf, '0000') = ltrim(:cpf, '0000')`;
+      binds.cpf = params.cpf;
+    }
+
+    const totalRows = await this.databaseService.executeQuery<{
+      TOTAL: number;
+    }>(countQuery, binds);
+    const totalRecords = totalRows[0]?.TOTAL || 0;
+
+    // 🔹 STEP 2: Count filtered records (com search, sem paginação)
+    let filteredCountQuery = countQuery;
+    if (params.search) {
+      filteredCountQuery += ` AND (
+        UPPER(a.colaborador) LIKE UPPER(:search) 
+        OR UPPER(a.apelido) LIKE UPPER(:search)
+        OR ltrim(a.codigo_cpf, '0000') LIKE :search
+      )`;
+      binds.search = `%${params.search}%`;
+    }
+
+    const filteredRows = await this.databaseService.executeQuery<{
+      TOTAL: number;
+    }>(filteredCountQuery, binds);
+    const filteredRecords = filteredRows[0]?.TOTAL || 0;
+
+    // 🔹 STEP 3: Buscar dados paginados
     let query = `
       SELECT 
         a.cod_empresa,
@@ -78,30 +133,39 @@ export class ColaboradorRepository implements IColaboradorRepository {
         AND a.codcoligada = :codColigada
     `;
 
-    const binds: IBindsBuscarColaboradores = {
-      codEmpresa: params.codEmpresa,
-      codColigada: params.codColigada,
-    };
-
     if (params.mes) {
       query += ` AND a.mes_ref = :mes`;
-      binds.mes = params.mes;
     }
 
     if (params.ano) {
       query += ` AND a.ano_ref = :ano`;
-      binds.ano = params.ano;
     }
 
     if (params.cpf) {
       query += ` AND ltrim(a.codigo_cpf, '0000') = ltrim(:cpf, '0000')`;
-      binds.cpf = params.cpf;
+    }
+
+    if (params.search) {
+      query += ` AND (
+        UPPER(a.colaborador) LIKE UPPER(:search) 
+        OR UPPER(a.apelido) LIKE UPPER(:search)
+        OR ltrim(a.codigo_cpf, '0000') LIKE :search
+      )`;
     }
 
     query += ` ORDER BY a.cod_band, a.apelido, a.colaborador`;
 
+    // 🔹 PAGINAÇÃO: Oracle OFFSET/FETCH syntax
+    const page = params.page || 1;
+    const pageSize = params.pageSize || 50; // Default 50 registros por página
+    const offset = (page - 1) * pageSize;
+
+    query += ` OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY`;
+    binds.offset = offset;
+    binds.pageSize = pageSize;
+
     this.logger.debug(
-      `Executando busca de colaboradores: ${JSON.stringify(params)}`,
+      `Buscando colaboradores com paginação: page=${page}, pageSize=${pageSize}, search="${params.search || ''}"`,
     );
 
     const rows = await this.databaseService.executeQuery<ColaboradorRow>(
@@ -109,7 +173,7 @@ export class ColaboradorRepository implements IColaboradorRepository {
       binds,
     );
 
-    return rows
+    const colaboradores = rows
       .filter((row) => {
         // Filtra registros sem CPF
         if (!row.CODIGO_CPF || row.CODIGO_CPF.trim() === '') {
@@ -153,6 +217,14 @@ export class ColaboradorRepository implements IColaboradorRepository {
           throw error;
         }
       });
+
+    return {
+      data: colaboradores,
+      totalRecords,
+      filteredRecords,
+      page,
+      pageSize,
+    };
   }
 
   async atualizarExporta(params: AtualizarColaboradorParams): Promise<number> {
