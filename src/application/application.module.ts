@@ -16,6 +16,7 @@ import { ExportarParaTOTVSUseCase } from './use-cases/exportacao/exportar-para-t
 import { BuscarProcessosParaExportacaoUseCase } from './use-cases/exportacao/buscar-processos-para-exportacao.use-case';
 import { Logger } from '@nestjs/common';
 import { EmpresaRepository } from 'src/infrastructure/repositories/empresa.repository';
+import { ImportarPeriodoCompletoUseCase } from './use-cases/importacao/importar-periodo-completo.use-case';
 @Module({
   imports: [InfrastructureModule],
   providers: [
@@ -24,6 +25,7 @@ import { EmpresaRepository } from 'src/infrastructure/repositories/empresa.repos
     BuscarEmpresasUnimedUseCase,
     ImportarUnimedPorCnpjUseCase,
     ImportarUnimedPorContratoUseCase,
+    ImportarPeriodoCompletoUseCase,
     AtualizarColaboradorUseCase,
     AtualizarTodosColaboradoresUseCase,
     BuscarColaboradoresUseCase,
@@ -45,6 +47,7 @@ import { EmpresaRepository } from 'src/infrastructure/repositories/empresa.repos
     BuscarEmpresasUnimedUseCase,
     ImportarUnimedPorCnpjUseCase,
     ImportarUnimedPorContratoUseCase,
+    ImportarPeriodoCompletoUseCase,
     AtualizarColaboradorUseCase,
     AtualizarTodosColaboradoresUseCase,
     BuscarColaboradoresUseCase,

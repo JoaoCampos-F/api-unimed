@@ -5,6 +5,8 @@ import {
   Query,
   HttpStatus,
   HttpException,
+  Post,
+  Body,
 } from '@nestjs/common';
 import { ImportarDadosUnimedDto } from '../../application/dtos/importacao/importar-dados-unimed.dto';
 import { ImportarDadosUnimedUseCase } from '../../application/use-cases/importacao/importar-dados-unimed.use-case';
@@ -12,6 +14,8 @@ import { ExecutarResumoUnimedUseCase } from '../../application/use-cases/importa
 import { BuscarEmpresasUnimedUseCase } from '../../application/use-cases/importacao/buscar-empresas-unimed.use-case';
 import { ImportarUnimedPorContratoUseCase } from '../../application/use-cases/importacao/importar-unimed-por-contrato.use-case';
 import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
+import { ImportarPeriodoDto } from 'src/application/dtos/importacao/importar-periodo.dto';
+import { ImportarPeriodoCompletoUseCase } from 'src/application/use-cases/importacao/importar-periodo-completo.use-case';
 
 @Controller('importacao')
 export class ImportacaoController {
@@ -20,6 +24,7 @@ export class ImportacaoController {
     private readonly executarResumoUnimedUseCase: ExecutarResumoUnimedUseCase,
     private readonly buscarEmpresasUnimedUseCase: BuscarEmpresasUnimedUseCase,
     private readonly importarDadosContratoUseCase: ImportarUnimedPorContratoUseCase,
+    private readonly importarPeriodoCompletoUseCase: ImportarPeriodoCompletoUseCase,
   ) {}
 
   @Get('dados-periodo-cnpj')
@@ -107,5 +112,11 @@ export class ImportacaoController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Post('importar-periodo')
+  @Roles('DP', 'ADMIN')
+  async importarPeriodoCompleto(@Body() dto: ImportarPeriodoDto) {
+    return await this.importarPeriodoCompletoUseCase.execute(dto);
   }
 }
