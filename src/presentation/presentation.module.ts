@@ -5,6 +5,7 @@ import { HealthController } from '../common/health/health.controller';
 import { ColaboradorController } from './controllers/colaborador.controller';
 import { ProcessoController } from './controllers/processo.controller';
 import { ExportacaoController } from './controllers/exportacao.controller';
+import { AuthController } from './controllers/auth.controller';
 import { RelatorioPresentationModule } from './relatorio-presentation.module';
 import { ExportacaoRepository } from 'src/infrastructure/repositories/exportacao.repository';
 
@@ -16,6 +17,7 @@ import { ExportacaoRepository } from 'src/infrastructure/repositories/exportacao
     ColaboradorController,
     ProcessoController,
     ExportacaoController,
+    AuthController,
   ],
   providers: [
     {

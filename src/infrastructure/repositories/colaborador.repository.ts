@@ -46,6 +46,7 @@ interface DadosBasicosColaborador {
   cod_empresa: number;
   codcoligada: number;
   codfilial: number;
+  cod_band: number;
 }
 
 @Injectable()
@@ -333,7 +334,8 @@ export class ColaboradorRepository implements IColaboradorRepository {
       SELECT DISTINCT
         a.cod_empresa,
         a.codcoligada,
-        a.codfilial
+        a.codfilial,
+        a.cod_band
       FROM gc.colaborador a
       WHERE ltrim(a.codigo_cpf, '0000') = ltrim(:cpf, '0000')
         AND a.ativo = 'S'
@@ -345,6 +347,7 @@ export class ColaboradorRepository implements IColaboradorRepository {
         COD_EMPRESA: number;
         CODCOLIGADA: number;
         CODFILIAL: number;
+        COD_BAND: number;
       }>(query, { cpf });
 
       if (!rows || rows.length === 0) {
@@ -357,10 +360,43 @@ export class ColaboradorRepository implements IColaboradorRepository {
         cod_empresa: row.COD_EMPRESA,
         codcoligada: row.CODCOLIGADA,
         codfilial: row.CODFILIAL,
+        cod_band: row.COD_BAND,
       };
     } catch (error: any) {
       this.logger.error(
         `Erro ao buscar dados básicos do colaborador: ${error.message}`,
+        error.stack,
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Busca nome (apelido) da empresa pelo código
+   */
+  async buscarNomeEmpresa(codEmpresa: number): Promise<string | null> {
+    const query = `
+      SELECT DISTINCT
+        a.apelido
+      FROM gc.colaborador a
+      WHERE a.cod_empresa = :codEmpresa
+        AND a.ativo = 'S'
+        AND ROWNUM = 1
+    `;
+
+    try {
+      const rows = await this.databaseService.executeQuery<{
+        APELIDO: string;
+      }>(query, { codEmpresa });
+
+      if (!rows || rows.length === 0) {
+        return null;
+      }
+
+      return rows[0].APELIDO;
+    } catch (error: any) {
+      this.logger.error(
+        `Erro ao buscar nome da empresa: ${error.message}`,
         error.stack,
       );
       return null;
