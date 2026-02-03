@@ -1,18 +1,49 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Logger } from '@nestjs/common';
 import { AuthUser } from 'src/infrastructure/auth/decorators/auth-user.decorator';
-import { UserAuth } from 'src/infrastructure/auth/types/user-auth.type';
+import type { UserAuth } from 'src/infrastructure/auth/types/user-auth.type';
 import { ColaboradorRepository } from 'src/infrastructure/repositories/colaborador.repository';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly colaboradorRepository: ColaboradorRepository) {}
 
   /**
    * GET /auth/usuarios
    * Retorna permissões e roles do usuário autenticado
+   * Prioridade 1: Permissões do Authorization Services (RPT)
+   * Prioridade 2: Fallback para RBAC hardcoded
    */
   @Get('usuarios')
   async buscarPermissoes(@AuthUser() user: UserAuth) {
+    // 🔥 Prioridade 1: Usar permissões do Authorization Services (se houver RPT)
+    if (user.permissions && user.permissions.length > 0) {
+      this.logger.log(
+        `✅ Usando permissões do Keycloak Authorization Services (${user.permissions.length} recursos)`,
+      );
+
+      // Formatar permissões do Keycloak para o formato esperado pelo frontend
+      const formattedPermissions: { [key: string]: string[] } = {};
+
+      user.permissions.forEach((perm) => {
+        const resourceName = perm.rsname || perm.rsid || 'unknown';
+        formattedPermissions[resourceName] = perm.scopes || [];
+      });
+
+      return {
+        permissions: formattedPermissions,
+        roles: user.roles,
+        rolesSystem: ['ADMIN', 'DP', 'COLABORADOR'],
+        source: 'keycloak-authorization-services', // 🔥 Indica de onde vieram as permissões
+      };
+    }
+
+    // 🔥 Prioridade 2: Fallback para permissões hardcoded (RBAC básico)
+    this.logger.warn(
+      '⚠️ Token não contém permissões do Authorization Services. Usando RBAC hardcoded como fallback.',
+    );
+
     // Mapeia roles para permissões específicas
     const permissions: { [key: string]: string[] } = {};
 
@@ -41,6 +72,7 @@ export class AuthController {
       permissions,
       roles: user.roles,
       rolesSystem: ['ADMIN', 'DP', 'COLABORADOR'],
+      source: 'hardcoded-fallback', // 🔥 Indica de onde vieram as permissões
     };
   }
 

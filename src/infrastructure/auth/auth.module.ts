@@ -36,7 +36,7 @@ import { DatabaseModule } from '../../database/database.module';
     },
     {
       provide: APP_GUARD,
-      useClass: RolesGuard, // 3º: Valida roles
+      useClass: RolesGuard,
     },
   ],
   exports: [UsuarioRepository],

@@ -8,6 +8,7 @@ import { ExportacaoController } from './controllers/exportacao.controller';
 import { AuthController } from './controllers/auth.controller';
 import { RelatorioPresentationModule } from './relatorio-presentation.module';
 import { ExportacaoRepository } from 'src/infrastructure/repositories/exportacao.repository';
+import { ColaboradorRepository } from 'src/infrastructure/repositories/colaborador.repository';
 
 @Module({
   imports: [ApplicationModule, RelatorioPresentationModule],
@@ -24,6 +25,7 @@ import { ExportacaoRepository } from 'src/infrastructure/repositories/exportacao
       provide: 'IExportacaoRepository',
       useClass: ExportacaoRepository,
     },
+    ColaboradorRepository,
   ],
 })
 export class PresentationModule {}

@@ -10,6 +10,12 @@ export interface UserAuth {
   codcoligada?: number;
   codfilial?: number;
   roles: string[]; // Roles do Keycloak (realm_access.roles)
+  permissions?: Array<{
+    // 🔥 NOVO: Permissões do Authorization Services
+    rsid?: string; // Resource ID
+    rsname?: string; // Resource Name
+    scopes?: string[]; // Scopes permitidos
+  }>;
 }
 
 declare global {

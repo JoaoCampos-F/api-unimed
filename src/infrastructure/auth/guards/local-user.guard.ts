@@ -125,6 +125,23 @@ export class LocalUserGuard implements CanActivate {
 
       const normalizedRoles = roles.map((role) => role.toUpperCase());
 
+      // 🔥 NOVO: Extrai permissões do Authorization Services (se houver RPT)
+      let permissions: any = null;
+      if (keycloakUser.authorization?.permissions) {
+        permissions = keycloakUser.authorization.permissions;
+        this.logger.log(
+          `✅ Permissões do Authorization Services encontradas: ${permissions.length} recursos`,
+        );
+        this.logger.verbose(
+          `Permissões:`,
+          JSON.stringify(permissions, null, 2),
+        );
+      } else {
+        this.logger.warn(
+          '⚠️ Token não contém permissões do Authorization Services. Certifique-se de que o frontend está solicitando um RPT.',
+        );
+      }
+
       this.logger.log(
         `Usuário autenticado: ${keycloakUser.preferred_username} | Roles: ${normalizedRoles.join(', ')}`,
       );
@@ -132,6 +149,7 @@ export class LocalUserGuard implements CanActivate {
       request.userAuth = {
         ...userAuth,
         roles: normalizedRoles,
+        permissions, // 🔥 NOVO: Adiciona permissões ao userAuth
       };
 
       return true;
