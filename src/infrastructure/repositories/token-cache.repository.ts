@@ -26,6 +26,10 @@ export class TokenCacheRepository implements ITokenCacheRepository {
         seisHorasAtras.getHours() - this.VALIDADE_TOKEN_HORAS,
       );
 
+      this.logger.debug(
+        `🔍 Buscando token gerado após: ${seisHorasAtras.toISOString()}`,
+      );
+
       const query = `
         SELECT 
           hash AS token,
@@ -55,9 +59,7 @@ export class TokenCacheRepository implements ITokenCacheRepository {
         new Date(DATA_GERACAO as string | number | Date),
       );
 
-      this.logger.log(
-        `✅ Token encontrado no cache (gerado há ${idadeToken} horas)`,
-      );
+      this.logger.log(`✅ Token encontrado no cache (gerado há ${idadeToken})`);
 
       return TOKEN;
     } catch (error) {
@@ -69,12 +71,10 @@ export class TokenCacheRepository implements ITokenCacheRepository {
     }
   }
 
-  /**
-   * Salva novo token no cache
-   * ⚠️ IMPORTANTE: Atualiza registro existente, não insere novo
-   */
   async salvarToken(token: string): Promise<void> {
     try {
+      this.logger.debug('💾 Iniciando salvamento de token no cache...');
+
       // Verificar se existe registro
       const queryVerifica = `
         SELECT COUNT(*) AS qtd
@@ -87,6 +87,9 @@ export class TokenCacheRepository implements ITokenCacheRepository {
       }>(queryVerifica);
 
       const existe = resultado[0].QTD > 0;
+      this.logger.debug(
+        `🗓️ Registro existente: ${existe ? 'SIM' : 'NÃO'} (qtd: ${resultado[0].QTD})`,
+      );
 
       if (existe) {
         // UPDATE
@@ -98,8 +101,13 @@ export class TokenCacheRepository implements ITokenCacheRepository {
           WHERE tipo = 'U'
         `;
 
-        await this.databaseService.executeUpdate(queryUpdate, { token });
-        this.logger.log('✅ Token atualizado no cache com sucesso');
+        const rowsAffected = await this.databaseService.executeUpdate(
+          queryUpdate,
+          { token },
+        );
+        this.logger.log(
+          `✅ Token ATUALIZADO no cache (${rowsAffected} row(s) affected)`,
+        );
       } else {
         // INSERT (primeira vez)
         const queryInsert = `
@@ -116,8 +124,13 @@ export class TokenCacheRepository implements ITokenCacheRepository {
           )
         `;
 
-        await this.databaseService.executeUpdate(queryInsert, { token });
-        this.logger.log('✅ Token salvo no cache pela primeira vez');
+        const rowsAffected = await this.databaseService.executeUpdate(
+          queryInsert,
+          { token },
+        );
+        this.logger.log(
+          `✅ Token INSERIDO no cache pela primeira vez (${rowsAffected} row(s) affected)`,
+        );
       }
     } catch (error) {
       this.logger.error(

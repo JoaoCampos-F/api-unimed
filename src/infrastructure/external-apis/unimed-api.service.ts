@@ -9,8 +9,9 @@ import type { ITokenCacheRepository } from '../../domain/repositories/token-cach
 export class UnimedApiService {
   private readonly logger = new Logger(UnimedApiService.name);
   private readonly apiClient: AxiosInstance;
-  private token: string | null =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiY29tZXRhIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiREVNT05TVFJBVElWTyIsIm5iZiI6MTc2OTA4ODYwNCwiZXhwIjoxNzY5MTEwMjA0fQ.z87u-D_3yILQnUhu3IXHon8UBHTZawAaeMqaGkodweQ';
+  private token: string | null = null;
+  private tokenTimestamp: Date | null = null; // Data de geração do token em memória
+  private readonly TOKEN_VALIDADE_HORAS = 6;
 
   constructor(
     private readonly configService: ConfigService,
@@ -35,7 +36,6 @@ export class UnimedApiService {
     periodo: string,
     cnpj: string,
   ): Promise<DemonstrativoDto> {
-    // 🧪 MOCK: Comentando chamada real da API para economizar tokens
     this.logger.warn(`🧪 USANDO MOCK - CNPJ ${cnpj}, período ${periodo}`);
 
     const mockData: DemonstrativoDto = {
@@ -247,9 +247,29 @@ export class UnimedApiService {
   }
 
   private async ensureValidToken(): Promise<void> {
-    if (!this.token) {
-      this.token = await this.obterToken();
+    // Verifica se token em memória existe E ainda é válido
+    if (this.token && this.tokenTimestamp) {
+      const agora = new Date();
+      const diffMs = agora.getTime() - this.tokenTimestamp.getTime();
+      const diffHoras = diffMs / (1000 * 60 * 60);
+
+      if (diffHoras < this.TOKEN_VALIDADE_HORAS) {
+        this.logger.debug(
+          `✅ Token em memória ainda válido (${diffHoras.toFixed(1)}h de uso)`,
+        );
+        return; // Token ainda válido, não precisa renovar
+      }
+
+      this.logger.warn(
+        `⏰ Token em memória expirado (${diffHoras.toFixed(1)}h) - renovando...`,
+      );
+      this.token = null;
+      this.tokenTimestamp = null;
     }
+
+    // Busca ou gera novo token
+    this.token = await this.obterToken();
+    this.tokenTimestamp = new Date();
   }
 
   /**
@@ -270,7 +290,6 @@ export class UnimedApiService {
    */
   private async obterToken(): Promise<string> {
     try {
-      // 1️⃣ PRIORIDADE: Verificar cache PRIMEIRO
       this.logger.log('🔍 Verificando cache de token...');
       const tokenCacheado = await this.tokenCacheRepository.buscarTokenValido();
 
@@ -279,7 +298,6 @@ export class UnimedApiService {
         return tokenCacheado;
       }
 
-      // 2️⃣ Cache miss ou token expirado - gerar novo
       this.logger.warn('⚠️  Cache miss ou token expirado - GERANDO NOVO TOKEN');
 
       const usuario = this.configService.get<string>('UNIMED_API_USER');
@@ -299,13 +317,13 @@ export class UnimedApiService {
       );
 
       const novoToken = response.data;
-      this.logger.log('✅ Token gerado com sucesso pela API');
 
       // 3️⃣ CRÍTICO: Salvar no cache para próximas requisições
       this.logger.log('💾 Salvando token no cache...');
       await this.tokenCacheRepository.salvarToken(novoToken);
       this.logger.log('✅ Token salvo no cache - válido por 6 horas');
 
+      this.tokenTimestamp = new Date(); // 🔥 Registra timestamp de geração
       return novoToken;
     } catch (error) {
       this.logger.error(
