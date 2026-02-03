@@ -378,7 +378,7 @@ export class ColaboradorRepository implements IColaboradorRepository {
     const query = `
       SELECT DISTINCT
         a.apelido
-      FROM gc.colaborador a
+      FROM gc.empresa_filial a
       WHERE a.cod_empresa = :codEmpresa
         AND a.ativo = 'S'
         AND ROWNUM = 1

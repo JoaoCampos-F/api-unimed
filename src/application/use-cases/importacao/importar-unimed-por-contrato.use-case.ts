@@ -7,7 +7,7 @@ import type { IDadosCobrancaRepository } from '../../../domain/repositories/dado
 import { ImportacaoResult } from './importar-unimed-por-cnpj.use-case';
 import { Periodo } from '../../../domain/value-objects/periodo.value-object';
 import { Empresa } from '../../../domain/entities/empresa.entity';
-import { CNPJ } from '../../../domain/value-objects/cnpj.value-object';
+import { DocumentoFiscal } from '../../../domain/value-objects/documento-fiscal.value-object';
 
 @Injectable()
 export class ImportarUnimedPorContratoUseCase {
@@ -49,12 +49,14 @@ export class ImportarUnimedPorContratoUseCase {
           );
 
         // Converter DTO para Entity
+        // 🔥 DocumentoFiscal detecta automaticamente se é CPF ou CNPJ
+        // Necessário porque fazendas têm CPF do proprietário no campo CNPJ
         const empresa = new Empresa(
           contrato.COD_EMPRESA,
           contrato.CODCOLIGADA,
           contrato.CODFILIAL,
           contrato.COD_BAND,
-          new CNPJ(contrato.CNPJ),
+          new DocumentoFiscal(contrato.CNPJ), // Aceita CPF (11) ou CNPJ (14)
           true,
         );
 

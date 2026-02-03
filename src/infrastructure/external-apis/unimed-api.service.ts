@@ -39,6 +39,10 @@ export class UnimedApiService {
     try {
       await this.ensureValidToken();
 
+      if (!this.token) {
+        throw new Error('Falha ao obter token de autenticação');
+      }
+
       const response = await this.apiClient.get<DemonstrativoDto>(
         '/Demonstrativo/buscaporperiodocnpj',
         {
@@ -73,8 +77,12 @@ export class UnimedApiService {
     try {
       await this.ensureValidToken();
 
+      if (!this.token) {
+        throw new Error('Falha ao obter token de autenticação');
+      }
+
       const response = await this.apiClient.get<DemonstrativoDto>(
-        '/Demonstrativo/BuscarPorPeriodoContrato',
+        '/Demonstrativo/buscaporperiodocontrato',
         {
           params: { periodo, contrato },
           headers: { Authorization: `Bearer ${this.token}` },
@@ -149,6 +157,7 @@ export class UnimedApiService {
 
       if (tokenCacheado) {
         this.logger.log('✅ Token válido encontrado no cache - REUTILIZANDO');
+        this.tokenTimestamp = new Date(); // 🔥 Define timestamp quando vem do cache
         return tokenCacheado;
       }
 

@@ -24,12 +24,26 @@ export class BuscarEmpresasUnimedUseCase {
 
     const empresas = await this.empresaRepository.buscarEmpresasAtivasUnimed();
 
-    return empresas.map((empresa) => ({
-      codEmpresa: empresa.codEmpresa,
-      codColigada: empresa.codColigada,
-      codFilial: empresa.codFilial,
-      codBand: empresa.codBand,
-      cnpj: empresa.cnpj.value,
-    }));
+    if (!empresas || empresas.length === 0) {
+      this.logger.warn('Nenhuma empresa ativa encontrada');
+      return [];
+    }
+
+    return empresas.map((empresa) => {
+      if (!empresa || !empresa.documentoFiscal) {
+        this.logger.error(
+          `Empresa inválida encontrada: ${JSON.stringify(empresa)}`,
+        );
+        throw new Error('Empresa sem documento fiscal válido');
+      }
+
+      return {
+        codEmpresa: empresa.codEmpresa,
+        codColigada: empresa.codColigada,
+        codFilial: empresa.codFilial,
+        codBand: empresa.codBand,
+        cnpj: empresa.documentoFiscal.value, // 🔥 Usa documentoFiscal (CPF ou CNPJ)
+      };
+    });
   }
 }

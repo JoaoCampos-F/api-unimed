@@ -104,7 +104,7 @@ export class ImportarDadosUnimedUseCase {
     // 2. Buscar novos dados
     const dadosUnimed = await this.unimedApiService.buscarPorPeriodoCnpj(
       periodo.periodoFormatado,
-      empresa.cnpj.value,
+      empresa.documentoFiscal.value, // 🔥 Usa documentoFiscal (CPF ou CNPJ)
     );
 
     // 3. Persistir dados completos (com todos os campos da mensalidade)

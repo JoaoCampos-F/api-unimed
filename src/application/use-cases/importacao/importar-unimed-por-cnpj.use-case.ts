@@ -46,7 +46,7 @@ export class ImportarUnimedPorCnpjUseCase {
 
         const dadosUnimed = await this.unimedApiService.buscarPorPeriodoCnpj(
           periodoFormatado,
-          empresa.cnpj.value,
+          empresa.documentoFiscal.value, // 🔥 Usa documentoFiscal (CPF ou CNPJ)
         );
 
         const qtdLimpa =

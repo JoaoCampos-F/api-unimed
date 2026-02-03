@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IEmpresaRepository } from '../../domain/repositories/empresa.repository.interface';
 import { Empresa } from '../../domain/entities/empresa.entity';
 import { CNPJ } from '../../domain/value-objects/cnpj.value-object';
+import { DocumentoFiscal } from '../../domain/value-objects/documento-fiscal.value-object';
 import { DatabaseService } from '../../database/database.services';
 import { EmpresaFilialDto } from 'src/application/dtos/importacao/empresa-filial.dto';
 import { EmpresaDadosContratoDto } from 'src/application/dtos/importacao/empresa-dados-contrato.dto';
@@ -45,7 +46,7 @@ export class EmpresaRepository implements IEmpresaRepository {
           row.CODCOLIGADA,
           row.CODFILIAL,
           row.COD_BAND,
-          new CNPJ(row.CNPJ),
+          new DocumentoFiscal(row.CNPJ), // 🔥 Aceita CPF ou CNPJ automaticamente
           true,
         ),
     );
@@ -78,7 +79,7 @@ export class EmpresaRepository implements IEmpresaRepository {
       row.CODCOLIGADA,
       row.CODFILIAL,
       row.COD_BAND,
-      new CNPJ(row.CNPJ),
+      new DocumentoFiscal(row.CNPJ), // 🔥 Aceita CPF ou CNPJ automaticamente
       row.PROCESSA_UNIMED === 'S',
     );
   }
@@ -111,7 +112,7 @@ export class EmpresaRepository implements IEmpresaRepository {
       row.CODCOLIGADA,
       row.CODFILIAL,
       row.COD_BAND,
-      new CNPJ(row.CNPJ),
+      new DocumentoFiscal(row.CNPJ), // 🔥 Aceita CPF ou CNPJ automaticamente
       row.PROCESSA_UNIMED === 'S',
     );
   }
@@ -143,7 +144,7 @@ export class EmpresaRepository implements IEmpresaRepository {
           row.CODCOLIGADA,
           row.CODFILIAL,
           row.COD_BAND,
-          new CNPJ(row.CNPJ),
+          new DocumentoFiscal(row.CNPJ), // 🔥 Aceita CPF ou CNPJ automaticamente
           row.PROCESSA_UNIMED === 'S',
         ),
     );
