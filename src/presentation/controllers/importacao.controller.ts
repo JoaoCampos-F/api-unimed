@@ -207,7 +207,6 @@ export class ImportacaoController {
       );
     }
   }
-}
 
   @Post('importar-periodo')
   @Roles('DP', 'ADMIN')

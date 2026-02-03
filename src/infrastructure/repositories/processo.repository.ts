@@ -62,6 +62,32 @@ type bindParmas = {
 export class ProcessoRepository implements IProcessoRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
+  async listarProcessos(categoria?: string): Promise<ProcessoRow[]> {
+    let query = `
+      SELECT 
+        codigo,
+        descricao,
+        categoria,
+        ordem,
+        dias,
+        ativo,
+        tipo_de_dado
+      FROM gc.mcw_processo
+      WHERE ativo = 'S'
+    `;
+
+    const binds: any = {};
+
+    if (categoria) {
+      query += ` AND categoria = :categoria`;
+      binds.categoria = categoria;
+    }
+
+    query += ` ORDER BY categoria, ordem`;
+
+    return await this.databaseService.executeQuery<ProcessoRow>(query, binds);
+  }
+
   async listarProcessosDisponiveis(params: {
     categoria: string;
     tipoDeDado: 'S' | 'C';

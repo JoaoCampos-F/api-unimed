@@ -19,13 +19,13 @@ export class ListarProcessosUseCase {
     const processos = await this.processoRepository.listarProcessos(categoria);
 
     return processos.map((p) => ({
-      codigo: p.codigo,
-      descricao: p.descricao,
-      categoria: p.categoria,
-      ordem: p.ordem,
-      dias: p.dias,
-      ativo: p.ativo,
-      tipoDeDado: p.tipoDeDado,
+      codigo: p.CODIGO,
+      descricao: p.DESCRICAO,
+      categoria: p.CATEGORIA,
+      ordem: p.ORDEM,
+      dias: p.DIAS,
+      ativo: p.ATIVO === 'S',
+      tipoDeDado: p.TIPO_DE_DADO,
     }));
   }
 }
