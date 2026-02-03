@@ -25,7 +25,7 @@ export class UnimedApiService {
 
     this.apiClient = axios.create({
       baseURL,
-      timeout: 30000, // 30 segundos
+      timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -36,149 +36,6 @@ export class UnimedApiService {
     periodo: string,
     cnpj: string,
   ): Promise<DemonstrativoDto> {
-    this.logger.warn(`🧪 USANDO MOCK - CNPJ ${cnpj}, período ${periodo}`);
-
-    const mockData: DemonstrativoDto = {
-      mensalidades: [
-        {
-          contrato: '0013364',
-          cnpj: '28941028000142',
-          contratante: 'COMETA MULTI MARCAS COMERCIO DE AUTOS LTDA',
-          nomeplano: ' SUPER CLASS EMPRESARIAL ENFERMARIA',
-          abrangencia: 'ESTADUAL',
-          codfatura: '2594854',
-          valor_fatura: 1710.93,
-          periodo: '102025',
-          composicoes: [
-            {
-              codFatura: '2594854',
-              codtitular: '0560013364000101',
-              titular: 'EVERTON DOS SANTOS RIBEIRO',
-              cpftitular: '99815494104',
-              matricula: '',
-              acomodacao: 'ENFERMARIA',
-              codbeneficiario: '0560013364000101',
-              beneficiario: 'EVERTON DOS SANTOS RIBEIRO',
-              idade: '41',
-              nascimento: '15/05/1984',
-              inclusao: '15/04/2024',
-              dependencia: 'Titular',
-              cpf: '99815494104',
-              valorcobrado: 291.35,
-              descricao: 'Mensalidade/Contribuição Saúde',
-            },
-            {
-              codFatura: '2594854',
-              codtitular: '0560013364000101',
-              titular: 'EVERTON DOS SANTOS RIBEIRO',
-              cpftitular: '99815494104',
-              matricula: '',
-              acomodacao: 'ENFERMARIA',
-              codbeneficiario: '0560013364000110',
-              beneficiario: 'DANILO GABRIEL SILVA DOS SANTOS',
-              idade: '12',
-              nascimento: '23/01/2013',
-              inclusao: '15/04/2024',
-              dependencia: 'Dependente',
-              cpf: '09238941106',
-              valorcobrado: 154.46,
-              descricao: 'Mensalidade/Contribuição Saúde',
-            },
-            {
-              codFatura: '2594854',
-              codtitular: '0560013364000101',
-              titular: 'EVERTON DOS SANTOS RIBEIRO',
-              cpftitular: '99815494104',
-              matricula: '',
-              acomodacao: 'ENFERMARIA',
-              codbeneficiario: '0560013364000128',
-              beneficiario: 'EDUARDO MATHEUS SILVA DOS SANTOS',
-              idade: '16',
-              nascimento: '11/11/2009',
-              inclusao: '15/04/2024',
-              dependencia: 'Dependente',
-              cpf: '09238925160',
-              valorcobrado: 154.46,
-              descricao: 'Mensalidade/Contribuição Saúde',
-            },
-            {
-              codFatura: '2594854',
-              codtitular: '0560013364000152',
-              titular: 'ANA BEATRIZ AMARAL PORTO',
-              cpftitular: '01476957169',
-              matricula: '',
-              acomodacao: 'ENFERMARIA',
-              codbeneficiario: '0560013364000152',
-              beneficiario: 'ANA BEATRIZ AMARAL PORTO',
-              idade: '28',
-              nascimento: '30/06/1997',
-              inclusao: '24/04/2025',
-              dependencia: 'Titular',
-              cpf: '01476957169',
-              valorcobrado: 130.23,
-              descricao: 'Co-participação em contas/Reciprocidade',
-            },
-            {
-              codFatura: '2594854',
-              codtitular: '0560013364000160',
-              titular: 'ANDREIA GUIMARAES KICHLER',
-              cpftitular: '01721649158',
-              matricula: '',
-              acomodacao: 'ENFERMARIA',
-              codbeneficiario: '0560013364000160',
-              beneficiario: 'ANDREIA GUIMARAES KICHLER',
-              idade: '34',
-              nascimento: '07/06/1991',
-              inclusao: '12/09/2025',
-              dependencia: 'Titular',
-              cpf: '01721649158',
-              valorcobrado: 475.87,
-              descricao: 'Mensalidade/Contribuição Saúde',
-            },
-            {
-              codFatura: '2594854',
-              codtitular: '0560013364000160',
-              titular: 'ANDREIA GUIMARAES KICHLER',
-              cpftitular: '01721649158',
-              matricula: '',
-              acomodacao: 'ENFERMARIA',
-              codbeneficiario: '0560013364000179',
-              beneficiario: 'MANUELA GUIMARAES KICHLER',
-              idade: '13',
-              nascimento: '09/05/2012',
-              inclusao: '12/09/2025',
-              dependencia: 'Dependente',
-              cpf: '08936694154',
-              valorcobrado: 252.28,
-              descricao: 'Mensalidade/Contribuição Saúde',
-            },
-            {
-              codFatura: '2594854',
-              codtitular: '0560013364000160',
-              titular: 'ANDREIA GUIMARAES KICHLER',
-              cpftitular: '01721649158',
-              matricula: '',
-              acomodacao: 'ENFERMARIA',
-              codbeneficiario: '0560013364000187',
-              beneficiario: 'ARTHUR GUIMARAES KICHLER',
-              idade: '8',
-              nascimento: '28/09/2017',
-              inclusao: '12/09/2025',
-              dependencia: 'Dependente',
-              cpf: '08680658111',
-              valorcobrado: 252.28,
-              descricao: 'Mensalidade/Contribuição Saúde',
-            },
-          ],
-        },
-      ],
-      status: true,
-      descricao_status: 'Aceito',
-    };
-
-    return mockData;
-
-    /* 🔴 CHAMADA REAL COMENTADA PARA ECONOMIZAR TOKENS
     try {
       await this.ensureValidToken();
 
@@ -195,7 +52,7 @@ export class UnimedApiService {
     } catch (error) {
       if (error?.response?.status === 401) {
         this.token = null;
-        return this.buscarPorPeriodoCnpj(periodo, cnpj); // Retry uma vez
+        return this.buscarPorPeriodoCnpj(periodo, cnpj);
       }
 
       this.logger.error(
@@ -207,7 +64,6 @@ export class UnimedApiService {
         `Dados não encontrados: ${error.response?.data || error.message}`,
       );
     }
-    */
   }
 
   async buscarPorPeriodoContrato(
@@ -247,7 +103,6 @@ export class UnimedApiService {
   }
 
   private async ensureValidToken(): Promise<void> {
-    // Verifica se token em memória existe E ainda é válido
     if (this.token && this.tokenTimestamp) {
       const agora = new Date();
       const diffMs = agora.getTime() - this.tokenTimestamp.getTime();
@@ -257,7 +112,7 @@ export class UnimedApiService {
         this.logger.debug(
           `✅ Token em memória ainda válido (${diffHoras.toFixed(1)}h de uso)`,
         );
-        return; // Token ainda válido, não precisa renovar
+        return;
       }
 
       this.logger.warn(
@@ -267,7 +122,6 @@ export class UnimedApiService {
       this.tokenTimestamp = null;
     }
 
-    // Busca ou gera novo token
     this.token = await this.obterToken();
     this.tokenTimestamp = new Date();
   }
