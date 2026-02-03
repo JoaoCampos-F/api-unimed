@@ -18,6 +18,18 @@ interface EmpresaDadosCodigo {
 interface EmpresaDadosCompleto extends EmpresaDadosCodigo {
   APELIDO?: string;
 }
+
+interface EmpresaCompletaRow {
+  COD_EMPRESA: number;
+  CODCOLIGADA: number;
+  CODFILIAL: number;
+  COD_BAND: number;
+  CNPJ: string;
+  APELIDO: string;
+  PROCESSA_UNIMED: string;
+  ATIVO: string;
+}
+
 @Injectable()
 export class EmpresaRepository implements IEmpresaRepository {
   constructor(private readonly databaseService: DatabaseService) {}
@@ -32,7 +44,7 @@ export class EmpresaRepository implements IEmpresaRepository {
         ef.cnpj
       FROM gc.empresa_filial ef
       WHERE ef.processa_unimed = 'S'
-      AND ef.CNPJ='28941028000142'
+      AND ef.CNPJ='24958142000124'
       ORDER BY ef.cod_band, ef.cod_empresa
     `;
 
@@ -187,5 +199,25 @@ export class EmpresaRepository implements IEmpresaRepository {
     });
 
     return resultado.length > 0;
+  }
+
+  async listarEmpresasCompletas(): Promise<EmpresaCompletaRow[]> {
+    const sql = `
+      SELECT 
+        ef.cod_empresa,
+        ef.codcoligada,
+        ef.codfilial,
+        ef.cod_band,
+        ef.cnpj,
+        ef.apelido,
+        ef.processa_unimed,
+        ef.ativo
+      FROM gc.empresa_filial ef
+      WHERE ef.ativo = 'S'
+        AND ef.processa_unimed = 'S'
+      ORDER BY ef.apelido, ef.cod_empresa
+    `;
+
+    return this.databaseService.executeQuery<EmpresaCompletaRow>(sql);
   }
 }

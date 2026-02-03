@@ -156,9 +156,8 @@ export class ColaboradorRepository implements IColaboradorRepository {
 
     query += ` ORDER BY a.cod_band, a.apelido, a.colaborador`;
 
-    // 🔹 PAGINAÇÃO: Oracle OFFSET/FETCH syntax
     const page = params.page || 1;
-    const pageSize = params.pageSize || 50; // Default 50 registros por página
+    const pageSize = params.pageSize || 50;
     const offset = (page - 1) * pageSize;
 
     query += ` OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY`;
@@ -176,7 +175,6 @@ export class ColaboradorRepository implements IColaboradorRepository {
 
     const colaboradores = rows
       .filter((row) => {
-        // Filtra registros sem CPF
         if (!row.CODIGO_CPF || row.CODIGO_CPF.trim() === '') {
           this.logger.warn(
             `Colaborador ${row.COLABORADOR} (empresa ${row.COD_EMPRESA}) sem CPF - ignorado`,
@@ -187,9 +185,6 @@ export class ColaboradorRepository implements IColaboradorRepository {
       })
       .map((row) => {
         try {
-          // IMPORTANTE: A tabela uni_resumo_colaborador armazena CPFs sem zeros à esquerda
-          // Ex: "12345678" ao invés de "00012345678"
-          // Fazemos LPAD para normalizar antes de criar o Value Object
           const cpfNormalizado = row.CODIGO_CPF.padStart(11, '0');
 
           return new Colaborador(
@@ -229,7 +224,6 @@ export class ColaboradorRepository implements IColaboradorRepository {
   }
 
   async atualizarExporta(params: AtualizarColaboradorParams): Promise<number> {
-    // ✅ PADRONIZADO: Usar ltrim('0000') para consistência com buscarColaboradores
     const query = `
       UPDATE gc.uni_resumo_colaborador
       SET exporta = :exporta
@@ -323,10 +317,6 @@ export class ColaboradorRepository implements IColaboradorRepository {
     return rowsAffected;
   }
 
-  /**
-   * Busca dados básicos do colaborador pelo CPF
-   * Usado para enriquecer dados do usuário autenticado
-   */
   async buscarDadosBasicosPorCpf(
     cpf: string,
   ): Promise<DadosBasicosColaborador | null> {
@@ -371,9 +361,6 @@ export class ColaboradorRepository implements IColaboradorRepository {
     }
   }
 
-  /**
-   * Busca nome (apelido) da empresa pelo código
-   */
   async buscarNomeEmpresa(codEmpresa: number): Promise<string | null> {
     const query = `
       SELECT DISTINCT
