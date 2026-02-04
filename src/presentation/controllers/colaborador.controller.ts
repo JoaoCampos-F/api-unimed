@@ -21,7 +21,6 @@ import {
   BuscarColaboradoresUseCase,
 } from 'src/application/use-cases/colaborador/buscar-colaboradores.use-case';
 import { ListarColaboradoresPaginadoQuery } from 'src/application/queries/colaborador/listar-colaboradores-paginado.query';
-import { AtualizarExportaColaboradorCommand } from 'src/application/commands/colaborador/atualizar-exporta-colaborador.command';
 import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
 import { AuthUser } from 'src/infrastructure/auth/decorators/auth-user.decorator';
 import type { UserAuth } from 'src/infrastructure/auth/types/user-auth.type';
@@ -36,7 +35,6 @@ export class ColaboradorController {
     private readonly atualizarValorEmpresaUseCase: AtualizarValorEmpresaUseCase,
     private readonly atualizarTodosUseCase: AtualizarTodosColaboradoresUseCase,
     private readonly listarColaboradoresPaginadoQuery: ListarColaboradoresPaginadoQuery,
-    private readonly atualizarExportaColaboradorCommand: AtualizarExportaColaboradorCommand,
   ) {}
 
   /**
@@ -161,15 +159,16 @@ export class ColaboradorController {
         );
       }
 
-      const resultado = await this.atualizarExportaColaboradorCommand.execute({
-        codigoCpf: body.codigoCpf,
+      const resultado = await this.atualizarColaboradorUseCase.execute({
+        cpf: body.codigoCpf,
         mesRef: body.mesRef,
         anoRef: body.anoRef,
         exporta: body.exporta,
       });
 
       return {
-        ...resultado,
+        sucesso: resultado.sucesso,
+        mensagem: resultado.mensagem,
         timestamp: new Date().toISOString(),
       };
     } catch (error) {

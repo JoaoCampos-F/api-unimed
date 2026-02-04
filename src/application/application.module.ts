@@ -22,7 +22,6 @@ import { ListarContratosQuery } from './queries/empresa/listar-contratos.query';
 import { ListarColaboradoresQuery } from './queries/colaborador/listar-colaboradores.query';
 import { ListarColaboradoresPaginadoQuery } from './queries/colaborador/listar-colaboradores-paginado.query';
 import { ListarProcessosQuery } from './queries/processo/listar-processos.query';
-import { AtualizarExportaColaboradorCommand } from './commands/colaborador/atualizar-exporta-colaborador.command';
 @Module({
   imports: [InfrastructureModule],
   providers: [
@@ -37,7 +36,6 @@ import { AtualizarExportaColaboradorCommand } from './commands/colaborador/atual
     ListarColaboradoresQuery,
     ListarColaboradoresPaginadoQuery,
     ListarProcessosQuery,
-    AtualizarExportaColaboradorCommand,
     AtualizarColaboradorUseCase,
     AtualizarTodosColaboradoresUseCase,
     BuscarColaboradoresUseCase,
@@ -65,7 +63,6 @@ import { AtualizarExportaColaboradorCommand } from './commands/colaborador/atual
     ListarColaboradoresQuery,
     ListarColaboradoresPaginadoQuery,
     ListarProcessosQuery,
-    AtualizarExportaColaboradorCommand,
     AtualizarColaboradorUseCase,
     AtualizarTodosColaboradoresUseCase,
     BuscarColaboradoresUseCase,

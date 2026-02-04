@@ -58,7 +58,6 @@ export class ColaboradorRepository implements IColaboradorRepository {
   async buscarColaboradores(
     params: BuscarColaboradoresParams,
   ): Promise<BuscarColaboradoresResult> {
-    // 🔹 STEP 1: Count total records (sem paginação, sem search)
     let countQuery = `
       SELECT COUNT(*) as TOTAL
       FROM gc.vw_uni_resumo_colaborador a
