@@ -25,8 +25,6 @@ export class ListarColaboradoresUseCase {
       page: 1,
       pageSize: 10000, // Buscar todos para listagem
     });
-
-    // Remover duplicatas por CPF
     const colaboradoresUnicos = new Map<string, ColaboradorSimplificadoDto>();
 
     resultado.data.forEach((colab) => {

@@ -53,10 +53,8 @@ export class ColaboradorController {
             'Colaborador só pode acessar seus próprios dados',
           );
         }
-        query.cpf = user.cpf; // Força filtro pelo CPF do colaborador
+        query.cpf = user.cpf;
       }
-
-      // dp só pode buscar colaboradores de sua empresa
       if (user.roles.includes('DP') && !user.roles.includes('ADMIN')) {
         if (user.cod_empresa) {
           query.codEmpresa = user.cod_empresa;

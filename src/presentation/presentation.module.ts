@@ -6,6 +6,7 @@ import { ColaboradorController } from './controllers/colaborador.controller';
 import { ProcessoController } from './controllers/processo.controller';
 import { ExportacaoController } from './controllers/exportacao.controller';
 import { AuthController } from './controllers/auth.controller';
+import { CommonController } from './controllers/common.controller';
 import { RelatorioPresentationModule } from './relatorio-presentation.module';
 import { ExportacaoRepository } from 'src/infrastructure/repositories/exportacao.repository';
 import { ColaboradorRepository } from 'src/infrastructure/repositories/colaborador.repository';
@@ -19,6 +20,7 @@ import { ColaboradorRepository } from 'src/infrastructure/repositories/colaborad
     ProcessoController,
     ExportacaoController,
     AuthController,
+    CommonController,
   ],
   providers: [
     {

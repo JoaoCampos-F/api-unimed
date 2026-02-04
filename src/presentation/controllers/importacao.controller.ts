@@ -16,10 +16,6 @@ import { ImportarUnimedPorContratoUseCase } from '../../application/use-cases/im
 import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
 import { ImportarPeriodoDto } from 'src/application/dtos/importacao/importar-periodo.dto';
 import { ImportarPeriodoCompletoUseCase } from 'src/application/use-cases/importacao/importar-periodo-completo.use-case';
-import { ListarEmpresasUseCase } from 'src/application/use-cases/empresa/listar-empresas.use-case';
-import { ListarContratosUseCase } from 'src/application/use-cases/empresa/listar-contratos.use-case';
-import { ListarColaboradoresUseCase } from 'src/application/use-cases/colaborador/listar-colaboradores.use-case';
-import { ListarProcessosUseCase } from 'src/application/use-cases/processo/listar-processos.use-case';
 
 @Controller('importacao')
 export class ImportacaoController {
@@ -29,10 +25,6 @@ export class ImportacaoController {
     private readonly buscarEmpresasUnimedUseCase: BuscarEmpresasUnimedUseCase,
     private readonly importarDadosContratoUseCase: ImportarUnimedPorContratoUseCase,
     private readonly importarPeriodoCompletoUseCase: ImportarPeriodoCompletoUseCase,
-    private readonly listarEmpresasUseCase: ListarEmpresasUseCase,
-    private readonly listarContratosUseCase: ListarContratosUseCase,
-    private readonly listarColaboradoresUseCase: ListarColaboradoresUseCase,
-    private readonly listarProcessosUseCase: ListarProcessosUseCase,
   ) {}
 
   @Get('dados-periodo-cnpj')
@@ -117,92 +109,6 @@ export class ImportacaoController {
     } catch (error) {
       throw new HttpException(
         `Erro ao executar resumo: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('listar-empresas')
-  @Roles('DP', 'ADMIN')
-  async listarEmpresas() {
-    try {
-      const empresas = await this.listarEmpresasUseCase.execute();
-
-      return {
-        sucesso: true,
-        dados: empresas,
-        total: empresas.length,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      throw new HttpException(
-        `Erro ao listar empresas: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('listar-contratos')
-  @Roles('DP', 'ADMIN')
-  async listarContratos() {
-    try {
-      const contratos = await this.listarContratosUseCase.execute();
-
-      return {
-        sucesso: true,
-        dados: contratos,
-        total: contratos.length,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      throw new HttpException(
-        `Erro ao listar contratos: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('listar-colaboradores')
-  @Roles('DP', 'ADMIN')
-  async listarColaboradores(
-    @Query('codEmpresa') codEmpresa: string,
-    @Query('codColigada') codColigada: string,
-  ) {
-    try {
-      const colaboradores = await this.listarColaboradoresUseCase.execute(
-        parseInt(codEmpresa, 10),
-        parseInt(codColigada, 10),
-      );
-
-      return {
-        sucesso: true,
-        dados: colaboradores,
-        total: colaboradores.length,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      throw new HttpException(
-        `Erro ao listar colaboradores: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('listar-processos')
-  @Roles('DP', 'ADMIN')
-  async listarProcessos(@Query('categoria') categoria?: string) {
-    try {
-      const processos = await this.listarProcessosUseCase.execute(categoria);
-
-      return {
-        sucesso: true,
-        dados: processos,
-        total: processos.length,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      throw new HttpException(
-        `Erro ao listar processos: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
