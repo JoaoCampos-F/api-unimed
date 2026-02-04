@@ -8,7 +8,6 @@ export interface ColaboradorListagemDto {
   codBand: number;
   cpf: string;
   nome: string;
-  apelido: string;
 }
 
 interface ColaboradorRow {
@@ -16,9 +15,8 @@ interface ColaboradorRow {
   CODCOLIGADA: number;
   CODFILIAL: number;
   COD_BAND: number;
-  CPF: string;
+  CODIGO_CPF: string; // Ajustado para bater com o SQL
   NOME: string;
-  APELIDO: string;
 }
 
 @Injectable()
@@ -26,38 +24,52 @@ export class ListarColaboradoresQuery {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async execute(
-    codEmpresa: number,
-    codColigada: number,
+    codEmpresa?: number,
+    codColigada?: number,
   ): Promise<ColaboradorListagemDto[]> {
-    const sql = `
+    let sql = `
       SELECT DISTINCT
         c.cod_empresa,
         c.codcoligada,
         c.codfilial,
         c.cod_band,
-        c.cpf,
-        c.nome,
-        c.apelido
-      FROM gc.colaboradores c
-      WHERE c.cod_empresa = :codEmpresa
-        AND c.codcoligada = :codColigada
-        AND c.ativo = 'S'
-      ORDER BY c.nome
+        c.codigo_cpf,
+        c.nome
+      FROM gc.colaborador c
+      WHERE 1=1
     `;
 
-    const rows = await this.databaseService.executeQuery<ColaboradorRow>(sql, {
-      codEmpresa,
-      codColigada,
-    });
+    const binds: any = {};
+
+    if (codEmpresa) {
+      sql += ` AND c.cod_empresa = :codEmpresa`;
+      binds.codEmpresa = codEmpresa;
+    }
+
+    if (codColigada) {
+      sql += ` AND c.codcoligada = :codColigada`;
+      binds.codColigada = codColigada;
+    }
+
+    sql += ` ORDER BY c.nome`;
+
+    // Limite de 100 registros se não houver empresa especificada
+    if (!codEmpresa) {
+      sql += ` FETCH FIRST 100 ROWS ONLY`;
+    }
+
+    const rows = await this.databaseService.executeQuery<ColaboradorRow>(
+      sql,
+      binds,
+    );
 
     return rows.map((row) => ({
       codEmpresa: row.COD_EMPRESA,
       codColigada: row.CODCOLIGADA,
       codFilial: row.CODFILIAL,
       codBand: row.COD_BAND,
-      cpf: row.CPF,
+      cpf: row.CODIGO_CPF, // Mapeado corretamente aqui
       nome: row.NOME,
-      apelido: row.APELIDO,
     }));
   }
 }

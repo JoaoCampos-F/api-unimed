@@ -45,11 +45,16 @@ export class CommonController {
     }
   }
 
+  /**
+   * Lista contratos ativos, opcionalmente filtrados por empresa
+   * Usado em: formulários de relatórios, importação
+   */
   @Get('contratos')
   @Roles('DP', 'ADMIN')
-  async listarContratos() {
+  async listarContratos(@Query('codEmpresa') codEmpresa?: string) {
     try {
-      const contratos = await this.listarContratosQuery.execute();
+      const codEmpresaNum = codEmpresa ? parseInt(codEmpresa, 10) : undefined;
+      const contratos = await this.listarContratosQuery.execute(codEmpresaNum);
 
       return {
         sucesso: true,
@@ -65,23 +70,26 @@ export class CommonController {
     }
   }
 
+  /**
+   * Lista colaboradores ativos, opcionalmente filtrados por empresa
+   * Se não informar empresa, retorna apenas os primeiros 100 registros
+   * Usado em: formulários de relatórios, exportação
+   */
   @Get('colaboradores')
   @Roles('DP', 'ADMIN')
   async listarColaboradores(
-    @Query('codEmpresa') codEmpresa: string,
-    @Query('codColigada') codColigada: string,
+    @Query('codEmpresa') codEmpresa?: string,
+    @Query('codColigada') codColigada?: string,
   ) {
     try {
-      if (!codEmpresa || !codColigada) {
-        throw new HttpException(
-          'Parâmetros codEmpresa e codColigada são obrigatórios',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      const codEmpresaNum = codEmpresa ? parseInt(codEmpresa, 10) : undefined;
+      const codColigadaNum = codColigada
+        ? parseInt(codColigada, 10)
+        : undefined;
 
       const colaboradores = await this.listarColaboradoresQuery.execute(
-        parseInt(codEmpresa, 10),
-        parseInt(codColigada, 10),
+        codEmpresaNum,
+        codColigadaNum,
       );
 
       return {

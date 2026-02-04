@@ -19,6 +19,7 @@ import { DatabaseModule } from '../../database/database.module';
         realm: config.get<string>('SSO_REALM') || '',
         clientId: config.get<string>('SSO_CLIENT_ID') || '',
         secret: config.get<string>('SSO_SECRET') || '',
+        logLevels: ['error'],
       }),
       inject: [ConfigService],
     }),

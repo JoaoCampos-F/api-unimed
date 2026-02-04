@@ -2,52 +2,61 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.services';
 
 export interface ContratoListagemDto {
-  codEmpresa: number;
-  codColigada: number;
-  codFilial: number;
-  codBand: number;
-  cnpj: string;
+  contratos: string;
   contrato: string;
+  abrangencia: string;
+  cnpj: string;
+  codEmpresa: number;
+  codBand: number;
 }
 
 interface ContratoRow {
-  COD_EMPRESA: number;
-  CODCOLIGADA: number;
-  CODFILIAL: number;
-  COD_BAND: number;
-  CNPJ: string;
+  CONTRATOS: string;
   CONTRATO: string;
+  ABRANGENCIA: string;
+  CNPJ: string;
+  COD_EMPRESA: number;
+  COD_BAND: number;
 }
 
 @Injectable()
 export class ListarContratosQuery {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async execute(): Promise<ContratoListagemDto[]> {
-    const sql = `
-      SELECT DISTINCT
-        ef.cod_empresa,
-        ef.codcoligada,
-        ef.codfilial,
-        ef.cod_band,
-        ef.cnpj,
-        ef.contrato
-      FROM gc.empresa_filial ef
-      WHERE ef.ativo = 'S'
-        AND ef.processa_unimed = 'S'
-        AND ef.contrato IS NOT NULL
-      ORDER BY ef.contrato
+  async execute(codEmpresa?: number): Promise<ContratoListagemDto[]> {
+    let sql = `
+      SELECT 
+        contratos,
+        contrato,
+        abrangencia,
+        cnpj,
+        cod_empresa,
+        cod_band
+      FROM gc.vw_uni_dados_contratos
+      WHERE 
+        contrato IS NOT NULL
     `;
 
-    const rows = await this.databaseService.executeQuery<ContratoRow>(sql);
+    const binds: any = {};
+
+    if (codEmpresa) {
+      sql += ` AND cod_empresa = :codEmpresa`;
+      binds.codEmpresa = codEmpresa;
+    }
+
+    sql += ` ORDER BY contrato`;
+    const rows = await this.databaseService.executeQuery<ContratoRow>(
+      sql,
+      binds,
+    );
 
     return rows.map((row) => ({
-      codEmpresa: row.COD_EMPRESA,
-      codColigada: row.CODCOLIGADA,
-      codFilial: row.CODFILIAL,
-      codBand: row.COD_BAND,
-      cnpj: row.CNPJ,
+      contratos: row.CONTRATOS,
       contrato: row.CONTRATO,
+      abrangencia: row.ABRANGENCIA,
+      cnpj: row.CNPJ,
+      codEmpresa: row.COD_EMPRESA,
+      codBand: row.COD_BAND,
     }));
   }
 }

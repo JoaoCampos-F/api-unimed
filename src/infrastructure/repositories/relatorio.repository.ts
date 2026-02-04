@@ -87,7 +87,7 @@ export class RelatorioRepository implements IRelatorioRepository {
     };
 
     return this.jasperClient.runReport(
-      `${this.basePath}/RelatorioPagamento`,
+      `${this.basePath}/relatorioPagamentos`,
       jasperParams,
     );
   }
@@ -110,7 +110,7 @@ export class RelatorioRepository implements IRelatorioRepository {
     };
 
     return this.jasperClient.runReport(
-      `${this.basePath}/RelatorioNaoPagamento`,
+      `${this.basePath}/relatorioNaolancamento`,
       jasperParams,
     );
   }
@@ -131,7 +131,7 @@ export class RelatorioRepository implements IRelatorioRepository {
     };
 
     return this.jasperClient.runReport(
-      `${this.basePath}/resumoDept`,
+      `${this.basePath}/resumoCentro`,
       jasperParams,
     );
   }
@@ -152,7 +152,7 @@ export class RelatorioRepository implements IRelatorioRepository {
     };
 
     return this.jasperClient.runReport(
-      `${this.basePath}/resumoCentroCust`,
+      `${this.basePath}/relatorioCentroCusto`,
       jasperParams,
     );
   }

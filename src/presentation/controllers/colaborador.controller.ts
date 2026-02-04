@@ -20,6 +20,8 @@ import {
   BuscarColaboradoresResponse,
   BuscarColaboradoresUseCase,
 } from 'src/application/use-cases/colaborador/buscar-colaboradores.use-case';
+import { ListarColaboradoresPaginadoQuery } from 'src/application/queries/colaborador/listar-colaboradores-paginado.query';
+import { AtualizarExportaColaboradorCommand } from 'src/application/commands/colaborador/atualizar-exporta-colaborador.command';
 import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
 import { AuthUser } from 'src/infrastructure/auth/decorators/auth-user.decorator';
 import type { UserAuth } from 'src/infrastructure/auth/types/user-auth.type';
@@ -33,7 +35,59 @@ export class ColaboradorController {
     private readonly buscarColaboradoresUseCase: BuscarColaboradoresUseCase,
     private readonly atualizarValorEmpresaUseCase: AtualizarValorEmpresaUseCase,
     private readonly atualizarTodosUseCase: AtualizarTodosColaboradoresUseCase,
+    private readonly listarColaboradoresPaginadoQuery: ListarColaboradoresPaginadoQuery,
+    private readonly atualizarExportaColaboradorCommand: AtualizarExportaColaboradorCommand,
   ) {}
+
+  /**
+   * GET /colaboradores/listar
+   * Lista colaboradores com paginação e filtros
+   * Baseado em: npd-legacy acao=Buscar (linhas 260-350)
+   */
+  @Get('listar')
+  @Roles('DP', 'ADMIN')
+  async listarColaboradores(
+    @Query('codEmpresa') codEmpresa?: string,
+    @Query('codColigada') codColigada?: string,
+    @Query('mesRef') mesRef?: string,
+    @Query('anoRef') anoRef?: string,
+    @Query('cpf') cpf?: string,
+    @Query('nome') nome?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Query('orderBy') orderBy?: string,
+    @Query('orderDirection') orderDirection?: 'asc' | 'desc',
+  ) {
+    try {
+      const resultado = await this.listarColaboradoresPaginadoQuery.execute({
+        codEmpresa: codEmpresa ? parseInt(codEmpresa, 10) : undefined,
+        codColigada: codColigada ? parseInt(codColigada, 10) : undefined,
+        mesRef,
+        anoRef,
+        cpf,
+        nome,
+        page: page ? parseInt(page, 10) : 1,
+        pageSize: pageSize ? parseInt(pageSize, 10) : 10,
+        orderBy: orderBy || 'COLABORADOR',
+        orderDirection: orderDirection || 'asc',
+      });
+
+      return {
+        sucesso: true,
+        ...resultado,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      this.logger.error(
+        `Erro ao listar colaboradores: ${error.message}`,
+        error.stack,
+      );
+      throw new HttpException(
+        `Erro ao listar colaboradores: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   @Get('')
   @Roles('COLABORADOR', 'DP', 'ADMIN')
@@ -70,6 +124,65 @@ export class ColaboradorController {
       );
       throw new HttpException(
         `Erro ao buscar colaboradores: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * PATCH /colaboradores/atualizar-exporta
+   * Atualiza flag exporta de um colaborador específico
+   * Baseado em: npd-legacy acao=update (linhas 352-357)
+   */
+  @Patch('atualizar-exporta')
+  @Roles('DP', 'ADMIN')
+  async atualizarExportaColaborador(
+    @Body()
+    body: {
+      codigoCpf: string;
+      mesRef: string;
+      anoRef: string;
+      exporta: 'S' | 'N';
+    },
+  ) {
+    try {
+      // Validações
+      if (!body.codigoCpf || !body.mesRef || !body.anoRef || !body.exporta) {
+        throw new HttpException(
+          'Parâmetros obrigatórios: codigoCpf, mesRef, anoRef, exporta',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      if (!['S', 'N'].includes(body.exporta)) {
+        throw new HttpException(
+          'Exporta deve ser S ou N',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const resultado = await this.atualizarExportaColaboradorCommand.execute({
+        codigoCpf: body.codigoCpf,
+        mesRef: body.mesRef,
+        anoRef: body.anoRef,
+        exporta: body.exporta,
+      });
+
+      return {
+        ...resultado,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      this.logger.error(
+        `Erro ao atualizar exporta colaborador: ${error.message}`,
+        error.stack,
+      );
+      throw new HttpException(
+        `Erro ao atualizar exporta colaborador: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
