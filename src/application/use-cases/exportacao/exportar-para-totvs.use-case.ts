@@ -37,18 +37,101 @@ export class ExportarParaTOTVSUseCase {
     preview?: any;
     empresasProcessadas?: number;
   }> {
+    // Compatibilidade com DTO antigo
+    const processos =
+      dto.processos || (dto.codigoProcesso ? [dto.codigoProcesso] : []);
+    const codBand = dto.codBand || dto.bandeira || 'T';
+    const empresa = dto.empresa || 'T';
+    const colaborador = dto.colaborador || dto.cpfColaborador || dto.cpf || '';
+
     this.logger.log(
-      `Iniciando exportação TOTVS - Período: ${dto.mesRef}/${dto.anoRef} - Processo: ${dto.codigoProcesso}`,
+      `Iniciando exportação TOTVS - Período: ${dto.mesRef}/${dto.anoRef} - Processos: ${processos.join(', ')}`,
     );
 
-    // 1. Validar processo existe e está ativo
-    const processo = await this.processoRepository.buscarPorCodigo(
-      dto.codigoProcesso,
-    );
+    // Validação como no NPD-Legacy: apenas mês, ano e processos são obrigatórios
+    if (!dto.mesRef || !dto.anoRef || !processos.length) {
+      throw new BadRequestException(
+        'Campos obrigatórios: mês, ano e processos',
+      );
+    }
 
+    // Validar cada processo existe e está ativo
+    for (const codigoProcesso of processos) {
+      const processo =
+        await this.processoRepository.buscarPorCodigo(codigoProcesso);
+      if (!processo) {
+        throw new NotFoundException(
+          `Processo ${codigoProcesso} não encontrado ou inativo`,
+        );
+      }
+    }
+
+    this.logger.log(`Processos validados: ${processos.length} processo(s)`);
+
+    // Validar permissão para apagar dados
+    if (dto.apagar && !this.temPermissaoApagar(permissoes)) {
+      throw new ForbiddenException(
+        'Você não possui autorização para apagar dados antigos',
+      );
+    }
+
+    // Determinar modo de execução (preview ou real)
+    const nodeEnv = process.env.NODE_ENV || 'development';
+    const isProduction = nodeEnv === 'production';
+    const isTest = nodeEnv === 'test' || nodeEnv === 'staging';
+    const allowExecution = process.env.ALLOW_TOTVS_EXPORT === 'true';
+    const shouldPreview = !isProduction && !isTest && !allowExecution;
+
+    // Executar cada processo sequencialmente
+    const resultados: any[] = [];
+    for (const codigoProcesso of processos) {
+      this.logger.log(`Processando: ${codigoProcesso}`);
+
+      const resultado = await this.executarProcesso(
+        {
+          ...dto,
+          codigoProcesso,
+          codBand,
+          empresa,
+          colaborador,
+        },
+        usuario,
+        permissoes,
+        shouldPreview,
+        isTest,
+      );
+
+      resultados.push(resultado);
+    }
+
+    return {
+      sucesso: true,
+      mensagem: `${processos.length} processo(s) executado(s) com sucesso`,
+      preview: shouldPreview ? resultados : undefined,
+      empresasProcessadas: resultados.length,
+    };
+  }
+
+  private async executarProcesso(
+    params: ExportarParaTOTVSDto & {
+      codigoProcesso: string;
+      codBand: string;
+      empresa: string;
+      colaborador: string;
+    },
+    usuario: string,
+    permissoes: string[],
+    shouldPreview: boolean,
+    isTest: boolean,
+  ) {
+    const { codigoProcesso, codBand, empresa, colaborador } = params;
+
+    // 1. Buscar processo para validações
+    const processo =
+      await this.processoRepository.buscarPorCodigo(codigoProcesso);
     if (!processo) {
       throw new NotFoundException(
-        `Processo ${dto.codigoProcesso} não encontrado ou inativo`,
+        `Processo ${codigoProcesso} não encontrado ou inativo`,
       );
     }
 
@@ -56,95 +139,81 @@ export class ExportarParaTOTVSUseCase {
       `Processo selecionado: ${processo.descricao} (${processo.codigo})`,
     );
 
-    // 2. Validar permissão para apagar dados
-    if (dto.apagar && !this.temPermissaoApagar(permissoes)) {
-      throw new ForbiddenException(
-        'Você não possui autorização para apagar dados antigos',
-      );
-    }
+    // 2. LÓGICA DE FILTROS EM CASCATA (replicando NPD-Legacy)
+    const exportarTodasEmpresas = empresa === 'T';
 
-    // 3. Determinar CPF (compatibilidade com campo antigo)
-    const cpfColaborador = dto.cpfColaborador || dto.cpf || null;
-
-    // 4. LÓGICA DE FILTROS EM CASCATA (replicando NPD-Legacy)
-    const exportarTodasEmpresas =
-      dto.empresa === 'T' || (!dto.empresa && dto.bandeira);
-
-    // 5. Validação: CPF requer empresa específica (regra do NPD-Legacy)
-    if (cpfColaborador && exportarTodasEmpresas) {
+    // 3. Validação: CPF requer empresa específica (regra do NPD-Legacy)
+    if (colaborador && exportarTodasEmpresas) {
       throw new BadRequestException(
         'Para exportar colaborador específico, é necessário informar a empresa',
       );
     }
 
     let empresas: Empresa[];
-    let codBand: string;
+    let bandeiraFinal: string;
     let todas: 'S' | 'N';
 
     if (exportarTodasEmpresas) {
       // CENÁRIO 1: Exportar TODAS empresas de uma bandeira
-      if (!dto.bandeira) {
+      if (!codBand || codBand === 'T') {
         throw new BadRequestException(
-          'Bandeira é obrigatória ao exportar todas as empresas',
+          'Bandeira específica é obrigatória ao exportar todas as empresas',
         );
       }
 
-      this.logger.log(`Modo: TODAS empresas da bandeira ${dto.bandeira}`);
+      this.logger.log(`Modo: TODAS empresas da bandeira ${codBand}`);
 
-      empresas = await this.empresaRepository.buscarPorBandeira(dto.bandeira);
+      empresas = await this.empresaRepository.buscarPorBandeira(codBand);
 
       if (empresas.length === 0) {
         throw new NotFoundException(
-          `Nenhuma empresa encontrada para bandeira ${dto.bandeira}`,
+          `Nenhuma empresa encontrada para bandeira ${codBand}`,
         );
       }
 
-      codBand = dto.bandeira;
+      bandeiraFinal = codBand;
       todas = 'S';
 
       this.logger.log(
         `Encontradas ${empresas.length} empresa(s) para exportar`,
       );
     } else {
-      // CENÁRIO 2: Empresa específica (por sigla ou código)
-      if (!dto.empresa) {
-        throw new BadRequestException('Empresa ou bandeira é obrigatória');
+      // CENÁRIO 2: Empresa específica (por código)
+      if (!empresa || empresa === 'T') {
+        throw new BadRequestException('Código da empresa é obrigatório');
       }
 
-      this.logger.log(`Modo: Empresa específica ${dto.empresa}`);
+      this.logger.log(`Modo: Empresa específica ${empresa}`);
 
-      // Tentar buscar por sigla primeiro, depois por código
-      let empresa = await this.empresaRepository.buscarPorSigla(dto.empresa);
-
-      if (!empresa) {
-        const codEmpresa = parseInt(dto.empresa, 10);
-        if (!isNaN(codEmpresa)) {
-          empresa = await this.empresaRepository.buscarPorCodigo(codEmpresa);
-        }
+      const codEmpresa = parseInt(empresa, 10);
+      if (isNaN(codEmpresa)) {
+        throw new BadRequestException('Código da empresa deve ser um número');
       }
 
-      if (!empresa) {
-        throw new NotFoundException(`Empresa ${dto.empresa} não encontrada`);
+      const empresaObj =
+        await this.empresaRepository.buscarPorCodigo(codEmpresa);
+      if (!empresaObj) {
+        throw new NotFoundException(`Empresa ${empresa} não encontrada`);
       }
 
-      empresas = [empresa];
-      codBand = empresa.codBand.toString();
+      empresas = [empresaObj];
+      bandeiraFinal = empresaObj.codBand.toString();
       todas = 'N';
     }
 
-    // 6. Buscar data final do período (validação de prazo)
+    // 4. Buscar data final do período (validação de prazo)
     const dataFinal = await this.exportacaoRepository.buscarDataFinalPeriodo(
-      dto.mesRef,
-      dto.anoRef,
+      params.mesRef,
+      params.anoRef,
     );
 
     if (!dataFinal) {
       throw new NotFoundException(
-        `Período de fechamento não encontrado: ${dto.mesRef}/${dto.anoRef}`,
+        `Período de fechamento não encontrado: ${params.mesRef}/${params.anoRef}`,
       );
     }
 
-    // 7. Validar prazo de execução (usando dias do processo selecionado)
+    // 5. Validar prazo de execução (usando dias do processo selecionado)
     const hoje = new Date();
     const dataMaxima = new Date(dataFinal);
     dataMaxima.setDate(dataMaxima.getDate() + processo.dias);
@@ -159,32 +228,25 @@ export class ExportarParaTOTVSUseCase {
       );
     }
 
-    // 8. Determinar modo de execução (preview ou real)
-    const nodeEnv = process.env.NODE_ENV || 'development';
-    const isProduction = nodeEnv === 'production';
-    const isTest = nodeEnv === 'test' || nodeEnv === 'staging';
-    const allowExecution = process.env.ALLOW_TOTVS_EXPORT === 'true';
-    const shouldPreview = !isProduction && !isTest && !allowExecution;
-
-    // 9. EXECUTAR EXPORTAÇÃO
+    // 6. EXECUTAR EXPORTAÇÃO
     if (shouldPreview) {
       // MODO PREVIEW (apenas development)
       return await this.executarPreview(
-        dto,
+        params,
         usuario,
         empresas[0],
-        codBand,
-        cpfColaborador,
+        bandeiraFinal,
+        colaborador,
       );
     } else {
       // MODO REAL (production/test ou com flag)
       return await this.executarExportacaoReal(
-        dto,
+        params,
         usuario,
         empresas,
-        codBand,
+        bandeiraFinal,
         todas,
-        cpfColaborador,
+        colaborador,
         isTest,
       );
     }
@@ -194,28 +256,28 @@ export class ExportarParaTOTVSUseCase {
    * Executa preview da exportação (modo desenvolvimento)
    */
   private async executarPreview(
-    dto: ExportarParaTOTVSDto,
+    params: ExportarParaTOTVSDto & { codigoProcesso: string },
     usuario: string,
     empresa: Empresa,
     codBand: string,
-    cpf: string | null,
+    cpf: string,
   ) {
     this.logger.warn(
       '🔴 MODO PREVIEW - Exportação não executada (ambiente development)',
     );
 
     const preview = await this.exportacaoRepository.simularExportacao({
-      mesRef: dto.mesRef,
-      anoRef: dto.anoRef,
-      previa: dto.previa || false,
-      apagar: dto.apagar || false,
+      mesRef: params.mesRef,
+      anoRef: params.anoRef,
+      previa: params.previa || false,
+      apagar: params.apagar || false,
       usuario,
       todas: 'N',
       codEmpresa: empresa.codEmpresa,
       bandeira: codBand,
-      tipo: dto.previa ? 'S' : 'C',
+      tipo: params.previa ? 'S' : 'C',
       categoria: 'UNI',
-      cpf,
+      cpf: cpf || null,
     });
 
     return {
@@ -229,12 +291,12 @@ export class ExportarParaTOTVSUseCase {
    * Executa exportação real (production/test)
    */
   private async executarExportacaoReal(
-    dto: ExportarParaTOTVSDto,
+    params: ExportarParaTOTVSDto & { codigoProcesso: string },
     usuario: string,
     empresas: Empresa[],
     codBand: string,
     todas: 'S' | 'N',
-    cpf: string | null,
+    cpf: string,
     isTest: boolean,
   ) {
     if (isTest) {
@@ -249,20 +311,20 @@ export class ExportarParaTOTVSUseCase {
       const codEmpresa = todas === 'S' ? '' : empresas[0].codEmpresa.toString();
 
       await this.exportacaoRepository.executarExportacao({
-        mesRef: dto.mesRef,
-        anoRef: dto.anoRef,
-        previa: dto.previa || false,
-        apagar: dto.apagar || false,
+        mesRef: params.mesRef,
+        anoRef: params.anoRef,
+        previa: params.previa || false,
+        apagar: params.apagar || false,
         usuario,
         todas,
         codEmpresa,
         bandeira: codBand,
-        tipo: dto.previa ? 'S' : 'C',
+        tipo: params.previa ? 'S' : 'C',
         categoria: 'UNI',
-        cpf,
+        cpf: cpf || null,
       });
 
-      const tipoExecucao = dto.previa ? 'PRÉVIA' : 'EXPORTAÇÃO';
+      const tipoExecucao = params.previa ? 'PRÉVIA' : 'EXPORTAÇÃO';
       let alcance: string;
 
       if (cpf) {
@@ -273,7 +335,7 @@ export class ExportarParaTOTVSUseCase {
         alcance = `empresa ${empresas[0].codEmpresa}`;
       }
 
-      const mensagem = `${tipoExecucao} executada com sucesso para ${alcance} no período ${dto.mesRef}/${dto.anoRef}`;
+      const mensagem = `${tipoExecucao} executada com sucesso para ${alcance} no período ${params.mesRef}/${params.anoRef}`;
 
       this.logger.log(mensagem);
 

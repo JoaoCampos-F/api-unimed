@@ -23,8 +23,8 @@ interface EmpresaRow {
 export class ListarEmpresasQuery {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async execute(): Promise<EmpresaListagemDto[]> {
-    const sql = `
+  async execute(codBand?: number): Promise<EmpresaListagemDto[]> {
+    let sql = `
       SELECT 
         cod_empresa,
         codcoligada,
@@ -35,10 +35,21 @@ export class ListarEmpresasQuery {
       FROM gc.empresa_filial
       WHERE ativo = 'S' 
         AND processa_unimed = 'S'
-      ORDER BY apelido, cod_empresa
     `;
 
-    const rows = await this.databaseService.executeQuery<EmpresaRow>(sql);
+    const params: any = {};
+
+    if (codBand) {
+      sql += ` AND cod_band = :codBand`;
+      params.codBand = codBand;
+    }
+
+    sql += ` ORDER BY apelido, cod_empresa`;
+
+    const rows = await this.databaseService.executeQuery<EmpresaRow>(
+      sql,
+      params,
+    );
 
     return rows.map((row) => ({
       codEmpresa: row.COD_EMPRESA,

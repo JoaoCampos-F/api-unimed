@@ -201,8 +201,10 @@ export class EmpresaRepository implements IEmpresaRepository {
     return resultado.length > 0;
   }
 
-  async listarEmpresasCompletas(): Promise<EmpresaCompletaRow[]> {
-    const sql = `
+  async listarEmpresasCompletas(
+    codBand?: number,
+  ): Promise<EmpresaCompletaRow[]> {
+    let sql = `
       SELECT 
         ef.cod_empresa,
         ef.codcoligada,
@@ -215,9 +217,17 @@ export class EmpresaRepository implements IEmpresaRepository {
       FROM gc.empresa_filial ef
       WHERE ef.ativo = 'S'
         AND ef.processa_unimed = 'S'
-      ORDER BY ef.apelido, ef.cod_empresa
     `;
 
-    return this.databaseService.executeQuery<EmpresaCompletaRow>(sql);
+    const params: any = {};
+
+    if (codBand) {
+      sql += ` AND ef.cod_band = :codBand`;
+      params.codBand = codBand;
+    }
+
+    sql += ` ORDER BY ef.apelido, ef.cod_empresa`;
+
+    return this.databaseService.executeQuery<EmpresaCompletaRow>(sql, params);
   }
 }

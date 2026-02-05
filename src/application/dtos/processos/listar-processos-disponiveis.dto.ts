@@ -5,7 +5,7 @@ export class ListarProcessosDisponiveisDto {
   @IsNotEmpty()
   categoria: string; // 'UNI', 'DIRF'
 
-  @IsIn(['S', 'C'])
+  @IsIn(['S', 'C', 'U'])
   @IsNotEmpty()
-  tipoDeDado: 'S' | 'C';
+  tipoDado: 'S' | 'C' | 'U';
 }

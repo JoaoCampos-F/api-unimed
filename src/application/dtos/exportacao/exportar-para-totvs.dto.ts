@@ -5,6 +5,8 @@ import {
   IsString,
   IsBoolean,
   IsOptional,
+  IsArray,
+  ArrayNotEmpty,
 } from 'class-validator';
 
 export class ExportarParaTOTVSDto {
@@ -17,30 +19,48 @@ export class ExportarParaTOTVSDto {
   @Min(2000, { message: 'Ano deve ser maior ou igual a 2000' })
   anoRef: number;
 
-  @IsString({ message: 'Código do processo deve ser uma string' })
-  codigoProcesso: string; // Código do processo MCW (ex: '90000001') - Selecionado pelo usuário
+  @IsArray({ message: 'Processos deve ser um array' })
+  @ArrayNotEmpty({ message: 'Necessário selecionar ao menos um processo' })
+  @IsString({
+    each: true,
+    message: 'Cada código de processo deve ser uma string',
+  })
+  processos: string[]; // Array de códigos dos processos MCW selecionados
 
   @IsString({ message: 'Bandeira deve ser uma string' })
   @IsOptional()
-  bandeira?: string; // Código da bandeira/seguimento (ex: '1' = 2 rodas, '2' = 4 rodas)
+  codBand?: string = 'T'; // Código da bandeira/seguimento ('2', '4', etc.) ou 'T' para todas
 
   @IsString({ message: 'Empresa deve ser uma string' })
   @IsOptional()
-  empresa?: string; // Sigla da empresa (ex: 'AF', 'BM') ou 'T' para todas da bandeira
+  empresa?: string = 'T'; // Código da empresa ou 'T' para todas da bandeira
 
   @IsString({ message: 'CPF do colaborador deve ser uma string' })
   @IsOptional()
-  cpfColaborador?: string; // CPF do colaborador específico (requer empresa específica)
+  colaborador?: string = ''; // CPF do colaborador específico ou vazio para todos
 
   @IsBoolean({ message: 'Campo prévia deve ser booleano' })
   @IsOptional()
-  previa?: boolean = false; // true = Gerar prévia, false = Definitivo
+  previa?: boolean = false; // true = Gerar prévia sem gravar definitivo
 
   @IsBoolean({ message: 'Campo apagar deve ser booleano' })
   @IsOptional()
-  apagar?: boolean = false; // true = Apagar dados antigos
+  apagar?: boolean = false; // true = Apagar dados antigos antes de processar
+
+  // Campos deprecados (mantidos para compatibilidade)
+  @IsString({ message: 'Código do processo deve ser uma string' })
+  @IsOptional()
+  codigoProcesso?: string; // @deprecated - Use processos[]
+
+  @IsString({ message: 'Bandeira deve ser uma string' })
+  @IsOptional()
+  bandeira?: string; // @deprecated - Use codBand
+
+  @IsString({ message: 'CPF do colaborador deve ser uma string' })
+  @IsOptional()
+  cpfColaborador?: string; // @deprecated - Use colaborador
 
   @IsString({ message: 'CPF deve ser uma string' })
   @IsOptional()
-  cpf?: string; // @deprecated - Use cpfColaborador (mantido para compatibilidade)
+  cpf?: string; // @deprecated - Use colaborador
 }

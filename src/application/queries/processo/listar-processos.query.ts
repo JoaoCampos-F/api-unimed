@@ -8,7 +8,7 @@ export interface ProcessoListagemDto {
   ordem: number;
   dias: number;
   ativo: boolean;
-  tipoDeDado: 'S' | 'C';
+  tipoDado: 'S' | 'C' | 'U';
 }
 
 interface ProcessoRow {
@@ -18,7 +18,7 @@ interface ProcessoRow {
   ORDEM: number;
   DIAS: number;
   ATIVO: 'S' | 'N';
-  TIPO_DE_DADO: 'S' | 'C';
+  TIPO_DADO: 'S' | 'C' | 'U';
 }
 
 @Injectable()
@@ -34,7 +34,7 @@ export class ListarProcessosQuery {
         ordem,
         dias,
         ativo,
-        tipo_de_dado
+        tipo_dado
       FROM gc.mcw_processo
       WHERE ativo = 'S'
     `;
@@ -60,7 +60,7 @@ export class ListarProcessosQuery {
       ordem: row.ORDEM,
       dias: row.DIAS,
       ativo: row.ATIVO === 'S',
-      tipoDeDado: row.TIPO_DE_DADO,
+      tipoDado: row.TIPO_DADO,
     }));
   }
 }

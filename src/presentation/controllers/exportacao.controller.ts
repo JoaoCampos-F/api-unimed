@@ -42,18 +42,8 @@ export class ExportacaoController {
    */
   @Get('processos')
   @Roles('DP', 'ADMIN')
-  @ApiOperation({
-    summary: 'Listar processos disponíveis',
-    description:
-      'Busca processos ativos filtrados por categoria, tipo de dado e período. Inclui data da última execução para auditoria.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista de processos disponíveis',
-    type: [ProcessoResponseDto],
-  })
   async listarProcessos(
-    @Query() dto: ListarProcessosDto,
+    @Query() dto: any,
     @AuthUser() user: UserAuth,
   ): Promise<ProcessoResponseDto[]> {
     try {

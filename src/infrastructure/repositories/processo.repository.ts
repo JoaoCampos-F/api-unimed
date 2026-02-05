@@ -6,12 +6,15 @@ import { IProcessoRepository } from 'src/domain/repositories/processo.repository
 
 interface ProcessoRow {
   CODIGO: string;
-  DESCRICAO: string;
   CATEGORIA: string;
+  PROCEDURE: string;
+  DESCRICAO: string;
   ORDEM: number;
   DIAS: number;
+  USUARIO: string;
+  TIPO_EMPRESA: string;
+  TIPO_DADO: 'S' | 'C' | 'U';
   ATIVO: 'S' | 'N';
-  TIPO_DE_DADO: 'S' | 'C';
 }
 
 interface ProcessoLogRow {
@@ -66,12 +69,15 @@ export class ProcessoRepository implements IProcessoRepository {
     let query = `
       SELECT 
         codigo,
-        descricao,
         categoria,
+        procedure,
+        descricao,
         ordem,
         dias,
-        ativo,
-        tipo_de_dado
+        usuario,
+        tipo_empresa,
+        tipo_dado,
+        ativo
       FROM gc.mcw_processo
       WHERE ativo = 'S'
     `;
@@ -90,27 +96,30 @@ export class ProcessoRepository implements IProcessoRepository {
 
   async listarProcessosDisponiveis(params: {
     categoria: string;
-    tipoDeDado: 'S' | 'C';
+    tipoDado: 'S' | 'C' | 'U';
   }): Promise<Processo[]> {
     const query = `
       SELECT 
         codigo,
-        descricao,
         categoria,
+        procedure,
+        descricao,
         ordem,
         dias,
-        ativo,
-        tipo_de_dado
+        usuario,
+        tipo_empresa,
+        tipo_dado,
+        ativo
       FROM gc.mcw_processo
       WHERE ativo = 'S'
         AND categoria = :categoria
-        AND tipo_de_dado = :tipoDeDado
+        AND tipo_dado = :tipoDado
       ORDER BY ordem
     `;
 
     const rows = await this.databaseService.executeQuery<ProcessoRow>(query, {
       categoria: params.categoria,
-      tipoDeDado: params.tipoDeDado,
+      tipoDado: params.tipoDado,
     });
 
     return rows.map(
@@ -118,15 +127,15 @@ export class ProcessoRepository implements IProcessoRepository {
         new Processo(
           row.CODIGO,
           row.CATEGORIA,
-          '', // procedure - não disponível nesta query
+          row.PROCEDURE, // ✅ Campo procedure agora disponível
           row.DESCRICAO,
           row.ORDEM,
           row.DIAS,
-          '', // usuario - não disponível nesta query
-          '', // tipoEmpresa - não disponível nesta query
-          row.TIPO_DE_DADO,
+          row.USUARIO, // ✅ Campo usuario agora disponível
+          row.TIPO_EMPRESA, // ✅ Campo tipo_empresa agora disponível
+          row.TIPO_DADO, // ✅ Corrigido: tipo_dado (não tipo_de_dado)
           row.ATIVO,
-          null, // dataUltimaExecucao - não disponível nesta query
+          null, // dataUltimaExecucao - buscar de processo-log
         ),
     );
   }
@@ -285,13 +294,13 @@ export class ProcessoRepository implements IProcessoRepository {
       SELECT 
         codigo,
         categoria,
-        procedure_name as procedure,
+        procedure,
         descricao,
         ordem,
         dias,
         usuario,
         tipo_empresa,
-        tipo_de_dado,
+        tipo_dado,
         ativo
       FROM gc.mcw_processo
       WHERE codigo = :codigo
@@ -306,7 +315,7 @@ export class ProcessoRepository implements IProcessoRepository {
       DIAS: number;
       USUARIO: string;
       TIPO_EMPRESA: string;
-      TIPO_DE_DADO: string;
+      TIPO_DADO: string;
       ATIVO: string;
     }>(query, { codigo });
 
@@ -324,7 +333,7 @@ export class ProcessoRepository implements IProcessoRepository {
       row.DIAS,
       row.USUARIO,
       row.TIPO_EMPRESA,
-      row.TIPO_DE_DADO,
+      row.TIPO_DADO,
       row.ATIVO,
       null,
     );
@@ -340,13 +349,13 @@ export class ProcessoRepository implements IProcessoRepository {
       SELECT 
         p.codigo,
         p.categoria,
-        p.procedure_name as procedure,
+        p.procedure,
         p.descricao,
         p.ordem,
         p.dias,
         p.usuario,
         p.tipo_empresa,
-        p.tipo_de_dado,
+        p.tipo_dado,
         p.ativo,
         (
           SELECT MAX(pl.data_proc)
@@ -358,7 +367,7 @@ export class ProcessoRepository implements IProcessoRepository {
       FROM gc.mcw_processo p
       WHERE p.ativo = 'S'
         AND p.categoria = :categoria
-        AND p.tipo_de_dado = :tipoDado
+        AND p.tipo_dado = :tipoDado
       ORDER BY p.ordem
     `;
 
@@ -371,7 +380,7 @@ export class ProcessoRepository implements IProcessoRepository {
       DIAS: number;
       USUARIO: string;
       TIPO_EMPRESA: string;
-      TIPO_DE_DADO: string;
+      TIPO_DADO: string;
       ATIVO: string;
       DATA_ULTIMA_EXECUCAO: string | null;
     }>(query, {
@@ -392,7 +401,7 @@ export class ProcessoRepository implements IProcessoRepository {
           row.DIAS,
           row.USUARIO,
           row.TIPO_EMPRESA,
-          row.TIPO_DE_DADO,
+          row.TIPO_DADO,
           row.ATIVO,
           row.DATA_ULTIMA_EXECUCAO ? new Date(row.DATA_ULTIMA_EXECUCAO) : null,
         ),

@@ -18,7 +18,7 @@ export class BuscarProcessosAtivosUseCase {
   async execute(request: ListarProcessosDisponiveisDto) {
     const processos = await this.processoRepository.listarProcessosDisponiveis({
       categoria: request.categoria,
-      tipoDeDado: request.tipoDeDado,
+      tipoDado: request.tipoDado,
     });
 
     return {

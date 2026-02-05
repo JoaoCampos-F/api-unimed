@@ -5,7 +5,7 @@ export interface IProcessoRepository {
   // Lista processos disponíveis para execução (existente)
   listarProcessosDisponiveis(params: {
     categoria: string;
-    tipoDeDado: 'S' | 'C';
+    tipoDado: 'S' | 'C' | 'U';
   }): Promise<Processo[]>;
 
   /**

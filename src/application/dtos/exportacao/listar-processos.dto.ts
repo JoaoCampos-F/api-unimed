@@ -16,9 +16,9 @@ export class ListarProcessosDto {
 
   @IsString()
   @ApiProperty({
-    description: 'Tipo de dado (S=Sintético, C=Completo)',
-    example: 'C',
-    enum: ['S', 'C'],
+    description: 'Tipo de dado (S=Sintético, C=Completo, U=Unimed)',
+    example: 'U',
+    enum: ['S', 'C', 'U'],
   })
   tipoDado: string;
 

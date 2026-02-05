@@ -8,7 +8,7 @@ export interface ProcessoDto {
   ordem: number;
   dias: number;
   ativo: boolean;
-  tipoDeDado: 'S' | 'C';
+  tipoDado: 'S' | 'C' | 'U';
 }
 
 @Injectable()
@@ -25,7 +25,7 @@ export class ListarProcessosUseCase {
       ordem: p.ORDEM,
       dias: p.DIAS,
       ativo: p.ATIVO === 'S',
-      tipoDeDado: p.TIPO_DE_DADO,
+      tipoDado: p.TIPO_DADO,
     }));
   }
 }

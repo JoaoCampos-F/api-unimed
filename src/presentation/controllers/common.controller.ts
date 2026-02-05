@@ -10,6 +10,7 @@ import { ListarEmpresasQuery } from 'src/application/queries/empresa/listar-empr
 import { ListarContratosQuery } from 'src/application/queries/empresa/listar-contratos.query';
 import { ListarColaboradoresQuery } from 'src/application/queries/colaborador/listar-colaboradores.query';
 import { ListarProcessosQuery } from 'src/application/queries/processo/listar-processos.query';
+import { TipoBandeiraRepository } from '../../infrastructure/repositories/tipo-bandeira.repository';
 
 /**
  * Controller para recursos compartilhados/transversais
@@ -23,13 +24,16 @@ export class CommonController {
     private readonly listarContratosQuery: ListarContratosQuery,
     private readonly listarColaboradoresQuery: ListarColaboradoresQuery,
     private readonly listarProcessosQuery: ListarProcessosQuery,
+    private readonly tipoBandeiraRepository: TipoBandeiraRepository,
   ) {}
 
   @Get('empresas')
   @Roles('DP', 'ADMIN')
-  async listarEmpresas() {
+  async listarEmpresas(@Query('codBand') codBand?: string) {
     try {
-      const empresas = await this.listarEmpresasQuery.execute();
+      const empresas = await this.listarEmpresasQuery.execute(
+        codBand ? parseInt(codBand, 10) : undefined,
+      );
 
       return {
         sucesso: true,
@@ -40,6 +44,26 @@ export class CommonController {
     } catch (error) {
       throw new HttpException(
         `Erro ao listar empresas: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('bandeiras')
+  @Roles('DP', 'ADMIN')
+  async listarBandeiras() {
+    try {
+      const bandeiras = await this.tipoBandeiraRepository.listarBandeiras();
+
+      return {
+        sucesso: true,
+        dados: bandeiras,
+        total: bandeiras.length,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Erro ao listar bandeiras: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
