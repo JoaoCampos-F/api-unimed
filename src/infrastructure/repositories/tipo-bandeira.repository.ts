@@ -14,22 +14,22 @@ export class TipoBandeiraRepository {
       SELECT 
         cod_band,
         descricao,
-        az_tipo_com_veic,
-        az_processa
+        tipo_com_veic,
+        processa
       FROM gc.tipo_bandeira
-      WHERE az_processa = 'S'
+      WHERE processa = 'S'
       ORDER BY descricao
     `;
 
     const result = await this.database.executeQuery<TipoBandeiraRow>(query);
 
     return result.map(
-      (row: TipoBandeiraRow) =>
+      (row) =>
         new TipoBandeira(
           row.COD_BAND,
           row.DESCRICAO,
-          row.AZ_TIPO_COM_VEIC,
-          row.AZ_PROCESSA,
+          row.TIPO_COM_VEIC,
+          row.PROCESSA,
         ),
     );
   }
