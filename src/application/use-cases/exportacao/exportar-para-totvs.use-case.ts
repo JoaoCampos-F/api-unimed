@@ -12,6 +12,33 @@ import type { IProcessoRepository } from 'src/domain/repositories/processo.repos
 import { ExportarParaTOTVSDto } from 'src/application/dtos/exportacao/exportar-para-totvs.dto';
 import { Empresa } from 'src/domain/entities/empresa.entity';
 
+interface ExecutarProcesso {
+  codigoProcesso: string;
+  codBand: string;
+  codEmpresa: string;
+  colaborador?: string;
+  usuario: string;
+  permissoes: string[];
+  isPreview: boolean;
+  mesRef: number;
+  anoRef: number;
+  apagar: boolean;
+}
+
+interface ExecutarExportacaoParams {
+  codigoProcesso: string;
+  codBand: string;
+  mesRef: number;
+  anoRef: number;
+  previa: boolean;
+  apagar: boolean;
+  usuario: string;
+  todas: 'S' | 'N';
+  codEmpresa: number;
+  tipo: string;
+  categoria: string;
+  cpf?: string;
+}
 @Injectable()
 export class ExportarParaTOTVSUseCase {
   private readonly logger = new Logger(ExportarParaTOTVSUseCase.name);
@@ -37,25 +64,21 @@ export class ExportarParaTOTVSUseCase {
     preview?: any;
     empresasProcessadas?: number;
   }> {
-    // Compatibilidade com DTO antigo
-    const processos =
-      dto.processos || (dto.codigoProcesso ? [dto.codigoProcesso] : []);
-    const codBand = dto.codBand || dto.bandeira || 'T';
+    const processos = dto.processos;
+    const codBand = dto.codBand || 'T';
     const empresa = dto.empresa || 'T';
-    const colaborador = dto.colaborador || dto.cpfColaborador || dto.cpf || '';
+    const colaborador = dto.colaborador || '';
 
     this.logger.log(
       `Iniciando exportação TOTVS - Período: ${dto.mesRef}/${dto.anoRef} - Processos: ${processos.join(', ')}`,
     );
 
-    // Validação como no NPD-Legacy: apenas mês, ano e processos são obrigatórios
     if (!dto.mesRef || !dto.anoRef || !processos.length) {
       throw new BadRequestException(
         'Campos obrigatórios: mês, ano e processos',
       );
     }
 
-    // Validar cada processo existe e está ativo
     for (const codigoProcesso of processos) {
       const processo =
         await this.processoRepository.buscarPorCodigo(codigoProcesso);
@@ -68,38 +91,28 @@ export class ExportarParaTOTVSUseCase {
 
     this.logger.log(`Processos validados: ${processos.length} processo(s)`);
 
-    // Validar permissão para apagar dados
     if (dto.apagar && !this.temPermissaoApagar(permissoes)) {
       throw new ForbiddenException(
         'Você não possui autorização para apagar dados antigos',
       );
     }
 
-    // Determinar modo de execução (preview ou real)
-    const nodeEnv = process.env.NODE_ENV || 'development';
-    const isProduction = nodeEnv === 'production';
-    const isTest = nodeEnv === 'test' || nodeEnv === 'staging';
-    const allowExecution = process.env.ALLOW_TOTVS_EXPORT === 'true';
-    const shouldPreview = !isProduction && !isTest && !allowExecution;
+    const isPreview = dto.previa || false;
 
-    // Executar cada processo sequencialmente
     const resultados: any[] = [];
     for (const codigoProcesso of processos) {
-      this.logger.log(`Processando: ${codigoProcesso}`);
-
-      const resultado = await this.executarProcesso(
-        {
-          ...dto,
-          codigoProcesso,
-          codBand,
-          empresa,
-          colaborador,
-        },
-        usuario,
-        permissoes,
-        shouldPreview,
-        isTest,
-      );
+      const resultado = await this.executarProcesso({
+        codBand: codBand,
+        codigoProcesso,
+        codEmpresa: empresa,
+        isPreview: isPreview,
+        colaborador: colaborador,
+        usuario: usuario,
+        permissoes: permissoes,
+        mesRef: dto.mesRef,
+        anoRef: dto.anoRef,
+        apagar: dto.apagar || false,
+      });
 
       resultados.push(resultado);
     }
@@ -107,40 +120,20 @@ export class ExportarParaTOTVSUseCase {
     return {
       sucesso: true,
       mensagem: `${processos.length} processo(s) executado(s) com sucesso`,
-      preview: shouldPreview ? resultados : undefined,
+      preview: isPreview ? resultados : undefined,
       empresasProcessadas: resultados.length,
     };
   }
 
-  private async executarProcesso(
-    params: ExportarParaTOTVSDto & {
-      codigoProcesso: string;
-      codBand: string;
-      empresa: string;
-      colaborador: string;
-    },
-    usuario: string,
-    permissoes: string[],
-    shouldPreview: boolean,
-    isTest: boolean,
-  ) {
-    const { codigoProcesso, codBand, empresa, colaborador } = params;
+  private async executarProcesso(params: ExecutarProcesso) {
+    const { codigoProcesso, codBand, codEmpresa, colaborador } = params;
 
-    // 1. Buscar processo para validações
-    const processo =
-      await this.processoRepository.buscarPorCodigo(codigoProcesso);
-    if (!processo) {
-      throw new NotFoundException(
-        `Processo ${codigoProcesso} não encontrado ou inativo`,
-      );
-    }
+    const exportarTodasEmpresas = codEmpresa === 'T';
+    const todasEmpresasFlag: 'S' | 'N' = exportarTodasEmpresas ? 'S' : 'N';
 
     this.logger.log(
-      `Processo selecionado: ${processo.descricao} (${processo.codigo})`,
+      `Modo selecionado: ${exportarTodasEmpresas ? 'TODAS as empresas ativas da Unimed' : 'Empresa específica'} (todas='${todasEmpresasFlag}')`,
     );
-
-    // 2. LÓGICA DE FILTROS EM CASCATA (replicando NPD-Legacy)
-    const exportarTodasEmpresas = empresa === 'T';
 
     // 3. Validação: CPF requer empresa específica (regra do NPD-Legacy)
     if (colaborador && exportarTodasEmpresas) {
@@ -150,58 +143,50 @@ export class ExportarParaTOTVSUseCase {
     }
 
     let empresas: Empresa[];
-    let bandeiraFinal: string;
-    let todas: 'S' | 'N';
 
     if (exportarTodasEmpresas) {
-      // CENÁRIO 1: Exportar TODAS empresas de uma bandeira
-      if (!codBand || codBand === 'T') {
-        throw new BadRequestException(
-          'Bandeira específica é obrigatória ao exportar todas as empresas',
-        );
-      }
+      // CENÁRIO 1: Exportar TODAS empresas ativas da Unimed (empresa='T')
+      // No NPD-Legacy: setTodasEmpresas('S') e processa todas automaticamente
+      this.logger.log('Modo: TODAS as empresas ativas da Unimed');
 
-      this.logger.log(`Modo: TODAS empresas da bandeira ${codBand}`);
-
-      empresas = await this.empresaRepository.buscarPorBandeira(codBand);
+      empresas = await this.empresaRepository.buscarEmpresasAtivasUnimed();
 
       if (empresas.length === 0) {
         throw new NotFoundException(
-          `Nenhuma empresa encontrada para bandeira ${codBand}`,
+          'Nenhuma empresa ativa encontrada para processamento Unimed',
         );
       }
 
-      bandeiraFinal = codBand;
-      todas = 'S';
-
       this.logger.log(
-        `Encontradas ${empresas.length} empresa(s) para exportar`,
+        `Encontradas ${empresas.length} empresa(s) ativas para exportar`,
       );
     } else {
-      // CENÁRIO 2: Empresa específica (por código)
-      if (!empresa || empresa === 'T') {
+      if (!codEmpresa) {
         throw new BadRequestException('Código da empresa é obrigatório');
       }
 
-      this.logger.log(`Modo: Empresa específica ${empresa}`);
-
-      const codEmpresa = parseInt(empresa, 10);
-      if (isNaN(codEmpresa)) {
-        throw new BadRequestException('Código da empresa deve ser um número');
-      }
-
-      const empresaObj =
-        await this.empresaRepository.buscarPorCodigo(codEmpresa);
-      if (!empresaObj) {
-        throw new NotFoundException(`Empresa ${empresa} não encontrada`);
-      }
-
-      empresas = [empresaObj];
-      bandeiraFinal = empresaObj.codBand.toString();
-      todas = 'N';
+      this.logger.log(`Modo: Empresa específica ${codEmpresa}`);
     }
 
-    // 4. Buscar data final do período (validação de prazo)
+    // 4. BUSCAR DADOS DO PROCESSO (tipo_dado e categoria)
+    // No NPD-Legacy: setTipodeDado($_POST['tipo']) e setCategoria($_POST['categoria'])
+    // Mas esses dados vem da tabela mcw_processo baseado no código selecionado
+    const processo =
+      await this.processoRepository.buscarPorCodigo(codigoProcesso);
+
+    if (!processo) {
+      throw new NotFoundException(
+        `Processo ${codigoProcesso} não encontrado ou inativo`,
+      );
+    }
+
+    const tipoProcesso = processo.tipoDado; // 'S' ou 'C'
+    const categoriaProcesso = processo.categoria; // 'UNI', etc.
+
+    this.logger.log(
+      `Processo - Tipo: ${tipoProcesso}, Categoria: ${categoriaProcesso}`,
+    );
+
     const dataFinal = await this.exportacaoRepository.buscarDataFinalPeriodo(
       params.mesRef,
       params.anoRef,
@@ -220,7 +205,7 @@ export class ExportarParaTOTVSUseCase {
 
     if (
       hoje > dataMaxima &&
-      !this.temPermissaoExecutarForaDoPrazo(permissoes)
+      !this.temPermissaoExecutarForaDoPrazo(params.permissoes)
     ) {
       const dataMaximaFormatada = dataMaxima.toLocaleDateString('pt-BR');
       throw new ForbiddenException(
@@ -228,56 +213,65 @@ export class ExportarParaTOTVSUseCase {
       );
     }
 
-    // 6. EXECUTAR EXPORTAÇÃO
-    if (shouldPreview) {
-      // MODO PREVIEW (apenas development)
-      return await this.executarPreview(
-        params,
-        usuario,
-        empresas[0],
-        bandeiraFinal,
-        colaborador,
-      );
+    if (params.isPreview) {
+      this.logger.log('🔍 MODO PREVIEW - Dados não serão persistidos no TOTVS');
+      return await this.executarPreview({
+        codigoProcesso,
+        codBand: codBand,
+        mesRef: params.mesRef,
+        anoRef: params.anoRef,
+        previa: false,
+        apagar: params.apagar || false,
+        usuario: params.usuario,
+        todas: todasEmpresasFlag,
+        codEmpresa: parseInt(params.codEmpresa, 10),
+        categoria: categoriaProcesso,
+        tipo: tipoProcesso,
+        cpf: colaborador || undefined,
+      });
     } else {
-      // MODO REAL (production/test ou com flag)
-      return await this.executarExportacaoReal(
-        params,
-        usuario,
-        empresas,
-        bandeiraFinal,
-        todas,
-        colaborador,
-        isTest,
+      // MODO REAL (campo previa = false - como NPD-Legacy)
+      this.logger.log(
+        '✅ MODO EXECUÇÃO REAL - Dados serão persistidos no TOTVS',
       );
+      return await this.executarExportacaoReal({
+        codigoProcesso,
+        codBand: codBand,
+        mesRef: params.mesRef,
+        anoRef: params.anoRef,
+        previa: false,
+        apagar: params.apagar || false,
+        usuario: params.usuario,
+        todas: todasEmpresasFlag,
+        codEmpresa: parseInt(params.codEmpresa, 10),
+        categoria: categoriaProcesso,
+        tipo: tipoProcesso,
+        cpf: colaborador || undefined,
+      });
     }
   }
 
   /**
    * Executa preview da exportação (modo desenvolvimento)
    */
-  private async executarPreview(
-    params: ExportarParaTOTVSDto & { codigoProcesso: string },
-    usuario: string,
-    empresa: Empresa,
-    codBand: string,
-    cpf: string,
-  ) {
+  private async executarPreview(params: ExecutarExportacaoParams) {
     this.logger.warn(
-      '🔴 MODO PREVIEW - Exportação não executada (ambiente development)',
+      '🔴 MODO PREVIEW - Exportação não será persistida (previa = true)',
     );
 
     const preview = await this.exportacaoRepository.simularExportacao({
+      codigo: params.codigoProcesso, // ✅ Código do processo específico
       mesRef: params.mesRef,
       anoRef: params.anoRef,
-      previa: params.previa || false,
+      previa: true, // ✅ Sempre true para preview
       apagar: params.apagar || false,
-      usuario,
+      usuario: params.usuario,
       todas: 'N',
-      codEmpresa: empresa.codEmpresa,
-      bandeira: codBand,
-      tipo: params.previa ? 'S' : 'C',
-      categoria: 'UNI',
-      cpf: cpf || null,
+      codEmpresa: params.codEmpresa,
+      bandeira: params.codBand,
+      tipo: params.tipo, // ✅ Tipo do processo
+      categoria: params.categoria, // ✅ Categoria do processo
+      cpf: params.cpf || null,
     });
 
     return {
@@ -288,61 +282,41 @@ export class ExportarParaTOTVSUseCase {
   }
 
   /**
-   * Executa exportação real (production/test)
+   * Executa exportação real (persistindo dados no TOTVS)
    */
-  private async executarExportacaoReal(
-    params: ExportarParaTOTVSDto & { codigoProcesso: string },
-    usuario: string,
-    empresas: Empresa[],
-    codBand: string,
-    todas: 'S' | 'N',
-    cpf: string,
-    isTest: boolean,
-  ) {
-    if (isTest) {
-      this.logger.warn(
-        '⚠️ EXECUTANDO EM AMBIENTE DE TESTE - Usar @rmteste se disponível',
-      );
-    }
+
+  private async executarExportacaoReal(params: ExecutarExportacaoParams) {
+    this.logger.log(
+      '✅ EXECUTANDO EXPORTAÇÃO REAL - Dados serão persistidos no TOTVS',
+    );
 
     try {
-      // Se todas='S', procedure processa múltiplas empresas
-      // Se todas='N', processa apenas a empresa específica
-      const codEmpresa = todas === 'S' ? '' : empresas[0].codEmpresa.toString();
-
       await this.exportacaoRepository.executarExportacao({
+        codigo: params.codigoProcesso,
         mesRef: params.mesRef,
         anoRef: params.anoRef,
-        previa: params.previa || false,
+        previa: false,
         apagar: params.apagar || false,
-        usuario,
-        todas,
-        codEmpresa,
-        bandeira: codBand,
-        tipo: params.previa ? 'S' : 'C',
-        categoria: 'UNI',
-        cpf: cpf || null,
+        usuario: params.usuario,
+        todas: params.todas,
+        codEmpresa: params.codEmpresa,
+        bandeira: params.codBand,
+        tipo: params.tipo,
+        categoria: params.categoria,
+        cpf: params.cpf || null,
       });
 
-      const tipoExecucao = params.previa ? 'PRÉVIA' : 'EXPORTAÇÃO';
+      const tipoExecucao = 'EXPORTAÇÃO';
       let alcance: string;
 
-      if (cpf) {
-        alcance = `CPF ${cpf}`;
-      } else if (todas === 'S') {
-        alcance = `todas as ${empresas.length} empresas da bandeira ${codBand}`;
-      } else {
-        alcance = `empresa ${empresas[0].codEmpresa}`;
-      }
-
-      const mensagem = `${tipoExecucao} executada com sucesso para ${alcance} no período ${params.mesRef}/${params.anoRef}`;
+      const mensagem = `${tipoExecucao} executada com sucesso no período ${params.mesRef}/${params.anoRef}`;
 
       this.logger.log(mensagem);
 
       return {
         sucesso: true,
         mensagem,
-        empresasProcessadas: empresas.length,
+        empresasProcessadas: params.todas === 'S' || 1,
       };
     } catch (error) {
       this.logger.error(
@@ -353,19 +327,11 @@ export class ExportarParaTOTVSUseCase {
     }
   }
 
-  /**
-   * Verifica se usuário tem permissão para apagar dados antigos
-   * Equivalente à permissão 78004 do sistema legado
-   */
   private temPermissaoApagar(permissoes: string[]): boolean {
     return permissoes.includes('ADMIN') || permissoes.includes('DP');
   }
 
-  /**
-   * Verifica se usuário tem permissão para executar fora do prazo
-   * Equivalente à permissão 78005 do sistema legado (comentado, apenas ADMIN)
-   */
   private temPermissaoExecutarForaDoPrazo(permissoes: string[]): boolean {
-    return permissoes.includes('ADMIN');
+    return permissoes.includes('ADMIN') || permissoes.includes('DP');
   }
 }

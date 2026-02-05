@@ -46,21 +46,4 @@ export class ExportarParaTOTVSDto {
   @IsBoolean({ message: 'Campo apagar deve ser booleano' })
   @IsOptional()
   apagar?: boolean = false; // true = Apagar dados antigos antes de processar
-
-  // Campos deprecados (mantidos para compatibilidade)
-  @IsString({ message: 'Código do processo deve ser uma string' })
-  @IsOptional()
-  codigoProcesso?: string; // @deprecated - Use processos[]
-
-  @IsString({ message: 'Bandeira deve ser uma string' })
-  @IsOptional()
-  bandeira?: string; // @deprecated - Use codBand
-
-  @IsString({ message: 'CPF do colaborador deve ser uma string' })
-  @IsOptional()
-  cpfColaborador?: string; // @deprecated - Use colaborador
-
-  @IsString({ message: 'CPF deve ser uma string' })
-  @IsOptional()
-  cpf?: string; // @deprecated - Use colaborador
 }

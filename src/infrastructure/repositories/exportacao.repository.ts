@@ -63,6 +63,7 @@ export class ExportacaoRepository implements IExportacaoRepository {
 
   async executarExportacao(params: ExportacaoParams): Promise<void> {
     const {
+      codigo,
       mesRef,
       anoRef,
       previa,
@@ -78,7 +79,6 @@ export class ExportacaoRepository implements IExportacaoRepository {
 
     const flagPrevia = previa ? 'S' : 'N';
     const flagApagar = apagar ? 'S' : 'N';
-    const codigoProcesso = '90000001'; // Código fixo para exportação Unimed
 
     const query = `
       BEGIN 
@@ -91,7 +91,7 @@ export class ExportacaoRepository implements IExportacaoRepository {
           :usuario,
           :todas,
           :codEmpresa,
-          :bandeira,
+          :codBand,
           :tipo,
           :categoria,
           :cpf
@@ -99,8 +99,10 @@ export class ExportacaoRepository implements IExportacaoRepository {
       END;
     `;
 
+    const localCpf = cpf == null ? '' : cpf;
+
     this.logger.debug('Executando procedure P_MCW_FECHA_COMISSAO_GLOBAL', {
-      codigo: codigoProcesso,
+      codigo,
       mesRef,
       anoRef,
       previa: flagPrevia,
@@ -108,31 +110,29 @@ export class ExportacaoRepository implements IExportacaoRepository {
       usuario,
       todas,
       codEmpresa,
-      bandeira,
+      codBand: bandeira,
       tipo,
       categoria,
-      cpf: cpf || 'NULL',
+      cpf: localCpf,
     });
 
     try {
       await this.databaseService.executeQuery(query, {
-        codigo: codigoProcesso,
+        codigo,
         mesRef,
         anoRef,
         previa: flagPrevia,
         apagar: flagApagar,
         usuario,
         todas,
-        codEmpresa: String(codEmpresa),
-        bandeira,
+        codEmpresa,
+        codBand: bandeira,
         tipo,
         categoria,
-        cpf: cpf || null,
+        cpf: '',
       });
 
-      this.logger.log(
-        `Procedure executada com sucesso - Código: ${codigoProcesso}`,
-      );
+      this.logger.log(`Procedure executada com sucesso - Código: ${codigo}`);
     } catch (error) {
       this.logger.error('Erro ao executar procedure:', error);
       throw error;
@@ -144,10 +144,10 @@ export class ExportacaoRepository implements IExportacaoRepository {
     valorTotal: number;
     preview: any[];
   }> {
-    const { mesRef, anoRef, codEmpresa, cpf } = params;
+    const { codigo, mesRef, anoRef, codEmpresa, cpf } = params;
 
     this.logger.log(
-      `🔍 SIMULAÇÃO - Buscando dados para preview (empresa: ${codEmpresa}, período: ${mesRef}/${anoRef})`,
+      `🔍 SIMULAÇÃO - Buscando dados para preview (código: ${codigo}, empresa: ${codEmpresa}, período: ${mesRef}/${anoRef})`,
     );
 
     // Query para buscar dados que seriam exportados

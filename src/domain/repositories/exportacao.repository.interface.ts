@@ -18,13 +18,14 @@ export interface ProcessoLog {
 }
 
 export interface ExportacaoParams {
+  codigo: string; // Código do processo (ex: '90000001')
   mesRef: number;
   anoRef: number;
   previa: boolean;
   apagar: boolean;
   usuario: string;
   todas: 'S' | 'N'; // 'S' = todas empresas da bandeira, 'N' = empresa específica
-  codEmpresa: number | string; // Número quando todas='N', vazio quando todas='S'
+  codEmpresa: number; // ✅ SEMPRE number (P_COD_EMPRESA IN NUMBER)
   bandeira: string;
   tipo: string;
   categoria: string;

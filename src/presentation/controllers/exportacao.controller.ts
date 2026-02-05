@@ -62,27 +62,14 @@ export class ExportacaoController {
     }
   }
 
-  /**
-   * POST /exportacao/totvs
-   *
-   * Executa exportação de dados Unimed para o TOTVS RM
-   *
-   * ⚠️ Em ambiente de desenvolvimento, retorna preview sem executar
-   * (DB_LINK aponta para produção)
-   *
-   * Requer role DP ou ADMIN
-   */
   @Post('totvs')
   @Roles('DP', 'ADMIN')
-  async exportarParaTOTVS(
-    @Body() dto: ExportarParaTOTVSDto,
-    @AuthUser() user: UserAuth,
-  ) {
+  async exportarParaTOTVS(@Body() params: any, @AuthUser() user: UserAuth) {
     try {
-      const usuario = user.preferred_username || user.email || 'sistema';
-
+      const usuario = user.preferred_username || 'sistema';
+      console.log('params recebidos:', params);
       const resultado = await this.exportarParaTOTVSUseCase.execute(
-        dto,
+        params,
         usuario,
         user.roles,
       );
@@ -91,12 +78,12 @@ export class ExportacaoController {
       const isProduction = nodeEnv === 'production';
       const isTest = nodeEnv === 'test' || nodeEnv === 'staging';
       const allowExecution = process.env.ALLOW_TOTVS_EXPORT === 'true';
-      const shouldPreview = !isProduction && !isTest && !allowExecution;
+      const isPreview = !isProduction && !isTest && !allowExecution;
 
       return {
         sucesso: resultado.sucesso,
         mensagem: resultado.mensagem,
-        ...(shouldPreview
+        ...(isPreview
           ? {
               modo: 'PREVIEW',
               aviso:
@@ -179,12 +166,12 @@ export class ExportacaoController {
     const isProduction = nodeEnv === 'production';
     const isTest = nodeEnv === 'test' || nodeEnv === 'staging';
     const allowExecution = process.env.ALLOW_TOTVS_EXPORT === 'true';
-    const shouldPreview = !isProduction && !isTest && !allowExecution;
+    const isPreview = !isProduction && !isTest && !allowExecution;
 
     let modoExecucao: string;
     let avisos: string[];
 
-    if (shouldPreview) {
+    if (isPreview) {
       modoExecucao = 'PREVIEW';
       avisos = [
         '🔴 Ambiente de desenvolvimento detectado',
