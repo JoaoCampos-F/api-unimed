@@ -231,8 +231,8 @@ export class ExportacaoRepository implements IExportacaoRepository {
         b.previa,
         ROUND((b.hora2 + 0.0001) - b.hora1, 4) AS hora_inicio,
         ROUND(b.hora2 - b.hora1, 4) AS hora_final
-      FROM nbs.mcw_processo a
-      LEFT OUTER JOIN mcw_processo_log b ON (a.codigo = b.codigo)
+      FROM gc.mcw_processo a
+      LEFT OUTER JOIN gc.mcw_processo_log b ON (a.codigo = b.codigo)
       WHERE a.categoria = :categoria
     `;
 
