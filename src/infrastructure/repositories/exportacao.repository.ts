@@ -17,7 +17,6 @@ export class ExportacaoRepository implements IExportacaoRepository {
     mesRef: number,
     anoRef: number,
   ): Promise<Date | null> {
-    // ✅ CORRIGIDO: Usar gc.mcw_periodo (sem _fechamento) conforme NPD-Legacy
     const query = `
       SELECT TO_CHAR(data_final, 'YYYY-MM-DD') AS data_final
       FROM gc.mcw_periodo
@@ -79,27 +78,26 @@ export class ExportacaoRepository implements IExportacaoRepository {
 
     const flagPrevia = previa ? 'S' : 'N';
     const flagApagar = apagar ? 'S' : 'N';
+    const localCpf = cpf || '';
 
     const query = `
       BEGIN 
         GC.PGK_GLOBAL.P_MCW_FECHA_COMISSAO_GLOBAL(
-          :codigo,
-          :mesRef,
-          :anoRef,
-          :previa,
-          :apagar,
-          :usuario,
-          :todas,
-          :codEmpresa,
-          :codBand,
-          :tipo,
-          :categoria,
-          :cpf
+          P_CODIGO      => :codigo,
+          P_MES_REF     => :mesRef,
+          P_ANO_REF     => :anoRef,
+          P_PREVIA      => :previa,
+          P_APAGA       => :apagar,
+          P_USUARIO     => :usuario,
+          P_TODAS       => :todas,
+          P_COD_EMPRESA => :codEmpresa,
+          P_COD_BAND    => :codBand,
+          P_TIPO        => :tipo,
+          P_CATEGORIA   => :categoria,
+          P_CPF         => :cpf
         ); 
       END;
     `;
-
-    const localCpf = cpf == null ? '' : cpf;
 
     this.logger.debug('Executando procedure P_MCW_FECHA_COMISSAO_GLOBAL', {
       codigo,
@@ -109,7 +107,7 @@ export class ExportacaoRepository implements IExportacaoRepository {
       apagar: flagApagar,
       usuario,
       todas,
-      codEmpresa,
+      codEmpresa, // Se for 'Todas', isso deve ser 0 (definido no UseCase)
       codBand: bandeira,
       tipo,
       categoria,
@@ -129,12 +127,12 @@ export class ExportacaoRepository implements IExportacaoRepository {
         codBand: bandeira,
         tipo,
         categoria,
-        cpf: '',
+        cpf: localCpf,
       });
 
       this.logger.log(`Procedure executada com sucesso - Código: ${codigo}`);
     } catch (error) {
-      this.logger.error('Erro ao executar procedure:', error);
+      this.logger.error(`Erro ao executar procedure ${codigo}:`, error);
       throw error;
     }
   }
@@ -150,7 +148,6 @@ export class ExportacaoRepository implements IExportacaoRepository {
       `🔍 SIMULAÇÃO - Buscando dados para preview (código: ${codigo}, empresa: ${codEmpresa}, período: ${mesRef}/${anoRef})`,
     );
 
-    // Query para buscar dados que seriam exportados
     let query = `
       SELECT 
         a.codigo_cpf,
