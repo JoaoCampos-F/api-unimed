@@ -5,6 +5,7 @@ import {
   ConfigProcesso,
   ProcessoLog,
   ExportacaoParams,
+  DashboardColaborador,
 } from 'src/domain/repositories/exportacao.repository.interface';
 
 @Injectable()
@@ -270,5 +271,72 @@ export class ExportacaoRepository implements IExportacaoRepository {
       horaInicio: row.HORA_INICIO,
       horaFinal: row.HORA_FINAL,
     }));
+  }
+
+  async buscarDashboardColaborador(params: {
+    cpf: string;
+    codEmpresa: number;
+    mesRef: number;
+    anoRef: number;
+  }): Promise<DashboardColaborador | null> {
+    const query = `
+      SELECT 
+        a.codigo_cpf,
+        a.colaborador,
+        a.apelido as empresa,
+        a.mes_ref,
+        a.ano_ref,
+        a.m_titular,
+        a.m_dependente,
+        a.valor_consumo,
+        a.valor_total,
+        a.valor_liquido,
+        a.exporta
+      FROM gc.vw_uni_resumo_colaborador a
+      WHERE ltrim(a.codigo_cpf, '0') = ltrim(:cpf, '0')
+        AND a.cod_empresa = :codEmpresa
+        AND a.mes_ref = :mesRef
+        AND a.ano_ref = :anoRef
+        AND a.ativo = 'S'
+    `;
+
+    this.logger.debug('Buscando dashboard do colaborador', {
+      cpf: params.cpf,
+      codEmpresa: params.codEmpresa,
+      mesRef: params.mesRef,
+      anoRef: params.anoRef,
+    });
+
+    try {
+      const result = await this.databaseService.executeQuery<any>(query, {
+        cpf: params.cpf,
+        codEmpresa: params.codEmpresa,
+        mesRef: params.mesRef,
+        anoRef: params.anoRef,
+      });
+
+      if (!result || result.length === 0) {
+        return null;
+      }
+
+      const row = result[0];
+
+      return {
+        cpf: row.CODIGO_CPF,
+        nome: row.COLABORADOR,
+        empresa: row.EMPRESA,
+        mesRef: row.MES_REF,
+        anoRef: row.ANO_REF,
+        mensalidadeTitular: Number(row.M_TITULAR) || 0,
+        mensalidadeDependente: Number(row.M_DEPENDENTE) || 0,
+        consumo: Number(row.VALOR_CONSUMO) || 0,
+        valorTotal: Number(row.VALOR_TOTAL) || 0,
+        valorLiquido: Number(row.VALOR_LIQUIDO) || 0,
+        status: row.EXPORTA,
+      };
+    } catch (error) {
+      this.logger.error('Erro ao buscar dashboard do colaborador:', error);
+      throw error;
+    }
   }
 }

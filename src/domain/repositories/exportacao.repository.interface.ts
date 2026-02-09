@@ -17,6 +17,20 @@ export interface ProcessoLog {
   horaFinal: number;
 }
 
+export interface DashboardColaborador {
+  cpf: string;
+  nome: string;
+  empresa: string;
+  mesRef: number;
+  anoRef: number;
+  mensalidadeTitular: number;
+  mensalidadeDependente: number;
+  consumo: number;
+  valorTotal: number;
+  valorLiquido: number;
+  status: 'S' | 'N'; // S = Com lançamento, N = Sem lançamento
+}
+
 export interface ExportacaoParams {
   codigo: string; // Código do processo (ex: '90000001')
   mesRef: number;
@@ -78,4 +92,15 @@ export interface IExportacaoRepository {
     anoRef?: number;
     codigo?: string;
   }): Promise<ProcessoLog[]>;
+
+  /**
+   * Busca dados do dashboard do colaborador
+   * Retorna gastos consolidados por mês/ano
+   */
+  buscarDashboardColaborador(params: {
+    cpf: string;
+    codEmpresa: number;
+    mesRef: number;
+    anoRef: number;
+  }): Promise<DashboardColaborador | null>;
 }

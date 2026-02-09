@@ -14,8 +14,10 @@ import { ExecutarProcessoUseCase } from './use-cases/processos/executar-processo
 import { BuscarProcessosAtivosUseCase } from './use-cases/processos/buscar-processos-ativos.use-case';
 import { ExportarParaTOTVSUseCase } from './use-cases/exportacao/exportar-para-totvs.use-case';
 import { BuscarProcessosParaExportacaoUseCase } from './use-cases/exportacao/buscar-processos-para-exportacao.use-case';
+import { BuscarDashboardColaboradorUseCase } from './use-cases/dashboard/buscar-dashboard-colaborador.use-case';
 import { Logger } from '@nestjs/common';
 import { EmpresaRepository } from 'src/infrastructure/repositories/empresa.repository';
+import { ExportacaoRepository } from 'src/infrastructure/repositories/exportacao.repository';
 import { ImportarPeriodoCompletoUseCase } from './use-cases/importacao/importar-periodo-completo.use-case';
 import { ListarEmpresasQuery } from './queries/empresa/listar-empresas.query';
 import { ListarContratosQuery } from './queries/empresa/listar-contratos.query';
@@ -45,10 +47,15 @@ import { ListarProcessosQuery } from './queries/processo/listar-processos.query'
     BuscarProcessosAtivosUseCase,
     ExportarParaTOTVSUseCase,
     BuscarProcessosParaExportacaoUseCase,
+    BuscarDashboardColaboradorUseCase,
     Logger,
     {
       provide: 'IEmpresaRepository',
       useClass: EmpresaRepository,
+    },
+    {
+      provide: 'IExportacaoRepository',
+      useClass: ExportacaoRepository,
     },
   ],
   exports: [
@@ -72,6 +79,7 @@ import { ListarProcessosQuery } from './queries/processo/listar-processos.query'
     BuscarProcessosAtivosUseCase,
     ExportarParaTOTVSUseCase,
     BuscarProcessosParaExportacaoUseCase,
+    BuscarDashboardColaboradorUseCase,
   ],
 })
 export class ApplicationModule {}
