@@ -6,6 +6,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
+import { AuthUser } from 'src/infrastructure/auth/decorators/auth-user.decorator';
+import type { UserAuth } from 'src/infrastructure/auth/types/user-auth.type';
 import { ListarEmpresasQuery } from 'src/application/queries/empresa/listar-empresas.query';
 import { ListarContratosQuery } from 'src/application/queries/empresa/listar-contratos.query';
 import { ListarColaboradoresQuery } from 'src/application/queries/colaborador/listar-colaboradores.query';
@@ -28,11 +30,19 @@ export class CommonController {
   ) {}
 
   @Get('empresas')
-  @Roles('DP', 'ADMIN')
-  async listarEmpresas(@Query('codBand') codBand?: string) {
+  @Roles('DP', 'ADMIN', 'COLABORADOR')
+  async listarEmpresas(
+    @AuthUser() user: UserAuth,
+    @Query('codBand') codBand?: string,
+  ) {
     try {
+      const codEmpresa = user.roles.includes('COLABORADOR')
+        ? Number(user.cod_empresa)
+        : undefined;
+
       const empresas = await this.listarEmpresasQuery.execute(
         codBand ? parseInt(codBand, 10) : undefined,
+        codEmpresa,
       );
 
       return {
@@ -74,10 +84,23 @@ export class CommonController {
    * Usado em: formulários de relatórios, importação
    */
   @Get('contratos')
-  @Roles('DP', 'ADMIN')
-  async listarContratos(@Query('codEmpresa') codEmpresa?: string) {
+  @Roles('DP', 'ADMIN', 'COLABORADOR')
+  async listarContratos(
+    @AuthUser() user: UserAuth,
+    @Query('codEmpresa') codEmpresa?: string,
+  ) {
     try {
-      const codEmpresaNum = codEmpresa ? parseInt(codEmpresa, 10) : undefined;
+      let codEmpresaNum = codEmpresa ? parseInt(codEmpresa, 10) : undefined;
+
+      // COLABORADOR só pode ver contratos da sua empresa
+      if (
+        user.roles.includes('COLABORADOR') &&
+        !user.roles.includes('DP') &&
+        !user.roles.includes('ADMIN')
+      ) {
+        codEmpresaNum = user.cod_empresa;
+      }
+
       const contratos = await this.listarContratosQuery.execute(codEmpresaNum);
 
       return {
@@ -100,26 +123,47 @@ export class CommonController {
    * Usado em: formulários de relatórios, exportação
    */
   @Get('colaboradores')
-  @Roles('DP', 'ADMIN')
+  @Roles('DP', 'ADMIN', 'COLABORADOR')
   async listarColaboradores(
+    @AuthUser() user: UserAuth,
     @Query('codEmpresa') codEmpresa?: string,
     @Query('codColigada') codColigada?: string,
   ) {
     try {
-      const codEmpresaNum = codEmpresa ? parseInt(codEmpresa, 10) : undefined;
-      const codColigadaNum = codColigada
-        ? parseInt(codColigada, 10)
-        : undefined;
+      let codEmpresaNum = codEmpresa ? parseInt(codEmpresa, 10) : undefined;
+      let codColigadaNum = codColigada ? parseInt(codColigada, 10) : undefined;
+
+      // COLABORADOR só pode ver ele mesmo
+      if (
+        user.roles.includes('COLABORADOR') &&
+        !user.roles.includes('DP') &&
+        !user.roles.includes('ADMIN')
+      ) {
+        codEmpresaNum = user.cod_empresa;
+        codColigadaNum = user.codcoligada;
+      }
 
       const colaboradores = await this.listarColaboradoresQuery.execute(
         codEmpresaNum,
         codColigadaNum,
       );
 
+      // COLABORADOR só pode ver ele mesmo na lista
+      let dadosFiltrados = colaboradores;
+      if (
+        user.roles.includes('COLABORADOR') &&
+        !user.roles.includes('DP') &&
+        !user.roles.includes('ADMIN')
+      ) {
+        dadosFiltrados = user.cpf
+          ? colaboradores.filter((c) => c.cpf === user.cpf)
+          : [];
+      }
+
       return {
         sucesso: true,
-        dados: colaboradores,
-        total: colaboradores.length,
+        dados: dadosFiltrados,
+        total: dadosFiltrados.length,
         timestamp: new Date().toISOString(),
       };
     } catch (error) {

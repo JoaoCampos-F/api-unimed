@@ -43,8 +43,9 @@ export class ColaboradorController {
    * Baseado em: npd-legacy acao=Buscar (linhas 260-350)
    */
   @Get('listar')
-  @Roles('DP', 'ADMIN')
+  @Roles('DP', 'ADMIN', 'COLABORADOR')
   async listarColaboradores(
+    @AuthUser() user: UserAuth,
     @Query('codEmpresa') codEmpresa?: string,
     @Query('codColigada') codColigada?: string,
     @Query('mesRef') mesRef?: string,
@@ -57,12 +58,13 @@ export class ColaboradorController {
     @Query('orderDirection') orderDirection?: 'asc' | 'desc',
   ) {
     try {
+      const filtroCpf = user.roles.includes('COLABORADOR') ? user.cpf : cpf;
       const resultado = await this.listarColaboradoresPaginadoQuery.execute({
         codEmpresa: codEmpresa ? parseInt(codEmpresa, 10) : undefined,
         codColigada: codColigada ? parseInt(codColigada, 10) : undefined,
         mesRef,
         anoRef,
-        cpf,
+        cpf: filtroCpf,
         nome,
         page: page ? parseInt(page, 10) : 1,
         pageSize: pageSize ? parseInt(pageSize, 10) : 10,

@@ -23,7 +23,10 @@ interface EmpresaRow {
 export class ListarEmpresasQuery {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async execute(codBand?: number): Promise<EmpresaListagemDto[]> {
+  async execute(
+    codBand?: number,
+    codEmpresa?: number,
+  ): Promise<EmpresaListagemDto[]> {
     let sql = `
       SELECT 
         cod_empresa,
@@ -42,6 +45,10 @@ export class ListarEmpresasQuery {
     if (codBand) {
       sql += ` AND cod_band = :codBand`;
       params.codBand = codBand;
+    }
+    if (codEmpresa) {
+      sql += ` AND cod_empresa = :codEmpresa`;
+      params.codEmpresa = codEmpresa;
     }
 
     sql += ` ORDER BY apelido, cod_empresa`;
