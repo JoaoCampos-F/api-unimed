@@ -37,6 +37,7 @@ export class ListarColaboradoresQuery {
         c.nome
       FROM gc.colaborador c
       WHERE 1=1
+      AND c.tipo=1
     `;
 
     const binds: any = {};
@@ -68,7 +69,7 @@ export class ListarColaboradoresQuery {
       codColigada: row.CODCOLIGADA,
       codFilial: row.CODFILIAL,
       codBand: row.COD_BAND,
-      cpf: row.CODIGO_CPF, // Mapeado corretamente aqui
+      cpf: row.CODIGO_CPF,
       nome: row.NOME,
     }));
   }
