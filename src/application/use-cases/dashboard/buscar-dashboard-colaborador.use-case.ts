@@ -24,7 +24,7 @@ export class BuscarDashboardColaboradorUseCase {
 
     const dashboard =
       await this.exportacaoRepository.buscarDashboardColaborador({
-        cpf: '04360023103',
+        cpf: params.cpf,
         codEmpresa: params.codEmpresa,
         mesRef: params.mesRef,
         anoRef: params.anoRef,
