@@ -117,11 +117,6 @@ export class CommonController {
     }
   }
 
-  /**
-   * Lista colaboradores ativos, opcionalmente filtrados por empresa
-   * Se não informar empresa, retorna apenas os primeiros 100 registros
-   * Usado em: formulários de relatórios, exportação
-   */
   @Get('colaboradores')
   @Roles('DP', 'ADMIN', 'COLABORADOR')
   async listarColaboradores(
@@ -132,38 +127,26 @@ export class CommonController {
     try {
       let codEmpresaNum = codEmpresa ? parseInt(codEmpresa, 10) : undefined;
       let codColigadaNum = codColigada ? parseInt(codColigada, 10) : undefined;
-
+      let codCpf: string | undefined = undefined;
       // COLABORADOR só pode ver ele mesmo
       if (
         user.roles.includes('COLABORADOR') &&
         !user.roles.includes('DP') &&
         !user.roles.includes('ADMIN')
       ) {
-        codEmpresaNum = user.cod_empresa;
-        codColigadaNum = user.codcoligada;
+        codCpf = user.cpf;
       }
 
       const colaboradores = await this.listarColaboradoresQuery.execute(
         codEmpresaNum,
         codColigadaNum,
+        codCpf,
       );
-
-      // COLABORADOR só pode ver ele mesmo na lista
-      let dadosFiltrados = colaboradores;
-      if (
-        user.roles.includes('COLABORADOR') &&
-        !user.roles.includes('DP') &&
-        !user.roles.includes('ADMIN')
-      ) {
-        dadosFiltrados = user.cpf
-          ? colaboradores.filter((c) => c.cpf === user.cpf)
-          : [];
-      }
 
       return {
         sucesso: true,
-        dados: dadosFiltrados,
-        total: dadosFiltrados.length,
+        dados: colaboradores,
+        total: colaboradores.length,
         timestamp: new Date().toISOString(),
       };
     } catch (error) {

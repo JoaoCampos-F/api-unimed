@@ -26,7 +26,9 @@ export class ListarColaboradoresQuery {
   async execute(
     codEmpresa?: number,
     codColigada?: number,
+    codCpf?: string,
   ): Promise<ColaboradorListagemDto[]> {
+    let cpf = Number(codCpf).toString();
     let sql = `
       SELECT DISTINCT
         c.cod_empresa,
@@ -45,6 +47,11 @@ export class ListarColaboradoresQuery {
     if (codEmpresa) {
       sql += ` AND c.cod_empresa = :codEmpresa`;
       binds.codEmpresa = codEmpresa;
+    }
+
+    if (codCpf) {
+      sql += ` AND c.codigo_cpf = :codCpf`;
+      binds.codCpf = cpf;
     }
 
     if (codColigada) {

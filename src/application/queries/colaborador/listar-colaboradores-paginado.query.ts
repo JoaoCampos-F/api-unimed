@@ -148,20 +148,17 @@ export class ListarColaboradoresPaginadoQuery {
       binds.cpf = cpf;
     }
 
-    // Filtro por nome (busca parcial)
     if (nome) {
       sql += ` AND UPPER(a.COLABORADOR) LIKE UPPER(:nome)`;
       binds.nome = `%${nome}%`;
     }
 
-    // Contar total de registros
     const countSql = `SELECT COUNT(*) as TOTAL FROM (${sql})`;
     const countResult = await this.databaseService.executeQuery<{
       TOTAL: number;
     }>(countSql, binds);
     const total = countResult[0]?.TOTAL || 0;
 
-    // Adicionar ordenação (conforme legacy linha 278)
     const validOrderColumns = [
       'COD_BAND',
       'APELIDO',
@@ -176,7 +173,6 @@ export class ListarColaboradoresPaginadoQuery {
 
     sql += ` ORDER BY a.COD_BAND, a.APELIDO, a.${orderColumn} ${direction}`;
 
-    // Aplicar paginação (Oracle 12c+)
     const offset = (page - 1) * pageSize;
     sql += ` OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY`;
     binds.offset = offset;

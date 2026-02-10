@@ -50,7 +50,7 @@ export class RelatorioController {
     },
   })
   async gerarRelatorioColaborador(
-    @Query() dto: GerarRelatorioColaboradorDto,
+    @Query() dto: any,
     @Res() res: Response,
   ): Promise<void> {
     const pdf = await this.gerarRelatorioColaboradorUseCase.execute({

@@ -64,7 +64,7 @@ export class ColaboradorController {
         codColigada: codColigada ? parseInt(codColigada, 10) : undefined,
         mesRef,
         anoRef,
-        cpf: filtroCpf,
+        cpf: Number(filtroCpf).toString(),
         nome,
         page: page ? parseInt(page, 10) : 1,
         pageSize: pageSize ? parseInt(pageSize, 10) : 10,
@@ -129,11 +129,6 @@ export class ColaboradorController {
     }
   }
 
-  /**
-   * PATCH /colaboradores/atualizar-exporta
-   * Atualiza flag exporta de um colaborador específico
-   * Baseado em: npd-legacy acao=update (linhas 352-357)
-   */
   @Patch('atualizar-exporta')
   @Roles('DP', 'ADMIN')
   async atualizarExportaColaborador(
@@ -220,8 +215,6 @@ export class ColaboradorController {
     @Body() body: AtualizarTodosColaboradoresDto,
   ) {
     try {
-      // No sistema legacy, a empresa é enviada no body pelo frontend
-      // O dp central (EC) pode atualizar colaboradores de qualquer empresa do grupo
       const resultado = await this.atualizarTodosUseCase.execute(body);
 
       return {
